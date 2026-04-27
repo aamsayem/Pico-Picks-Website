@@ -34,7 +34,7 @@
     
 <!--- Single Product Details --->
 
-        <div class="small-container">
+        <div class="small-container single-product">
             <div class="row">
                 <div class="col-2">
                     <img src="Pictures/product/BMW M4 GT3 Special1.jpg" width="100%" id="product-img">
@@ -51,6 +51,7 @@
                         <div class="small-img-col">
                             <img src="Pictures/product/BMW M4 GT3 Special1.3.jpg" width="100%" class="small-img">
                         </div>
+                    </div>
                 </div>
                 <div class="col-2">
                     <p>Home / Cars</p>
@@ -66,6 +67,17 @@
                 </div>
             </div>
         </div>
+
+<!--- Title --->
+
+        <div class="small-container">
+            <div class="row row-2">
+                <h2>Related Products</h2>
+                <p>View More</p>
+            </div>
+        </div>
+
+<!--- Related Products --->
        <div class="small-container">
         <div class="row">
             <div class="col-4">
@@ -117,6 +129,7 @@
                 <p>$1800.00</p>
             </div>
         </div>
+    </div>
         
 
         <!--- Footer --->
@@ -172,7 +185,20 @@
 
     <!--- JavaScript for Product Gallery --->
     <script>    
-        
+        var productImg = document.getElementById("product-img");
+        var smallImg = document.getElementsByClassName("small-img");
+        smallImg[0].onclick = function(){
+            productImg.src = smallImg[0].src;
+        }
+        smallImg[1].onclick = function(){
+            productImg.src = smallImg[1].src;
+        }
+        smallImg[2].onclick = function(){
+            productImg.src = smallImg[2].src;
+        }
+        smallImg[3].onclick = function(){
+            productImg.src = smallImg[3].src;
+        }
     </script>
 </body>
 </html>
