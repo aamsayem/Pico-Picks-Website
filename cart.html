@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name ="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Products - Pico Picks</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Michroma&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css">
+
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+        <div class="logo">
+            <img src="Pictures/logo.png" width="70px">
+        </div>
+        <nav>
+            <ul id="MenuItems">
+                <li><a href="">Home</a></li>
+                <li><a href="">Products</a></li>
+                <li><a href="">About Us</a></li>
+                <li><a href="">Contact Us</a></li>
+                <li><a href="">Account</a></li>
+            </ul>
+        </nav>
+        <img src="Pictures/Cart.png" width="28px" height="28px">
+        <img src="Pictures/menu-icon.png" class="menu-icon" onclick="menutoggle()">
+     </div>
+    </div>
+    
+
+    <!--- Cart items details--->
+
+    <div class="small-container cart-page">
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+            <tr>
+                <td><div class="cart-info">
+                    <img src="Pictures/product/BMW M4 GT3 Special1.jpg">
+                    <div>
+                        <p>BMW M4 GT3 Special 1</p>
+                        <small>Price: $1000.00</small>
+                        <br>
+                        <a href="">Remove</a>
+                    </div>
+                </div></td>
+                <td><input type="number" value="1"></td>
+                <td>$1000.00</td>
+            </tr>
+            <tr>
+                <td><div class="cart-info">
+                    <img src="Pictures/product/BMW M4 GT3 Special2.jpg">
+                    <div>
+                        <p>BMW M4 GT3 Special 2</p>
+                        <small>Price: $1000.00</small>
+                        <br>
+                        <a href="">Remove</a>
+                    </div>
+                </div></td>
+                <td><input type="number" value="1"></td>
+                <td>$1000.00</td>
+            </tr>
+            <tr>
+                <td><div class="cart-info">
+                    <img src="Pictures/product/Nissan Skyline GT-R(R34).jpg">
+                    <div>
+                        <p>Nissan Skyline GT-R (R34)</p>
+                        <small>Price: $1800.00</small>
+                        <br>
+                        <a href="">Remove</a>
+                    </div>
+                </div></td>
+                <td><input type="number" value="1"></td>
+                <td>$1000.00</td>
+            </tr>
+        </table>
+        <div class="total-price">
+            <table> 
+                <tr> 
+                    <td>Subtotal</td>
+                    <td>$3800.00</td>
+                </tr>
+                <tr> 
+                    <td>Tax</td>
+                    <td>$30.00</td>
+                </tr>
+                <tr> 
+                    <td>Total</td>
+                    <td>$3830.00</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!--- Footer --->
+        <div class="footer">
+            <div class="container">
+                <div class="row">
+                <div class="footer-col-1">
+                        <h3>Download Our App</h3>
+                        <p>Download App for Android and IOS mobile phone.</p> 
+                        <div class="app-logo">
+                            <img src="Pictures/play store.png">
+                        </div>      
+                </div>
+                <div class="footer-col-2">  
+                        <img src="Pictures/logo.png">
+                        <p>Our Purpose Is To Sustainably Make The Pleasure And Benefits Of Collecting Cars Accessible To The Many.</p>       
+                </div>
+                <div class="footer-col-3">
+                        <h3>Useful Links</h3>
+                        <ul>
+                            <li>Coupons</li>
+                            <li>Blog Post</li>
+                            <li>Return Policy</li>
+                            <li>Join Affiliate</li>
+                        </ul>
+                </div>
+                <div class="footer-col-4">
+                        <h3>Follow Us</h3>
+                        <ul>
+                            <li>Facebook</li>
+                            <li>Instagram</li>
+                            <li>TikTok</li>
+                        </ul>
+                </div>
+            </div>
+            <p class="copyright">Copyright 2026 - Pico Picks</p>
+        </div>
+            </div>
+
+<!--- JavaScript for Toggle Menu --->
+<script>
+    var MenuItems = document.getElementById("MenuItems");
+    MenuItems.style.maxHeight = "0px";
+    function menutoggle(){
+        if(MenuItems.style.maxHeight == "0px"){
+            MenuItems.style.maxHeight = "200px";
+        }
+        else{
+            MenuItems.style.maxHeight = "0px";
+        }
+    }    
+    </script>
+
+</body>
+</html>
