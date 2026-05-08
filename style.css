@@ -2,17 +2,20 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+   
 }
 body{
         font-family: "Barlow Condensed", "Michroma", sans-serif;
         font-weight: 400;
         font-style: normal;
+      
 }
 .navbar{
     display: flex;
     align-items: center;
     padding: 20px;
 }
+
 nav{
     flex: 1;
     text-align: right;
@@ -61,10 +64,11 @@ p{
     display: inline-block;
     background: #C8743A;
     color: #fff;
-    padding: 8px 30px;
-    margin: 30px 0;
+    padding: 6px 20px;
+    margin: 15px 0;
     border-radius: 10px;
     transition: background 0.5s;
+    font-size: 14px;
 }
 .btn:hover{
     background: #4c4949;
@@ -144,12 +148,15 @@ h4{
 .col-2 .offer-img{
     padding: 50px;
 }
+
 small{
     color: #555;
 }
 
 /*--- Testimonial ---*/
-
+.testimonial .title{
+    margin-bottom: 60px;
+}
 .testimonial{
     padding: 100px;
 }
@@ -161,7 +168,8 @@ small{
 }
 .testimonial .col-3 img{
     width: 50px;
-    margin-bottom: 20px;
+    height: 50px;
+    margin: 10px auto 5px auto;
     border-radius: 50%;
 }
 .testimonial .col-3:hover{
@@ -182,24 +190,91 @@ small{
     color: #555;
     font-weight: 600;
     font-size: 16px;
+    margin-top: 10px;
 }
 
 /*--- Brands ---*/
+.brands .title{
+    margin-bottom: 60px;
+}
 .brands{
     margin: 100px auto;
+    padding: 30px 0;
+    background: solid #fff;
 }
 .brands .col-5{
     width: 160px;
+    padding: 14px 10px;
+    border-radius: 14px;
 }
 .brands .col-5 img{
     width: 100%;
     cursor: pointer;
-    filter: grayscale(100%);
+    filter: none;
+    display: block;
+    margin: 0 auto;
+    transition: transform 0.35s ease, filter 0.35s ease, opacity 0.35s ease;
 }
 .brands .col-5 img:hover{
+    transform: scale(1.08);
+    opacity: 0.95;
+}
+
+/*--- Founders ---*/
+.founders{
+    margin: 100px auto;
+}
+.founders .title{
+    margin-bottom: 60px;
+}
+.founders-row{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+.founder-card{
+    background: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 20px 15px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px 0px rgba(0,0,0,0.1);
+    transition: transform 0.5s;
+    width: 200px;
+    height: 200px;
+}
+.founder-card:hover{
+    transform: translateY(-10px);
+    transition: transform 0.5s;
+}
+.founder-card:hover img{
     filter: grayscale(0%);
-    transform: scale(1.1);
-    transition: all 0.5s;
+}
+.founder-card img{
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: none;
+    margin-bottom: 15px;
+    filter: grayscale(100%);
+    transition: filter 0.5s;
+}
+.founder-card h3{
+    color: #555;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 6px;
+}
+.founder-card p{
+    color: #777;
+    font-size: 10px;
+    line-height: 1.2;
 }
 
 /*--- Footer ---*/
@@ -250,7 +325,7 @@ ul{
     margin: 20px 0;
 }
 .copyright{
-    text-align: left;
+    text-align: center;
 }
 .menu-icon{
     display: none;
@@ -260,7 +335,7 @@ ul{
 /*-----media query for menu---*/
 @media only screen and (max-width: 800px){
     nav ul{
-        position: absolute;
+    /* Placeholder for future mobile overrides */
         top: 70px;
         left: 0;
         background: #fff;
@@ -288,8 +363,52 @@ ul{
     .row{
         text-align: center;
     }
-    .col-2, .col-2, .col-3, .col-4{
+    .col-2, .col-2, .col-3{
         flex-basis: 100%;
+    }
+    .col-4{
+        flex-basis: 48%;
+        min-width: 0;
+        margin-bottom: 30px;
+        padding: 6px;
+    }
+    .header .row{
+        margin-top: 20px;
+    }
+    .col-2 h1{
+        font-size: 32px;
+        line-height: 38px;
+    }
+    .col-4 h4{
+        font-size: 16px;
+    }
+    .col-4 p{
+        font-size: 14px;
+    }
+    .btn{
+        display: inline-block;
+        width: auto;
+        max-width: 100%;
+        padding: 8px 18px;
+        margin: 20px auto;
+    }
+    .testimonial{
+        padding: 50px 20px;
+    }
+    .testimonial .col-3{
+        padding: 20px 15px;
+        margin-bottom: 20px;
+    }
+    .col-3 p{
+        font-size: 11px;
+        margin: 10px 0;
+    }
+    .testimonial .col-3 h3{
+        font-size: 14px;
+    }
+    .fa-solid.fa-quote-left{
+        font-size: 20px;
+        margin-bottom: 15px;
     }
     .single-product .row{
         text-align: left;
@@ -297,12 +416,202 @@ ul{
     .single-product .col-2{
         padding: 20px 0;
     }
-    .single-product h1{
-        font-size: 26px;
-        line-height: 32px;
-    }
     .cart-info p{
         display: none;
+    }
+    .cart-page{
+        overflow-x: auto;
+    }
+    .cart-page > table{
+        min-width: 0;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+    }
+    .cart-page > table tr{
+        display: table-row;
+    }
+    .cart-page > table th{
+        display: table-cell;
+        text-align: left;
+        font-size: 14px;
+        padding: 8px 5px;
+    }
+    .cart-page > table td{
+        display: table-cell;
+        width: auto;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        padding: 10px 5px;
+    }
+    .cart-page > table td:last-child{
+        text-align: right;
+    }
+    .cart-page > table td input{
+        width: 60px;
+    }
+    .cart-page > table td img{
+        width: 70px;
+        height: 70px;
+    }
+    .single-product .col-2 img{
+        padding: 0;
+    }
+    .single-product h1{
+        font-size: 28px;
+        line-height: 34px;
+    }
+    .small-img-row{
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .small-img-col{
+        flex-basis: 22%;
+    }
+    .row-2{
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin: 40px auto 30px;
+    }
+    .row-2 h2{
+        text-align: center;
+    }
+    .row-2 select{
+        width: 100%;
+    }
+    .form-container{
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        min-height: 380px;
+    }
+    .form-container form{
+        width: 100%;
+        max-width: 300px;
+    }
+    .account-page .col-2:first-child{
+        display: none;
+    }
+    .account-page .row{
+        justify-content: center;
+    }
+    /* Hide hero image (Show2.png) on small screens to save space */
+    .header .col-2:last-child{
+        display: none;
+    }
+
+    /* Featured categories: show 3 images in one row on mobile */
+    .categories .row{
+        justify-content: space-between;
+    }
+    .categories .col-3{
+        flex-basis: 32%;
+        min-width: 0;
+        margin-bottom: 12px;
+    }
+    
+    /* Mobile: center the Book Now button in offer section */
+    .offer .btn{
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .footer .row{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-areas:
+            "fcol2 fcol2 fcol2"
+            "fcol1 fcol3 fcol4";
+        gap: 20px 12px;
+        text-align: center;
+    }
+    .footer-col-1{ grid-area: fcol1; }
+    .footer-col-2{ grid-area: fcol2; }
+    .footer-col-3{ grid-area: fcol3; }
+    .footer-col-4{ grid-area: fcol4; }
+    .footer-col-1, .footer-col-2, .footer-col-3, .footer-col-4{
+        min-width: 0;
+        text-align: center;
+    }
+    .footer-col-2 img{
+        width: 100px;
+    }
+    .footer-col-1 .app-logo img{
+        width: 105px;
+    }
+    .founders-row{
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+    }
+    .founder-card{
+        width: 100%;
+        height: 150px;
+        padding: 12px 8px;
+    }
+    .founder-card img{
+        width: 55px;
+        height: 55px;
+        margin-bottom: 8px;
+        filter: none;
+    }
+    .founder-card h3{
+        font-size: 9px;
+        margin-bottom: 3px;
+    }
+    .founder-card p{
+        font-size: 8px;
+        line-height: 1.1;
+    }
+    .brands .row{
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        align-items: center;
+    }
+    .brands .col-5{
+        width: 100%;
+        padding: 12px 8px;
+    }
+    .brands .col-5 img{
+        max-width: 92px;
+        margin: 0 auto;
+    }
+
+    .brands{
+        margin: 70px auto;
+        padding: 20px 0;
+    }
+
+    /* Mobile: center the Book Now button in the offer section */
+    .offer .col-2{
+        text-align: center;
+    }
+    .offer .col-2 .btn{
+        display: block;
+        width: fit-content;
+        margin: 12px auto 0 auto;
+        padding: 8px 18px;
+    }
+}
+
+@media only screen and (min-width: 601px) and (max-width: 900px){
+    .founders-row{
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+    .founder-card{
+        height: 200px;
+    }
+    .founder-card img{
+        width: 90px;
+        height: 90px;
+        filter: none;
+    }
+    .founder-card h3{
+        font-size: 14px;
     }
 }
 
@@ -502,4 +811,16 @@ form a{
     margin-top: 8px;
     transition: transform 1s;
     transform: translateX(100px);
+}
+
+/* Ensure Book Now button is left-aligned on larger screens */
+@media only screen and (min-width: 601px){
+    .offer .col-2{
+        text-align: left;
+    }
+    .offer .col-2 .btn{
+        display: block;
+        margin: 12px 0 0 0;
+        padding: 5px 16px;
+    }
 }
