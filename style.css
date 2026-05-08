@@ -78,6 +78,9 @@ p{
 .header .row{
     margin-top: 70px;
 }
+.header .col-2:first-child{
+    padding-left: 50px;
+}
 .categories{
     margin: 70px 0;
 }
@@ -384,6 +387,9 @@ ul{
     }
     .header .row{
         margin-top: 20px;
+    }
+    .header .col-2:first-child{
+        padding-left: 0;
     }
     .col-2 h1{
         font-size: 32px;
