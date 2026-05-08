@@ -259,8 +259,13 @@ small{
     padding: 30px 0;
     background: transparent;
 }
+.brands .row{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+}
 .brands .col-5{
-    width: 160px;
+    width: 100%;
     padding: 14px 10px;
     border-radius: 14px;
 }
@@ -275,6 +280,12 @@ small{
 .brands .col-5 img:hover{
     transform: scale(1.08);
     opacity: 0.95;
+}
+.brands .col-5:first-child img{
+    width: 55%;
+}
+.brands .col-5:nth-child(3) img{
+    width: 70%;
 }
 
 /*--- Founders ---*/
