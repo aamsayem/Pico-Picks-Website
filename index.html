@@ -15,6 +15,9 @@
 </head>
 <body>
     <div class="header">
+    <video class="hero-bg-video" autoplay muted loop playsinline>
+        <source src="Pictures/animation%20hero%20section.mp4" type="video/mp4">
+    </video>
     <div class="container">
         <div class="navbar">
         <div class="logo">
@@ -38,9 +41,6 @@
             <h1>Welcome to Pico Picks<br>Find Joy In Every Pick</h1>
             <p>Trusted importer of premium products, bringing authentic global goods with<br> quality assurance, affordable value, and responsive customer service. <br> delivering trust and care straight to your doorstep.</p>
             <a href="" class="btn">Explore Now &#10140;</a>
-        </div>
-        <div class="col-2">
-            <img src="Pictures/Show2.png">
         </div>
     </div>
     </div>
@@ -293,7 +293,7 @@ Highly recommended for anyone who loves collectible cars."</p>
                     </a>
                     <a class="founder-card" href="https://www.facebook.com/abuwasif.nabil.7" target="_blank" rel="noopener noreferrer">
                         <img src="Pictures/Founder3.jpg" alt="Wasif Nabil">
-                        <h3>Wasif Nabil</h3>
+                        <h3>Abu Wasif Nabil</h3>
                         <p>Founding Partner</p>
                     </a>
                     <a class="founder-card" href="https://www.facebook.com/mahdisayem.fb" target="_blank" rel="noopener noreferrer">
@@ -348,12 +348,48 @@ Highly recommended for anyone who loves collectible cars."</p>
     MenuItems.style.maxHeight = "0px";
     function menutoggle(){
         if(MenuItems.style.maxHeight == "0px"){
-            MenuItems.style.maxHeight = "200px";
+            MenuItems.style.display = "block";
+            MenuItems.style.maxHeight = "220px";
+            MenuItems.classList.add("menu-open");
         }
         else{
             MenuItems.style.maxHeight = "0px";
+            MenuItems.classList.remove("menu-open");
+            MenuItems.style.display = "none";
         }
     }    
+
+    (function(){
+        var heroVideo = document.querySelector(".hero-bg-video");
+        if(!heroVideo){
+            return;
+        }
+
+        var heroSource = heroVideo.querySelector("source");
+        if(!heroSource){
+            return;
+        }
+
+        var desktopSrc = "Pictures/animation%20hero%20section.mp4";
+        var mobileSrc = "Pictures/animation%20hero%20section%20mobile.mp4";
+        var mobileQuery = window.matchMedia("(max-width: 600px)");
+
+        function updateHeroVideo(){
+            var nextSrc = mobileQuery.matches ? mobileSrc : desktopSrc;
+            if(heroSource.getAttribute("src") !== nextSrc){
+                heroSource.setAttribute("src", nextSrc);
+                heroVideo.load();
+            }
+        }
+
+        updateHeroVideo();
+
+        if(typeof mobileQuery.addEventListener === "function"){
+            mobileQuery.addEventListener("change", updateHeroVideo);
+        }else if(typeof mobileQuery.addListener === "function"){
+            mobileQuery.addListener(updateHeroVideo);
+        }
+    })();
     </script>
 </body>
 </html>

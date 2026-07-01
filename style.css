@@ -7,7 +7,6 @@ body{
         font-family: "Barlow Condensed", "Michroma", sans-serif;
         font-weight: 400;
         font-style: normal;
-    padding-top: 59px;
     /* Full-site background: off-white to light gray gradient */
     background: linear-gradient(180deg, #fbfbfb 0%, #f3f5f6 40%, #eceff0 100%);
     background-attachment: fixed;
@@ -104,6 +103,53 @@ p{
     max-width: 100%;
     padding: 50px 0;
 }
+.header{
+    position: relative;
+    min-height: calc(100vh - 59px);
+    overflow: hidden;
+    padding-top: 59px;
+}
+.hero-bg-video{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 15%;
+    z-index: 0;
+}
+.header::after{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(18, 18, 18, 0.68) 0%, rgba(18, 18, 18, 0.38) 48%, rgba(18, 18, 18, 0.12) 100%);
+    z-index: 1;
+}
+.header .container{
+    position: relative;
+    z-index: 2;
+}
+.header .row{
+    min-height: calc(100vh - 120px);
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+}
+.header .col-2:first-child{
+    padding-left: 50px;
+    color: #fff;
+}
+.header .col-2:first-child p,
+.header .col-2:first-child h1{
+    color: #fff;
+}
+.header .btn{
+    background: #ffffff;
+    color: #1f1b17;
+}
+.header .btn:hover{
+    background: #f0d7c6;
+}
 .col-2 h1{
     font-size: 50px;
     line-height: 60px;
@@ -127,9 +173,6 @@ p{
 }
 .header .row{
     margin-top: 20px;
-}
-.header .col-2:first-child{
-    padding-left: 50px;
 }
 .categories{
     margin: 70px 0;
@@ -414,7 +457,7 @@ ul{
 /*-----media query for menu---*/
 @media only screen and (max-width: 800px){
     body{
-        padding-top: 55px;
+        padding-top: 0;
     }
     .navbar{
         top: 6px;
@@ -426,21 +469,37 @@ ul{
     .logo img{
         width: 44px;
     }
+    .navbar > a{
+        margin-left: auto;
+    }
+    .navbar > a img{
+        top: 0;
+        margin-right: 4px;
+    }
     nav ul{
         position: absolute;
         top: calc(100% + 8px);
         left: 0;
         right: 0;
         width: 100%;
-        padding: 4px 0;
+        max-height: 0px;
+        padding: 0;
         border-radius: 14px;
-        background: linear-gradient(130deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.78));
-        border: 1px solid rgba(255, 255, 255, 0.7);
-        box-shadow: 0 10px 24px rgba(71, 53, 35, 0.14);
+        background: transparent;
+        border: 0;
+        box-shadow: none;
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         overflow: hidden;
-        transition: max-height 0.5s;
+        display: none;
+        transition: max-height 0.35s ease, padding 0.35s ease, background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+    }
+    nav ul.menu-open{
+        display: block;
+        padding: 4px 0;
+        background: linear-gradient(130deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.78));
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        box-shadow: 0 10px 24px rgba(71, 53, 35, 0.14);
     }
     nav ul li{
         display: block;
@@ -448,11 +507,20 @@ ul{
         text-align: center;
     }
     nav ul li a{
+        display: block;
+        width: 100%;
         font-size: 18px;
+        text-align: center;
     }
     .menu-icon{
         display: block;
         cursor: pointer;
+        width: 24px;
+        padding: 0;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
     }
 }
 
@@ -471,10 +539,50 @@ ul{
         padding: 6px;
     }
     .header .row{
-        margin-top: 20px;
+        margin-top: 0;
+        min-height: calc(100vh - 74px);
+        justify-content: center;
+        align-items: center;
+        padding: 16px 0 24px;
+    }
+    .hero-bg-video{
+        object-position: center center;
+        animation: heroMobileZoom 12s ease-in-out infinite alternate;
+    }
+    .header::after{
+        background: linear-gradient(180deg, rgba(18, 18, 18, 0.58) 0%, rgba(18, 18, 18, 0.28) 55%, rgba(18, 18, 18, 0.16) 100%);
+        animation: heroMobileGlow 8s ease-in-out infinite alternate;
     }
     .header .col-2:first-child{
         padding-left: 0;
+        flex-basis: 100%;
+        text-align: center;
+        margin-top: 0;
+    }
+    .header .col-2:first-child h1,
+    .header .col-2:first-child p,
+    .header .btn{
+        opacity: 0;
+        transform: translateY(18px);
+        animation: heroFadeUp 0.8s ease forwards;
+        will-change: transform, opacity;
+    }
+    .header .col-2:first-child h1{
+        animation-delay: 0.15s;
+    }
+    .header .col-2:first-child p{
+        animation-delay: 0.35s;
+    }
+    .header .btn{
+        animation-delay: 0.55s;
+    }
+    .header .col-2:first-child p br{
+        display: none;
+    }
+    .header .col-2:first-child p{
+        max-width: 34ch;
+        margin-left: auto;
+        margin-right: auto;
     }
     .col-2 h1{
         font-size: 32px;
@@ -668,17 +776,21 @@ ul{
     }
     .brands .row{
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 6px;
         align-items: center;
     }
     .brands .col-5{
         width: 100%;
-        padding: 12px 8px;
+        padding: 8px 4px;
     }
     .brands .col-5 img{
-        max-width: 92px;
+        max-width: 100%;
         margin: 0 auto;
+    }
+    .brands .col-5:first-child img,
+    .brands .col-5:nth-child(3) img{
+        width: 100%;
     }
 
     .brands{
@@ -695,6 +807,35 @@ ul{
         width: fit-content;
         margin: 12px auto 0 auto;
         padding: 8px 18px;
+    }
+}
+
+@keyframes heroFadeUp{
+    from{
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes heroMobileZoom{
+    from{
+        transform: scale(1.04);
+    }
+    to{
+        transform: scale(1.12);
+    }
+}
+
+@keyframes heroMobileGlow{
+    from{
+        opacity: 0.82;
+    }
+    to{
+        opacity: 1;
     }
 }
 
