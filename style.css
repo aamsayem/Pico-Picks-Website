@@ -388,6 +388,280 @@ small{
     line-height: 1.2;
 }
 
+/*====================
+ABOUT US
+=====================*/
+
+.about-page{
+
+padding:80px 0;
+
+}
+
+.page-title{
+
+text-align:center;
+
+margin-bottom:60px;
+
+}
+
+.page-title h1{
+
+font-size:45px;
+
+color:#444;
+
+}
+
+.page-title span{
+
+display:block;
+
+width:100px;
+
+height:4px;
+
+background:#cc7a3b;
+
+margin:15px auto;
+
+border-radius:20px;
+
+}
+
+.about-row{
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+gap:60px;
+
+flex-wrap:wrap;
+
+}
+
+.about-image{
+
+flex:1;
+
+text-align:center;
+
+}
+
+.about-image img{
+
+width:300px;
+
+}
+
+.about-content{
+
+flex:1;
+
+}
+
+.about-content h2{
+
+font-size:36px;
+
+margin-bottom:20px;
+
+}
+
+.about-content p{
+
+color:#666;
+
+line-height:28px;
+
+margin-bottom:18px;
+
+}
+
+.about-content h3{
+
+margin-top:20px;
+
+margin-bottom:15px;
+
+}
+
+.about-content ul{
+
+padding-left:20px;
+
+}
+
+.about-content li{
+
+margin-bottom:10px;
+
+}
+
+.why-us{
+
+padding:70px 0;
+
+background:#fafafa;
+
+}
+
+.why-us .col-4{
+
+background:#fff;
+
+padding:35px;
+
+text-align:center;
+
+border-radius:15px;
+
+box-shadow:0 5px 20px rgba(0,0,0,.08);
+
+transition:.3s;
+
+}
+
+.why-us .col-4:hover{
+
+transform:translateY(-10px);
+
+}
+
+.why-us i{
+
+font-size:40px;
+
+color:#cc7a3b;
+
+margin-bottom:20px;
+
+}
+
+.why-us h3{
+
+margin-bottom:15px;
+
+}
+
+/*======================
+CONTACT PAGE
+=======================*/
+
+.contact-page{
+
+padding:80px 0;
+
+}
+
+.contact-row{
+
+display:flex;
+
+justify-content:space-between;
+
+gap:60px;
+
+flex-wrap:wrap;
+
+}
+
+.contact-info{
+
+flex:1;
+
+}
+
+.contact-form{
+
+flex:1;
+
+}
+
+.contact-box{
+
+display:flex;
+
+align-items:flex-start;
+
+margin-bottom:30px;
+
+}
+
+.contact-box i{
+
+width:60px;
+
+height:60px;
+
+background:#cc7a3b;
+
+color:#fff;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+border-radius:50%;
+
+font-size:22px;
+
+margin-right:20px;
+
+}
+
+.contact-box h4{
+
+margin-bottom:8px;
+
+}
+
+.contact-box p{
+
+color:#666;
+
+line-height:26px;
+
+}
+
+.contact-form input,
+
+.contact-form textarea{
+
+width:100%;
+
+padding:15px;
+
+margin-bottom:20px;
+
+border:1px solid #ddd;
+
+border-radius:8px;
+
+font-size:16px;
+
+}
+
+.contact-form textarea{
+
+resize:none;
+
+}
+
+.contact-form .btn{
+
+border:none;
+
+cursor:pointer;
+
+}
+
 /*--- Footer ---*/
 .footer{
     background: transparent;
@@ -933,7 +1207,8 @@ input:focus{
 
 /*--- Cart items details---*/
 .cart-page{
-    padding: 80px auto;
+    padding: 110px 0 80px;
+    min-height: calc(100vh - 260px);
 }
 table{
     width: 100%;
@@ -986,7 +1261,8 @@ th:last-child{
 
 /*--- account page ---*/
 .account-page{
-    padding: 50px 0;
+    padding: 110px 0 80px;
+    min-height: calc(100vh - 260px);
     background: radial-gradient(#fff,#E9E9E9);
 }
 .form-container{
