@@ -2,193 +2,154 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name ="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Products - Pico Picks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Pico Picks</title>
+    <link rel="shortcut icon" href="images/logo.jpg" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Michroma&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css">
-
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Michroma&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <div class="navbar">
-        <div class="logo">
-            <a href="index.html"><img src="images/logo.png" width="70px"></a>
+            <div class="logo">
+                <a href="index.html"><img src="images/logo.png" width="70px"></a>
+            </div>
+            <nav>
+                <ul id="MenuItems">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html">Products</a></li>
+                    <li><a href="aboutus.html">About</a></li>
+                    <li><a href="contactus.html">Contact</a></li>
+                    <li><a href="account.html">Account</a></li>
+                </ul>
+            </nav>
+            <a href="cart.html"><img src="images/Cart.png" width="28px" height="28px"></a>
+            <img src="images/menu-icon.png" class="menu-icon" onclick="menutoggle()">
         </div>
-        <nav>
-            <ul id="MenuItems">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="products.html">Products</a></li>
-                <li><a href="aboutus.html">About</a></li>
-                <li><a href="contactus.html">Contact</a></li>
-                <li><a href="account.html">Account</a></li>
-            </ul>
-        </nav>
-        <a href="cart.html"><img src="images/Cart.png" width="28px" height="28px"></a>
-        
-        <img src="images/menu-icon.png" class="menu-icon" onclick="menutoggle()">
-     </div>
     </div>
     
-    <!--- contact us page --->
+    <!--- Contact Us Page --->
+    <div class="contact-page">
+        <div class="small-container">
+            <h2 class="title">Get In Touch</h2>
 
-<div class="contact-page">
+            <div class="contact-row">
+                <!-- Left: Contact Details Card -->
+                <div class="col-2">
+                    <div class="contact-info-card">
+                        <h2>Reach Us</h2>
+                        <p style="color: #666; margin-bottom: 25px;">Have questions about our die-cast models or an ongoing order? We are here to help!</p>
 
-<div class="small-container">
+                        <div class="contact-box">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <div>
+                                <h4>Our Location</h4>
+                                <p>Chattogram, Bangladesh</p>
+                            </div>
+                        </div>
 
-<div class="page-title">
+                        <div class="contact-box">
+                            <i class="fa-solid fa-phone"></i>
+                            <div>
+                                <h4>Phone Number</h4>
+                                <p>+880 1886-294464</p>
+                            </div>
+                        </div>
 
-<h1>Contact Us</h1>
+                        <div class="contact-box">
+                            <i class="fa-solid fa-envelope"></i>
+                            <div>
+                                <h4>Email Address</h4>
+                                <p>picopicksbd@gmail.com</p>
+                            </div>
+                        </div>
 
-<span></span>
+                        <div class="contact-box">
+                            <i class="fa-solid fa-clock"></i>
+                            <div>
+                                <h4>Working Hours</h4>
+                                <p>Saturday - Thursday<br>10:00 AM - 10:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-</div>
+                <!-- Right: Send Message Form Card -->
+                <div class="col-2">
+                    <div class="contact-form-card">
+                        <h2 style="font-size: 28px; color: #2f2a24; margin-bottom: 10px;">Send Us A Message</h2>
+                        <p style="color: #666; margin-bottom: 20px;">Fill out the form below and our support team will respond shortly.</p>
 
-<div class="contact-row">
-
-<div class="contact-info">
-
-<h2>Reach Us</h2>
-
-<div class="contact-box">
-
-<i class="fa-solid fa-location-dot"></i>
-
-<div>
-
-<h4>Address</h4>
-
-<p>Chattogram, Bangladesh</p>
-
-</div>
-
-</div>
-
-<div class="contact-box">
-
-<i class="fa-solid fa-phone"></i>
-
-<div>
-
-<h4>Phone</h4>
-
-<p>01886-294464</p>
-
-</div>
-
-</div>
-
-<div class="contact-box">
-
-<i class="fa-solid fa-envelope"></i>
-
-<div>
-
-<h4>Email</h4>
-
-<p>picopicksbd@gmail.com</p>
-
-</div>
-
-</div>
-
-<div class="contact-box">
-
-<i class="fa-solid fa-clock"></i>
-
-<div>
-
-<h4>Working Hours</h4>
-
-<p>Saturday - Thursday<br>10:00 AM - 10:00 PM</p>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="contact-form">
-
-<form>
-
-<input type="text" placeholder="Your Name">
-
-<input type="email" placeholder="Email">
-
-<input type="text" placeholder="Subject">
-
-<textarea rows="7" placeholder="Message"></textarea>
-
-<button class="btn">
-
-Send Message
-
-</button>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
+                        <form id="ContactForm">
+                            <input type="text" placeholder="Your Full Name" required>
+                            <input type="email" placeholder="Your Email Address" required>
+                            <input type="text" placeholder="Subject" required>
+                            <textarea rows="5" placeholder="Type your message here..." required></textarea>
+                            <button type="submit" class="btn" style="width: 100%; border: none; cursor: pointer;">Send Message &#10140;</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!--- Footer --->
-        <div class="footer">
-            <div class="container">
-                <div class="row">
+    <div class="footer">
+        <div class="container">
+            <div class="row">
                 <div class="footer-col-1">
-                        <h3>Download Our App</h3>
-                        <p>Download App for Android and IOS mobile phone.</p> 
-                        <div class="app-logo">
-                            <img src="images/play store.png">
-                        </div>      
+                    <h3>Download Our App</h3>
+                    <p>Download App for Android and IOS mobile phone.</p> 
+                    <div class="app-logo">
+                        <img src="images/play store.png">
+                    </div>      
                 </div>
                 <div class="footer-col-2">  
-                        <img src="images/logo.png">
-                        <p>Our Purpose Is To Sustainably Make The Pleasure And Benefits Of Collecting Cars Accessible To The Many.</p>       
+                    <img src="images/logo.png">
+                    <p>Our Purpose Is To Sustainably Make The Pleasure And Benefits Of Collecting Cars Accessible To The Many.</p>       
                 </div>
                 <div class="footer-col-3">
-                        <h3>Useful Links</h3>
-                        <ul>
-                            <li>Coupons</li>
-                            <li>Blog Post</li>
-                            <li>Return Policy</li>
-                            <li>Join Affiliate</li>
-                        </ul>
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li>Coupons</li>
+                        <li>Blog Post</li>
+                        <li>Return Policy</li>
+                        <li>Join Affiliate</li>
+                    </ul>
                 </div>
                 <div class="footer-col-4">
-                        <h3>Follow Us</h3>
-                        <ul>
-                            <li>Facebook</li>
-                            <li>Instagram</li>
-                            <li>TikTok</li>
-                        </ul>
+                    <h3>Follow Us</h3>
+                    <ul>
+                        <li>Facebook</li>
+                        <li>Instagram</li>
+                        <li>TikTok</li>
+                    </ul>
                 </div>
             </div>
             <p class="copyright">Copyright 2026 - Pico Picks</p>
         </div>
-            </div>
+    </div>
 
-<!--- JavaScript for Toggle Menu --->
-<script>
-    var MenuItems = document.getElementById("MenuItems");
-    MenuItems.style.maxHeight = "0px";
-    function menutoggle(){
-        if(MenuItems.style.maxHeight == "0px"){
-            MenuItems.style.maxHeight = "200px";
+    <!--- JavaScript for Toggle Menu & Form Submission --->
+    <script>
+        var MenuItems = document.getElementById("MenuItems");
+        MenuItems.style.maxHeight = "0px";
+        function menutoggle(){
+            if(MenuItems.style.maxHeight == "0px"){
+                MenuItems.style.maxHeight = "200px";
+            } else {
+                MenuItems.style.maxHeight = "0px";
+            }
         }
-        else{
-            MenuItems.style.maxHeight = "0px";
-        }
-    }    
+
+        document.getElementById('ContactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Thank you for contacting Pico Picks! Your message has been sent successfully. We will get back to you shortly.');
+            this.reset();
+        });
     </script>
-
 </body>
 </html>

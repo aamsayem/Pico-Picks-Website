@@ -2,205 +2,183 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name ="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Products - Pico Picks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Pico Picks</title>
+    <link rel="shortcut icon" href="images/logo.jpg" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Michroma&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css">
-
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Michroma&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <div class="navbar">
-        <div class="logo">
-            <a href="index.html"><img src="images/logo.png" width="70px"></a>
+            <div class="logo">
+                <a href="index.html"><img src="images/logo.png" width="70px"></a>
+            </div>
+            <nav>
+                <ul id="MenuItems">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html">Products</a></li>
+                    <li><a href="aboutus.html">About</a></li>
+                    <li><a href="contactus.html">Contact</a></li>
+                    <li><a href="account.html">Account</a></li>
+                </ul>
+            </nav>
+            <a href="cart.html"><img src="images/Cart.png" width="28px" height="28px"></a>
+            <img src="images/menu-icon.png" class="menu-icon" onclick="menutoggle()">
         </div>
-        <nav>
-            <ul id="MenuItems">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="products.html">Products</a></li>
-                <li><a href="aboutus.html">About</a></li>
-                <li><a href="contactus.html">Contact</a></li>
-                <li><a href="account.html">Account</a></li>
-            </ul>
-        </nav>
-        <a href="cart.html"><img src="images/Cart.png" width="28px" height="28px"></a>
-        
-        <img src="images/menu-icon.png" class="menu-icon" onclick="menutoggle()">
-     </div>
     </div>
     
     <!--- About Us Section --->
+    <div class="about-page">
+        <div class="small-container">
+            <h2 class="title">About Pico Picks</h2>
+            
+            <div class="about-row">
+                <div class="col-2 about-image">
+                    <img src="images/logo.png" alt="Pico Picks Brand Logo">
+                </div>
+                <div class="col-2 about-content">
+                    <h2>Driven By Passion For Cars</h2>
+                    <p>
+                        Pico Picks is Bangladesh's premier trusted importer of high-detail die-cast model cars, 
+                        collectibles, and automotive miniatures. Founded by dedicated car enthusiasts, our goal is to 
+                        make the pleasure of collecting accessible to collectors of all ages.
+                    </p>
+                    <p>
+                        We bring authentic global goods directly to your doorstep with guaranteed quality assurance, 
+                        affordable value, and responsive customer care.
+                    </p>
 
-<div class="about-page">
+                    <ul class="about-mission-list">
+                        <li><i class="fa-solid fa-circle-check"></i> 100% Authentic & Officially Licensed Models</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Transparent & Affordable Pricing</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Multi-Layer Protective Packaging & Fast Shipping</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Dedicated Customer Support & Satisfaction Guarantee</li>
+                    </ul>
 
-    <div class="small-container">
-
-        <div class="page-title">
-            <h1>About Pico Picks</h1>
-            <span></span>
+                    <a href="products.html" class="btn">Explore Collection &#10140;</a>
+                </div>
+            </div>
         </div>
 
-        <div class="about-row">
-
-            <div class="about-image">
-
-                <img src="images/logo.png">
-
+        <!--- Why Choose Us Section --->
+        <div class="why-us">
+            <div class="small-container">
+                <h2 class="title">Why Choose Pico Picks</h2>
+                <div class="row">
+                    <div class="col-4">
+                        <div class="feature-card">
+                            <i class="fa-solid fa-car-side"></i>
+                            <h3>Premium Collection</h3>
+                            <p>Hand-picked die-cast model cars with authentic vintage & supercar details.</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="feature-card">
+                            <i class="fa-solid fa-box"></i>
+                            <h3>Safe Packaging</h3>
+                            <p>Multi-layer protective bubble wrap & rigid box packaging for mint condition delivery.</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="feature-card">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <h3>Fast Delivery</h3>
+                            <p>Quick & reliable shipping all over Bangladesh right to your doorstep.</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="feature-card">
+                            <i class="fa-solid fa-headset"></i>
+                            <h3>Customer Care</h3>
+                            <p>Friendly & responsive support team ready to assist with your order.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <div class="about-content">
-
-                <h2>Who We Are</h2>
-
-                <p>
-                    Pico Picks is a trusted destination for premium die-cast model cars,
-                    collectibles, and automotive miniatures in Bangladesh.
-                </p>
-
-                <p>
-                    Our goal is to provide authentic products, affordable prices,
-                    secure shopping, and excellent customer service for every collector.
-                </p>
-
-                <h3>Our Mission</h3>
-
-                <ul>
-
-                    <li>Premium Quality Products</li>
-
-                    <li>Affordable Pricing</li>
-
-                    <li>Fast & Safe Delivery</li>
-
-                    <li>100% Customer Satisfaction</li>
-
-                </ul>
-
-                <a href="products.html" class="btn">
-                    Shop Now →
-                </a>
-
-            </div>
-
         </div>
 
+        <!--- Founding Partners Section --->
+        <div class="founders">
+            <div class="small-container">
+                <h2 class="title">Founding Partners</h2>
+                <div class="founders-row">
+                    <a class="founder-card" href="https://www.facebook.com/aamsayem01" target="_blank" rel="noopener noreferrer">
+                        <img src="images/Founder1.jpg" alt="Abdullah Al Mahmud Sayem">
+                        <h3>Abdullah Al Mahmud Sayem</h3>
+                        <p>Founding Partner</p>
+                    </a>
+                    <a class="founder-card" href="https://www.facebook.com/aref.rhman.9" target="_blank" rel="noopener noreferrer">
+                        <img src="images/Founder2.jpg" alt="Arifur Rahman">
+                        <h3>Arifur Rahman</h3>
+                        <p>Founding Partner</p>
+                    </a>
+                    <a class="founder-card" href="https://www.facebook.com/abuwasif.nabil.7" target="_blank" rel="noopener noreferrer">
+                        <img src="images/Founder3.jpg" alt="Wasif Nabil">
+                        <h3>Abu Wasif Nabil</h3>
+                        <p>Founding Partner</p>
+                    </a>
+                    <a class="founder-card" href="https://www.facebook.com/mahdisayem.fb" target="_blank" rel="noopener noreferrer">
+                        <img src="images/Founder4.jpg" alt="Md Abu Sayem">
+                        <h3>Md Abu Sayem</h3>
+                        <p>Founding Partner</p>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-
-</div>
-
-<!-- WHY CHOOSE US -->
-
-<div class="why-us">
-
-    <div class="small-container">
-
-        <h2 class="title">
-            Why Choose Pico Picks
-        </h2>
-
-        <div class="row">
-
-            <div class="col-4">
-
-                <i class="fa-solid fa-car-side"></i>
-
-                <h3>Premium Collection</h3>
-
-                <p>Authentic die-cast model cars.</p>
-
-            </div>
-
-            <div class="col-4">
-
-                <i class="fa-solid fa-box"></i>
-
-                <h3>Safe Packaging</h3>
-
-                <p>Secure packaging for every order.</p>
-
-            </div>
-
-            <div class="col-4">
-
-                <i class="fa-solid fa-truck"></i>
-
-                <h3>Fast Delivery</h3>
-
-                <p>Quick delivery all over Bangladesh.</p>
-
-            </div>
-
-            <div class="col-4">
-
-                <i class="fa-solid fa-headset"></i>
-
-                <h3>Customer Support</h3>
-
-                <p>Friendly support whenever you need.</p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-   
 
     <!--- Footer --->
-        <div class="footer">
-            <div class="container">
-                <div class="row">
+    <div class="footer">
+        <div class="container">
+            <div class="row">
                 <div class="footer-col-1">
-                        <h3>Download Our App</h3>
-                        <p>Download App for Android and IOS mobile phone.</p> 
-                        <div class="app-logo">
-                            <img src="images/play store.png">
-                        </div>      
+                    <h3>Download Our App</h3>
+                    <p>Download App for Android and IOS mobile phone.</p> 
+                    <div class="app-logo">
+                        <img src="images/play store.png">
+                    </div>      
                 </div>
                 <div class="footer-col-2">  
-                        <img src="images/logo.png">
-                        <p>Our Purpose Is To Sustainably Make The Pleasure And Benefits Of Collecting Cars Accessible To The Many.</p>       
+                    <img src="images/logo.png">
+                    <p>Our Purpose Is To Sustainably Make The Pleasure And Benefits Of Collecting Cars Accessible To The Many.</p>       
                 </div>
                 <div class="footer-col-3">
-                        <h3>Useful Links</h3>
-                        <ul>
-                            <li>Coupons</li>
-                            <li>Blog Post</li>
-                            <li>Return Policy</li>
-                            <li>Join Affiliate</li>
-                        </ul>
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li>Coupons</li>
+                        <li>Blog Post</li>
+                        <li>Return Policy</li>
+                        <li>Join Affiliate</li>
+                    </ul>
                 </div>
                 <div class="footer-col-4">
-                        <h3>Follow Us</h3>
-                        <ul>
-                            <li>Facebook</li>
-                            <li>Instagram</li>
-                            <li>TikTok</li>
-                        </ul>
+                    <h3>Follow Us</h3>
+                    <ul>
+                        <li>Facebook</li>
+                        <li>Instagram</li>
+                        <li>TikTok</li>
+                    </ul>
                 </div>
             </div>
             <p class="copyright">Copyright 2026 - Pico Picks</p>
         </div>
-            </div>
+    </div>
 
-<!--- JavaScript for Toggle Menu --->
-<script>
-    var MenuItems = document.getElementById("MenuItems");
-    MenuItems.style.maxHeight = "0px";
-    function menutoggle(){
-        if(MenuItems.style.maxHeight == "0px"){
-            MenuItems.style.maxHeight = "200px";
-        }
-        else{
-            MenuItems.style.maxHeight = "0px";
-        }
-    }    
+    <!--- JavaScript for Toggle Menu --->
+    <script>
+        var MenuItems = document.getElementById("MenuItems");
+        MenuItems.style.maxHeight = "0px";
+        function menutoggle(){
+            if(MenuItems.style.maxHeight == "0px"){
+                MenuItems.style.maxHeight = "200px";
+            } else {
+                MenuItems.style.maxHeight = "0px";
+            }
+        }    
     </script>
-
 </body>
 </html>
