@@ -6,13 +6,13 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./config/db');
+const connectDB = require('../backend/config/db');
 
 // Import Route Handlers
-const authRoutes = require('./routes/authRoutes');
-const productRoutes = require('./routes/productRoutes');
-const cartRoutes = require('./routes/cartRoutes');
-const orderRoutes = require('./routes/orderRoutes');
+const authRoutes = require('../backend/routes/authRoutes');
+const productRoutes = require('../backend/routes/productRoutes');
+const cartRoutes = require('../backend/routes/cartRoutes');
+const orderRoutes = require('../backend/routes/orderRoutes');
 
 const app = express();
 
