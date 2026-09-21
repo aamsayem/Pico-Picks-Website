@@ -2,6 +2,7 @@
  * Product Controller - Handlers for fetching products and seeding database
  */
 
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
 
 const INITIAL_PRODUCTS = [
@@ -248,25 +249,147 @@ const getProducts = async (req, res) => {
     }
 };
 
+// Helper: Locate product by custom slug id OR MongoDB _id
+const findProductByIdOrSlug = async (idParam) => {
+    if (!idParam) return null;
+    let product = await Product.findOne({ id: idParam });
+    if (!product && mongoose.Types.ObjectId.isValid(idParam)) {
+        product = await Product.findById(idParam);
+    }
+    return product;
+};
+
 // @desc    Fetch single product by ID
 // @route   GET /api/products/:id
 // @access  Public
 const getProductById = async (req, res) => {
     try {
-        const product = await Product.findOne({ id: req.params.id });
+        const product = await findProductByIdOrSlug(req.params.id);
         if (product) {
-            res.json(product);
-        } else {
-            // Check fallback initial array
-            const fallback = INITIAL_PRODUCTS.find(p => p.id === req.params.id);
-            if (fallback) {
-                res.json(fallback);
-            } else {
-                res.status(404).json({ error: 'Product not found' });
-            }
+            return res.json(product);
         }
+
+        // Check fallback initial array
+        const fallback = INITIAL_PRODUCTS.find(p => p.id === req.params.id);
+        if (fallback) {
+            return res.json(fallback);
+        }
+
+        return res.status(404).json({ error: 'Product not found' });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch product' });
+        console.error('Error fetching product:', error);
+        return res.status(500).json({ error: 'Failed to fetch product' });
+    }
+};
+
+// @desc    Create a new product
+// @route   POST /api/products
+// @access  Private/Admin
+const createProduct = async (req, res) => {
+    try {
+        const {
+            name,
+            price,
+            image,
+            images,
+            description,
+            rating,
+            isFeatured,
+            isLatest,
+            id
+        } = req.body;
+
+        if (!name || price === undefined || !image) {
+            return res.status(400).json({ error: 'Product name, price, and primary image are required' });
+        }
+
+        // Generate unique slug id if not explicitly provided
+        let slugId = id;
+        if (!slugId) {
+            const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'product';
+            slugId = `${baseSlug}-${Date.now().toString(36)}`;
+        }
+
+        // Ensure unique id slug
+        const existingProduct = await Product.findOne({ id: slugId });
+        if (existingProduct) {
+            slugId = `${slugId}-${Date.now().toString(36)}`;
+        }
+
+        const product = await Product.create({
+            id: slugId,
+            name: name.trim(),
+            price: Number(price),
+            image: image.trim(),
+            images: Array.isArray(images) && images.length > 0 ? images : [image.trim()],
+            description: description || '',
+            rating: rating !== undefined ? Number(rating) : 5,
+            isFeatured: Boolean(isFeatured),
+            isLatest: Boolean(isLatest)
+        });
+
+        res.status(201).json(product);
+    } catch (error) {
+        console.error('Error creating product:', error);
+        res.status(500).json({ error: error.message || 'Failed to create product' });
+    }
+};
+
+// @desc    Update an existing product
+// @route   PUT /api/products/:id
+// @access  Private/Admin
+const updateProduct = async (req, res) => {
+    try {
+        const product = await findProductByIdOrSlug(req.params.id);
+
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        const {
+            name,
+            price,
+            image,
+            images,
+            description,
+            rating,
+            isFeatured,
+            isLatest
+        } = req.body;
+
+        if (name !== undefined) product.name = name.trim();
+        if (price !== undefined) product.price = Number(price);
+        if (image !== undefined) product.image = image.trim();
+        if (images !== undefined) product.images = Array.isArray(images) ? images : [images];
+        if (description !== undefined) product.description = description;
+        if (rating !== undefined) product.rating = Number(rating);
+        if (isFeatured !== undefined) product.isFeatured = Boolean(isFeatured);
+        if (isLatest !== undefined) product.isLatest = Boolean(isLatest);
+
+        const updatedProduct = await product.save();
+        res.json(updatedProduct);
+    } catch (error) {
+        console.error('Error updating product:', error);
+        res.status(500).json({ error: error.message || 'Failed to update product' });
+    }
+};
+
+// @desc    Delete a product
+// @route   DELETE /api/products/:id
+// @access  Private/Admin
+const deleteProduct = async (req, res) => {
+    try {
+        const product = await findProductByIdOrSlug(req.params.id);
+
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        await Product.deleteOne({ _id: product._id });
+        res.json({ message: 'Product deleted successfully', id: req.params.id });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ error: error.message || 'Failed to delete product' });
     }
 };
 
@@ -286,5 +409,8 @@ const seedProducts = async (req, res) => {
 module.exports = {
     getProducts,
     getProductById,
+    createProduct,
+    updateProduct,
+    deleteProduct,
     seedProducts
 };

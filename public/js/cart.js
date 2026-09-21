@@ -1,8 +1,21 @@
 /**
- * Pico Picks Cart System (Full-Stack API + LocalStorage Sync)
+ * Pico Picks Cart & Checkout System (Live API Driven)
  */
 
 const CART_STORAGE_KEY = 'pico_cart';
+
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
 
 function getLocalCart() {
     try {
@@ -21,41 +34,64 @@ function saveLocalCart(cart) {
     }
 }
 
-async function addToCart(productId, quantity = 1) {
-    const qty = parseInt(quantity, 10) || 1;
+/**
+ * Sync guest localStorage cart to database once user logs in
+ */
+async function syncGuestCartToAPI() {
+    if (!window.API || !API.getToken()) return;
+    const localItems = getLocalCart();
+    if (localItems.length === 0) return;
 
-    // Check if user is logged in via token
+    try {
+        for (const item of localItems) {
+            await API.addToCart(item.productId || item.id, item.quantity);
+        }
+        localStorage.removeItem(CART_STORAGE_KEY);
+    } catch (e) {
+        console.warn('Cart sync notice:', e.message);
+    }
+}
+
+/**
+ * Add item to Cart via live API (or LocalStorage fallback for guests)
+ */
+async function addToCart(productId, quantity = 1) {
+    const qty = Math.max(1, parseInt(quantity, 10) || 1);
+
     if (window.API && API.getToken()) {
         try {
             await API.addToCart(productId, qty);
-            showAddToCartNotification(productId, qty);
+            alert(`Item added to your cart!`);
             if (window.location.pathname.includes('cart.html')) {
                 await renderCartPage();
             }
             return;
         } catch (e) {
-            console.warn('API cart error, using local fallback:', e.message);
+            console.warn('API cart error:', e.message);
+            alert(`Could not add to cart: ${e.message}`);
+            return;
         }
     }
 
-    // Guest LocalStorage fallback
+    // Guest fallback
     const cart = getLocalCart();
-    const existingIndex = cart.findIndex(item => item.id === productId);
-
-    if (existingIndex > -1) {
-        cart[existingIndex].quantity += qty;
+    const existing = cart.find(item => (item.productId === productId || item.id === productId));
+    if (existing) {
+        existing.quantity += qty;
     } else {
-        cart.push({ id: productId, quantity: qty });
+        cart.push({ productId, quantity: qty });
     }
-
     saveLocalCart(cart);
-    showAddToCartNotification(productId, qty);
+    alert(`Item added to your cart (Guest mode). Please log in to complete checkout!`);
 
     if (window.location.pathname.includes('cart.html')) {
         await renderCartPage();
     }
 }
 
+/**
+ * Remove item from Cart via live API
+ */
 async function removeFromCart(productId) {
     if (window.API && API.getToken()) {
         try {
@@ -65,12 +101,12 @@ async function removeFromCart(productId) {
             }
             return;
         } catch (e) {
-            console.warn('API error removing item, fallback:', e.message);
+            console.error('API error removing item:', e.message);
         }
     }
 
     let cart = getLocalCart();
-    cart = cart.filter(item => item.id !== productId);
+    cart = cart.filter(item => (item.productId !== productId && item.id !== productId));
     saveLocalCart(cart);
 
     if (window.location.pathname.includes('cart.html')) {
@@ -78,85 +114,101 @@ async function removeFromCart(productId) {
     }
 }
 
+/**
+ * Update item quantity via live API
+ */
 async function updateCartQuantity(productId, quantity) {
-    const qty = Math.max(1, parseInt(quantity, 10) || 1);
+    const qty = parseInt(quantity, 10);
 
     if (window.API && API.getToken()) {
         try {
-            await API.updateCart(productId, qty);
+            if (qty <= 0) {
+                await API.removeFromCart(productId);
+            } else {
+                await API.updateCart(productId, qty);
+            }
             if (window.location.pathname.includes('cart.html')) {
                 await renderCartPage();
             }
             return;
         } catch (e) {
-            console.warn('API error updating item, fallback:', e.message);
+            console.error('API error updating quantity:', e.message);
         }
     }
 
-    const cart = getLocalCart();
-    const item = cart.find(i => i.id === productId);
-    if (item) {
-        item.quantity = qty;
-        saveLocalCart(cart);
+    let cart = getLocalCart();
+    if (qty <= 0) {
+        cart = cart.filter(item => (item.productId !== productId && item.id !== productId));
+    } else {
+        const item = cart.find(i => (i.productId === productId || i.id === productId));
+        if (item) item.quantity = qty;
     }
+    saveLocalCart(cart);
 
     if (window.location.pathname.includes('cart.html')) {
         await renderCartPage();
     }
 }
 
-function showAddToCartNotification(productId, quantity) {
-    let productName = 'Item';
-    if (typeof PRODUCTS !== 'undefined') {
-        const product = PRODUCTS.find(p => p.id === productId);
-        if (product) productName = product.name;
-    }
-    alert(`${quantity} x "${productName}" has been added to your cart!`);
-}
-
+/**
+ * Render Cart Page contents dynamically
+ */
 async function renderCartPage() {
     const cartTable = document.querySelector('.cart-page table');
     const totalPriceTable = document.querySelector('.total-price table');
     if (!cartTable || !totalPriceTable) return;
 
+    await syncGuestCartToAPI();
+
     let items = [];
     let subtotal = 0;
     let tax = 0;
+    let shippingFee = 0;
     let total = 0;
 
-    // Try fetching cart from backend API if logged in
+    // Load from Live Express API if authenticated
     if (window.API && API.getToken()) {
         try {
-            const apiCartData = await API.getCart();
-            items = apiCartData.items || [];
-            subtotal = apiCartData.subtotal || 0;
-            tax = apiCartData.tax || 0;
-            total = apiCartData.total || 0;
+            const apiCart = await API.getCart();
+            items = apiCart.items || [];
+            subtotal = apiCart.subtotal || 0;
+            tax = apiCart.tax || 0;
+            shippingFee = apiCart.shippingFee || 0;
+            total = apiCart.total || 0;
         } catch (e) {
-            console.warn('Failed to load user cart from API:', e.message);
+            console.warn('API cart load failure:', e.message);
         }
     }
 
-    // LocalStorage fallback if API not used or offline
-    if (items.length === 0 && !API.getToken()) {
+    // Guest fallback: resolve prices from API catalog
+    if (items.length === 0 && (!window.API || !API.getToken())) {
         const localCart = getLocalCart();
-        localCart.forEach(item => {
-            const product = (typeof PRODUCTS !== 'undefined') ? PRODUCTS.find(p => p.id === item.id) : null;
-            if (product) {
-                const itemSubtotal = product.price * item.quantity;
-                subtotal += itemSubtotal;
-                items.push({
-                    productId: product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: product.image,
-                    quantity: item.quantity,
-                    itemSubtotal: itemSubtotal
+        if (localCart.length > 0) {
+            try {
+                const catalog = await API.getProducts();
+                localCart.forEach(item => {
+                    const id = item.productId || item.id;
+                    const prod = catalog.find(p => p.id === id || p._id === id);
+                    if (prod) {
+                        const lineSubtotal = prod.price * item.quantity;
+                        subtotal += lineSubtotal;
+                        items.push({
+                            productId: prod.id,
+                            name: prod.name,
+                            price: prod.price,
+                            image: prod.image,
+                            quantity: item.quantity,
+                            itemSubtotal: lineSubtotal
+                        });
+                    }
                 });
+                tax = subtotal > 0 ? 30.00 : 0.00;
+                shippingFee = subtotal > 2000 ? 0.00 : (subtotal > 0 ? 50.00 : 0.00);
+                total = subtotal + tax + shippingFee;
+            } catch (e) {
+                console.warn('Catalog lookup error for guest cart:', e.message);
             }
-        });
-        tax = subtotal > 0 ? 30.00 : 0.00;
-        total = subtotal + tax;
+        }
     }
 
     // Render Table Rows
@@ -183,7 +235,7 @@ async function renderCartPage() {
                 <tr>
                     <td>
                         <div class="cart-info">
-                            <img src="${item.image}" alt="${escapeHTML(item.name)}">
+                            <img src="${item.image}" alt="${escapeHTML(item.name)}" onerror="this.src='images/logo.png'">
                             <div>
                                 <p>${escapeHTML(item.name)}</p>
                                 <small>Price: $${Number(item.price).toFixed(2)}</small>
@@ -203,7 +255,7 @@ async function renderCartPage() {
 
     cartTable.innerHTML = tableHTML;
 
-    // Render Totals
+    // Render Totals Table
     totalPriceTable.innerHTML = `
         <tr>
             <td>Subtotal</td>
@@ -214,10 +266,125 @@ async function renderCartPage() {
             <td>$${Number(tax).toFixed(2)}</td>
         </tr>
         <tr>
+            <td>Shipping</td>
+            <td>$${Number(shippingFee).toFixed(2)}</td>
+        </tr>
+        <tr>
             <td>Total</td>
             <td>$${Number(total).toFixed(2)}</td>
         </tr>
     `;
+
+    // Render / Update Proceed to Checkout Button inside .total-price
+    const totalPriceContainer = document.querySelector('.total-price');
+    if (totalPriceContainer) {
+        let checkoutBtn = document.getElementById('checkoutBtn');
+        if (items.length > 0) {
+            if (!checkoutBtn) {
+                checkoutBtn = document.createElement('a');
+                checkoutBtn.id = 'checkoutBtn';
+                checkoutBtn.className = 'btn';
+                checkoutBtn.style.cssText = 'float: right; margin-top: 15px; cursor: pointer; text-align: center; display: inline-block;';
+                checkoutBtn.textContent = 'Proceed to Checkout ➜';
+                checkoutBtn.onclick = proceedToCheckout;
+                totalPriceContainer.appendChild(checkoutBtn);
+            } else {
+                checkoutBtn.style.display = 'inline-block';
+            }
+        } else if (checkoutBtn) {
+            checkoutBtn.style.display = 'none';
+        }
+    }
+}
+
+/**
+ * 4. Proceed to Checkout Logic
+ */
+async function proceedToCheckout(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    if (!window.API || !API.getToken()) {
+        alert('Please log in or create an account to proceed with checkout.');
+        window.location.href = 'account.html';
+        return;
+    }
+
+    // Retrieve user profile to prefill
+    let user = null;
+    try {
+        user = await API.getProfile();
+    } catch (err) {
+        alert('Your session has expired. Please log in again.');
+        window.location.href = 'account.html';
+        return;
+    }
+
+    // Prompt for shipping information
+    const fullName = prompt('Confirm your Full Name:', user.username || '');
+    if (!fullName || !fullName.trim()) {
+        alert('Checkout cancelled: Full Name is required.');
+        return;
+    }
+
+    const address = prompt('Enter your Delivery Address:');
+    if (!address || !address.trim()) {
+        alert('Checkout cancelled: Delivery Address is required.');
+        return;
+    }
+
+    const city = prompt('Enter your City:', 'Dhaka');
+    if (!city || !city.trim()) {
+        alert('Checkout cancelled: City is required.');
+        return;
+    }
+
+    const phone = prompt('Enter your Contact Phone Number:');
+    if (!phone || !phone.trim()) {
+        alert('Checkout cancelled: Contact Phone is required.');
+        return;
+    }
+
+    const postalCode = prompt('Enter Postal Code (optional):', '') || '';
+
+    const shippingAddress = {
+        fullName: fullName.trim(),
+        address: address.trim(),
+        city: city.trim(),
+        phone: phone.trim(),
+        postalCode: postalCode.trim()
+    };
+
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    if (checkoutBtn) {
+        checkoutBtn.textContent = 'Processing Order...';
+        checkoutBtn.style.pointerEvents = 'none';
+    }
+
+    try {
+        const orderRes = await API.createOrder({
+            shippingAddress,
+            paymentMethod: 'Cash on Delivery'
+        });
+
+        alert(`🎉 Order placed successfully!\n\nOrder ID: ${orderRes.order._id}\nTotal: $${Number(orderRes.order.totalAmount).toFixed(2)}\nPayment: Cash on Delivery\n\nYou can track this order in your Account dashboard.`);
+
+        // Clear local storage cart if any remains
+        localStorage.removeItem(CART_STORAGE_KEY);
+
+        // Refresh cart page
+        await renderCartPage();
+
+        // Redirect to account dashboard
+        window.location.href = 'account.html';
+    } catch (error) {
+        console.error('Order creation error:', error);
+        alert(`Failed to complete checkout: ${error.message}`);
+    } finally {
+        if (checkoutBtn) {
+            checkoutBtn.textContent = 'Proceed to Checkout ➜';
+            checkoutBtn.style.pointerEvents = 'auto';
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', async function() {

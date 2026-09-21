@@ -11,7 +11,7 @@ if (!cached) {
 }
 
 async function connectDB() {
-    const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/pico_picks';
+    const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/pico_picks';
 
     if (cached.conn) {
         return cached.conn;

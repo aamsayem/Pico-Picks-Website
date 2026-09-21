@@ -19,7 +19,7 @@ const API = {
         }
     },
 
-    getHeaders(isAuthRequired = false) {
+    getHeaders() {
         const headers = {
             'Content-Type': 'application/json'
         };
@@ -55,12 +55,13 @@ const API = {
     },
 
     // Auth endpoints
-    async register(username, email, password) {
+    async register(username, email, password, role = 'customer') {
         const data = await this.request('/auth/register', {
             method: 'POST',
-            body: JSON.stringify({ username, email, password })
+            body: JSON.stringify({ username, email, password, role })
         });
         if (data.token) this.setToken(data.token);
+        if (data.user) localStorage.setItem('pico_current_user', JSON.stringify(data.user));
         return data;
     },
 
@@ -70,11 +71,14 @@ const API = {
             body: JSON.stringify({ username, password })
         });
         if (data.token) this.setToken(data.token);
+        if (data.user) localStorage.setItem('pico_current_user', JSON.stringify(data.user));
         return data;
     },
 
     async getProfile() {
-        return await this.request('/auth/me');
+        const data = await this.request('/auth/me');
+        if (data) localStorage.setItem('pico_current_user', JSON.stringify(data));
+        return data;
     },
 
     // Product endpoints
@@ -111,6 +115,28 @@ const API = {
         return await this.request(`/cart/remove/${productId}`, {
             method: 'DELETE'
         });
+    },
+
+    async clearCart() {
+        return await this.request('/cart/clear', {
+            method: 'DELETE'
+        });
+    },
+
+    // Order endpoints
+    async createOrder(orderData) {
+        return await this.request('/orders', {
+            method: 'POST',
+            body: JSON.stringify(orderData)
+        });
+    },
+
+    async getMyOrders() {
+        return await this.request('/orders/my-orders');
+    },
+
+    async getOrderById(id) {
+        return await this.request(`/orders/${id}`);
     }
 };
 

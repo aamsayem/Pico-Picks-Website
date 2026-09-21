@@ -1,0 +1,114 @@
+/**
+ * Order Mongoose Schema & Model
+ * Stores checkout orders, item snapshots, shipping info, and order/payment statuses
+ */
+
+const mongoose = require('mongoose');
+
+const orderItemSchema = new mongoose.Schema({
+    productId: {
+        type: String,
+        required: [true, 'Product ID is required']
+    },
+    name: {
+        type: String,
+        required: [true, 'Product name is required']
+    },
+    image: {
+        type: String,
+        default: ''
+    },
+    price: {
+        type: Number,
+        required: [true, 'Item price is required']
+    },
+    quantity: {
+        type: Number,
+        required: [true, 'Quantity is required'],
+        min: [1, 'Quantity cannot be less than 1'],
+        default: 1
+    }
+}, { _id: false });
+
+const shippingAddressSchema = new mongoose.Schema({
+    fullName: {
+        type: String,
+        required: [true, 'Full name is required'],
+        trim: true
+    },
+    address: {
+        type: String,
+        required: [true, 'Shipping address is required'],
+        trim: true
+    },
+    city: {
+        type: String,
+        required: [true, 'City is required'],
+        trim: true
+    },
+    postalCode: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    phone: {
+        type: String,
+        required: [true, 'Contact phone number is required'],
+        trim: true
+    }
+}, { _id: false });
+
+const orderSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: [true, 'User reference is required']
+    },
+    orderItems: {
+        type: [orderItemSchema],
+        validate: [items => items.length > 0, 'Order must contain at least one item']
+    },
+    shippingAddress: {
+        type: shippingAddressSchema,
+        required: [true, 'Shipping address is required']
+    },
+    paymentMethod: {
+        type: String,
+        default: 'Cash on Delivery',
+        trim: true
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['Pending', 'Paid', 'Failed'],
+        default: 'Pending'
+    },
+    orderStatus: {
+        type: String,
+        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+        default: 'Pending'
+    },
+    subtotal: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+    tax: {
+        type: Number,
+        default: 0
+    },
+    shippingFee: {
+        type: Number,
+        default: 0
+    },
+    totalAmount: {
+        type: Number,
+        required: [true, 'Total amount is required']
+    },
+    deliveredAt: {
+        type: Date
+    }
+}, {
+    timestamps: true
+});
+
+module.exports = mongoose.models.Order || mongoose.model('Order', orderSchema);

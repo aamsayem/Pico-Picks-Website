@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Password is required'],
         minlength: 4
     },
+    role: {
+        type: String,
+        enum: ['customer', 'admin'],
+        default: 'customer'
+    },
     cart: [cartItemSchema]
 }, {
     timestamps: true

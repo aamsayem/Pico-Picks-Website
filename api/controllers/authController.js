@@ -1,30 +1,45 @@
 /**
- * Auth Controller - User Registration & Login handlers
+ * Auth Controller - User Registration & Login Handlers
  */
 
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-const generateToken = (id) => {
+/**
+ * Generate JWT token signed with user ID and role
+ */
+const generateToken = (user) => {
     const secret = process.env.JWT_SECRET || 'pico_picks_super_secret_jwt_key_2026';
-    return jwt.sign({ id }, secret, { expiresIn: '30d' });
+    return jwt.sign(
+        { id: user._id, role: user.role },
+        secret,
+        { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
+    );
 };
 
-// @desc    Register a new user
+// @desc    Register a new user (Customer or Admin)
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, role } = req.body;
 
         if (!username || !email || !password) {
             return res.status(400).json({ error: 'Please provide all required fields (username, email, password)' });
         }
 
+        if (password.length < 4) {
+            return res.status(400).json({ error: 'Password must be at least 4 characters long' });
+        }
+
+        const normalizedUsername = username.trim().toLowerCase();
+        const normalizedEmail = email.trim().toLowerCase();
+
+        // Check if user already exists
         const userExists = await User.findOne({
             $or: [
-                { username: username.toLowerCase() },
-                { email: email.toLowerCase() }
+                { username: normalizedUsername },
+                { email: normalizedEmail }
             ]
         });
 
@@ -32,24 +47,30 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ error: 'User with this username or email already exists' });
         }
 
+        // Validate role if provided, default to 'customer'
+        const assignedRole = (role && ['customer', 'admin'].includes(role)) ? role : 'customer';
+
         const user = await User.create({
-            username: username.toLowerCase(),
-            email: email.toLowerCase(),
-            password
+            username: normalizedUsername,
+            email: normalizedEmail,
+            password,
+            role: assignedRole
         });
 
         if (user) {
             res.status(201).json({
-                token: generateToken(user._id),
+                message: 'User registered successfully',
+                token: generateToken(user),
                 user: {
                     _id: user._id,
                     username: user.username,
                     email: user.email,
-                    cart: user.cart
+                    role: user.role,
+                    cart: user.cart || []
                 }
             });
         } else {
-            res.status(400).json({ error: 'Invalid user data' });
+            res.status(400).json({ error: 'Invalid user registration data' });
         }
     } catch (error) {
         console.error('Registration error:', error);
@@ -62,27 +83,31 @@ const registerUser = async (req, res) => {
 // @access  Public
 const loginUser = async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, email, password } = req.body;
+        const loginIdentifier = (username || email || '').trim().toLowerCase();
 
-        if (!username || !password) {
-            return res.status(400).json({ error: 'Please enter both username/email and password' });
+        if (!loginIdentifier || !password) {
+            return res.status(400).json({ error: 'Please enter username/email and password' });
         }
 
+        // Search by username OR email
         const user = await User.findOne({
             $or: [
-                { username: username.toLowerCase() },
-                { email: username.toLowerCase() }
+                { username: loginIdentifier },
+                { email: loginIdentifier }
             ]
         });
 
         if (user && (await user.matchPassword(password))) {
             res.json({
-                token: generateToken(user._id),
+                message: 'Login successful',
+                token: generateToken(user),
                 user: {
                     _id: user._id,
                     username: user.username,
                     email: user.email,
-                    cart: user.cart
+                    role: user.role,
+                    cart: user.cart || []
                 }
             });
         } else {
@@ -94,18 +119,27 @@ const loginUser = async (req, res) => {
     }
 };
 
-// @desc    Get user profile
+// @desc    Get current authenticated user profile
 // @route   GET /api/auth/me
 // @access  Private
 const getUserProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
         if (user) {
-            res.json(user);
+            res.json({
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                cart: user.cart || [],
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt
+            });
         } else {
             res.status(404).json({ error: 'User not found' });
         }
     } catch (error) {
+        console.error('Error fetching user profile:', error);
         res.status(500).json({ error: 'Server error fetching user profile' });
     }
 };
