@@ -1,5 +1,6 @@
 /**
  * Pico Picks Product Details Dynamic Renderer (Live API Driven)
+ * Phase 3: Dynamic Stock Pill, Color Dropdown Selector, & Max Quantity Limits
  */
 
 function escapeHTML(str) {
@@ -80,34 +81,132 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     if (col2) {
-        const titleElem = col2.querySelector('h1');
-        const priceElem = col2.querySelector('h4');
-        const qtyInput = col2.querySelector('input[type="number"]');
-        const addToCartBtn = col2.querySelector('.btn');
-        const descElem = col2.querySelector('p');
+        const titleElem = document.getElementById('productTitle') || col2.querySelector('h1');
+        const priceElem = document.getElementById('productPrice') || col2.querySelector('h4');
+        const descElem = document.getElementById('productDesc') || col2.querySelector('p');
+        const stockBadge = document.getElementById('productStockBadge');
+        const colorGroup = document.getElementById('productColorGroup');
+        const colorSelect = document.getElementById('productColorSelect');
+        const qtyInput = document.getElementById('productQty') || col2.querySelector('input[type="number"]');
+        const addToCartBtn = document.getElementById('addToCartBtn') || col2.querySelector('.btn');
+        const stockWarning = document.getElementById('stockWarning');
 
         if (titleElem) titleElem.textContent = product.name;
         if (priceElem) priceElem.textContent = `$${Number(product.price).toFixed(2)}`;
-        if (qtyInput) {
-            qtyInput.value = 1;
-            qtyInput.min = 1;
-        }
 
         if (descElem) {
             const formattedDesc = escapeHTML(product.description || 'No description available for this item.').replace(/\n/g, '<br>');
             descElem.innerHTML = formattedDesc;
         }
 
+        // 1. Stock Status Logic
+        const stock = (product.stock !== undefined && product.stock !== null) ? Number(product.stock) : 0;
+
+        if (stockBadge) {
+            if (stock > 5) {
+                stockBadge.className = 'stock-status-badge in-stock';
+                stockBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> In Stock (${stock} available)`;
+            } else if (stock > 0) {
+                stockBadge.className = 'stock-status-badge low-stock';
+                stockBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Only ${stock} unit${stock > 1 ? 's' : ''} left in stock - order soon!`;
+            } else {
+                stockBadge.className = 'stock-status-badge out-of-stock';
+                stockBadge.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Currently Out of Stock`;
+            }
+        }
+
+        // 2. Color Selection Logic
+        let colors = [];
+        if (Array.isArray(product.colors)) {
+            colors = product.colors.map(c => String(c).trim()).filter(Boolean);
+        } else if (typeof product.colors === 'string' && product.colors.trim()) {
+            colors = product.colors.split(',').map(c => c.trim()).filter(Boolean);
+        }
+
+        if (colorGroup && colorSelect) {
+            if (colors.length > 0) {
+                colorGroup.style.display = 'block';
+                colorSelect.innerHTML = colors.map((col, idx) => `
+                    <option value="${escapeHTML(col)}" ${idx === 0 ? 'selected' : ''}>${escapeHTML(col)}</option>
+                `).join('');
+            } else {
+                colorGroup.style.display = 'none';
+            }
+        }
+
+        // 3. Quantity Limits & Out of Stock Handlers
+        if (qtyInput) {
+            if (stock <= 0) {
+                qtyInput.value = '0';
+                qtyInput.min = '0';
+                qtyInput.max = '0';
+                qtyInput.disabled = true;
+            } else {
+                qtyInput.disabled = false;
+                qtyInput.min = '1';
+                qtyInput.max = String(stock);
+                qtyInput.value = '1';
+            }
+
+            function validateQuantity() {
+                if (stock <= 0) {
+                    qtyInput.value = '0';
+                    return 0;
+                }
+
+                let val = parseInt(qtyInput.value, 10);
+                if (isNaN(val) || val < 1) {
+                    val = 1;
+                    qtyInput.value = '1';
+                }
+
+                if (val > stock) {
+                    val = stock;
+                    qtyInput.value = String(stock);
+                    if (stockWarning) {
+                        stockWarning.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Maximum available quantity is ${stock}.`;
+                        stockWarning.style.display = 'flex';
+                        setTimeout(() => {
+                            if (stockWarning) stockWarning.style.display = 'none';
+                        }, 3500);
+                    }
+                } else {
+                    if (stockWarning) stockWarning.style.display = 'none';
+                }
+                return val;
+            }
+
+            qtyInput.addEventListener('input', validateQuantity);
+            qtyInput.addEventListener('change', validateQuantity);
+        }
+
         if (addToCartBtn) {
+            if (stock <= 0) {
+                addToCartBtn.classList.add('btn-disabled');
+                addToCartBtn.textContent = 'Out of Stock';
+            } else {
+                addToCartBtn.classList.remove('btn-disabled');
+                addToCartBtn.textContent = 'Add To Cart';
+            }
+
             addToCartBtn.onclick = async function(e) {
                 e.preventDefault();
-                const qty = qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1;
+
+                if (stock <= 0) {
+                    alert('Sorry, this item is currently out of stock.');
+                    return;
+                }
+
+                const qty = qtyInput ? (Math.min(stock, Math.max(1, parseInt(qtyInput.value, 10) || 1))) : 1;
+                const selectedColor = (colorSelect && colorGroup && colorGroup.style.display !== 'none') ? colorSelect.value : null;
+
                 if (typeof addToCart === 'function') {
-                    await addToCart(product.id || product._id, qty);
+                    await addToCart(product.id || product._id, qty, selectedColor);
                 } else if (window.API && API.addToCart) {
                     try {
                         await API.addToCart(product.id || product._id, qty);
-                        alert(`Added ${qty} x "${product.name}" to your cart!`);
+                        const colorNotice = selectedColor ? ` (Color: ${selectedColor})` : '';
+                        alert(`Added ${qty} x "${product.name}"${colorNotice} to your cart!`);
                     } catch (err) {
                         alert(`Could not add to cart: ${err.message}`);
                     }

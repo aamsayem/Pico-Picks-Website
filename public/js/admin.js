@@ -446,6 +446,7 @@ function renderOrdersTable(orders) {
                 <td>
                     <select class="status-select ${statusClass}" onchange="updateOrderStatus('${orderId}', this.value)">
                         <option value="Pending" ${o.orderStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+                        <option value="Confirmed" ${o.orderStatus === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
                         <option value="Processing" ${o.orderStatus === 'Processing' ? 'selected' : ''}>Processing</option>
                         <option value="Shipped" ${o.orderStatus === 'Shipped' ? 'selected' : ''}>Shipped</option>
                         <option value="Delivered" ${o.orderStatus === 'Delivered' ? 'selected' : ''}>Delivered</option>

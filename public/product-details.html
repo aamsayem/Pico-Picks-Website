@@ -57,12 +57,34 @@
                 </div>
                 <div class="col-2">
                     <!-- <p>Home / Cars</p> -->
-                    <h1>BMW M4 GT3 Special</h1>
-                    <h4>$1000.00</h4>
-                    <input type="number" value="1">
-                    <a href="" class="btn">Add To Cart</a>
+                    <h1 id="productTitle">BMW M4 GT3 Special</h1>
+                    <h4 id="productPrice">$1000.00</h4>
+
+                    <!-- Stock Status Badge -->
+                    <div id="productStockBadge" class="stock-status-badge in-stock">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Checking stock...
+                    </div>
+
+                    <!-- Color Selector Group -->
+                    <div id="productColorGroup" class="product-option-group" style="display: none;">
+                        <label for="productColorSelect"><strong>Select Color:</strong></label>
+                        <select id="productColorSelect" class="product-color-select">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Quantity & Add to Cart -->
+                    <div class="product-purchase-group">
+                        <div class="qty-input-wrapper">
+                            <label for="productQty"><strong>Quantity:</strong></label>
+                            <input type="number" id="productQty" value="1" min="1" max="100">
+                        </div>
+                        <a href="#" class="btn" id="addToCartBtn">Add To Cart</a>
+                    </div>
+                    <div id="stockWarning" class="stock-warning-msg" style="display: none;"></div>
+
                     <h3>Product Details</h3>
-                    <p> - Realistic Die-Cast Design: Acrylic Pack Gulf BMW M4 GT3 RS Blue Finely detailed body, headlights, and interiors make it look like a real vintage car. <br>
+                    <p id="productDesc"> - Realistic Die-Cast Design: Acrylic Pack Gulf BMW M4 GT3 RS Blue Finely detailed body, headlights, and interiors make it look like a real vintage car. <br>
 - High-Quality Material: Crafted from premium metal and sturdy plastic parts for durability and long-lasting use.<br>
 - Smooth Rolling Wheels: Ensures easy movement and fun play experience for kids on any surface.<br>
 - Perfect Gift for Kids & Collectors: A great collectible or gift idea for birthdays, parties, and special occasions. </p>

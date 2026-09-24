@@ -195,7 +195,7 @@ const updateOrderStatus = async (req, res) => {
             return res.status(404).json({ error: 'Order not found' });
         }
 
-        const validOrderStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+        const validOrderStatuses = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
         const validPaymentStatuses = ['Pending', 'Paid', 'Failed'];
 
         if (orderStatus) {
@@ -204,9 +204,50 @@ const updateOrderStatus = async (req, res) => {
                     error: `Invalid order status. Allowed: ${validOrderStatuses.join(', ')}`
                 });
             }
+
             order.orderStatus = orderStatus;
+
             if (orderStatus === 'Delivered' && !order.deliveredAt) {
                 order.deliveredAt = new Date();
+            }
+
+            // Auto-Stock Deduction: When order is Confirmed or Processing, deduct item quantities from Product stock
+            const shouldDeduct = (orderStatus === 'Confirmed' || orderStatus === 'Processing');
+            if (shouldDeduct && !order.isStockDeducted) {
+                for (const item of order.orderItems) {
+                    const product = await Product.findOne({
+                        $or: [
+                            { id: item.productId },
+                            ...(mongoose.Types.ObjectId.isValid(item.productId) ? [{ _id: item.productId }] : [])
+                        ]
+                    });
+
+                    if (product) {
+                        const currentStock = (product.stock !== undefined && product.stock !== null) ? Number(product.stock) : 0;
+                        product.stock = Math.max(0, currentStock - item.quantity);
+                        await product.save();
+                    }
+                }
+                order.isStockDeducted = true;
+            }
+
+            // Restore Stock if order is Cancelled after stock was already deducted
+            if (orderStatus === 'Cancelled' && order.isStockDeducted) {
+                for (const item of order.orderItems) {
+                    const product = await Product.findOne({
+                        $or: [
+                            { id: item.productId },
+                            ...(mongoose.Types.ObjectId.isValid(item.productId) ? [{ _id: item.productId }] : [])
+                        ]
+                    });
+
+                    if (product) {
+                        const currentStock = (product.stock !== undefined && product.stock !== null) ? Number(product.stock) : 0;
+                        product.stock = currentStock + item.quantity;
+                        await product.save();
+                    }
+                }
+                order.isStockDeducted = false;
             }
         }
 

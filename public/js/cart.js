@@ -55,13 +55,14 @@ async function syncGuestCartToAPI() {
 /**
  * Add item to Cart via live API (or LocalStorage fallback for guests)
  */
-async function addToCart(productId, quantity = 1) {
+async function addToCart(productId, quantity = 1, color = null) {
     const qty = Math.max(1, parseInt(quantity, 10) || 1);
+    const colorInfo = color ? ` (Color: ${color})` : '';
 
     if (window.API && API.getToken()) {
         try {
             await API.addToCart(productId, qty);
-            alert(`Item added to your cart!`);
+            alert(`Item added to your cart!${colorInfo}`);
             if (window.location.pathname.includes('cart.html')) {
                 await renderCartPage();
             }
@@ -75,14 +76,14 @@ async function addToCart(productId, quantity = 1) {
 
     // Guest fallback
     const cart = getLocalCart();
-    const existing = cart.find(item => (item.productId === productId || item.id === productId));
+    const existing = cart.find(item => (item.productId === productId || item.id === productId) && (!color || item.color === color));
     if (existing) {
         existing.quantity += qty;
     } else {
-        cart.push({ productId, quantity: qty });
+        cart.push({ productId, quantity: qty, ...(color ? { color } : {}) });
     }
     saveLocalCart(cart);
-    alert(`Item added to your cart (Guest mode). Please log in to complete checkout!`);
+    alert(`Item added to your cart${colorInfo} (Guest mode). Please log in to complete checkout!`);
 
     if (window.location.pathname.includes('cart.html')) {
         await renderCartPage();
