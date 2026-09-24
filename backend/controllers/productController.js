@@ -294,6 +294,8 @@ const createProduct = async (req, res) => {
             images,
             description,
             rating,
+            stock,
+            colors,
             isFeatured,
             isLatest,
             id
@@ -316,10 +318,19 @@ const createProduct = async (req, res) => {
             slugId = `${slugId}-${Date.now().toString(36)}`;
         }
 
+        let parsedColors = [];
+        if (Array.isArray(colors)) {
+            parsedColors = colors.map(c => String(c).trim()).filter(Boolean);
+        } else if (typeof colors === 'string' && colors.trim()) {
+            parsedColors = colors.split(',').map(c => c.trim()).filter(Boolean);
+        }
+
         const product = await Product.create({
             id: slugId,
             name: name.trim(),
             price: Number(price),
+            stock: stock !== undefined ? Math.max(0, parseInt(stock, 10) || 0) : 0,
+            colors: parsedColors,
             image: image.trim(),
             images: Array.isArray(images) && images.length > 0 ? images : [image.trim()],
             description: description || '',
@@ -353,12 +364,22 @@ const updateProduct = async (req, res) => {
             images,
             description,
             rating,
+            stock,
+            colors,
             isFeatured,
             isLatest
         } = req.body;
 
         if (name !== undefined) product.name = name.trim();
         if (price !== undefined) product.price = Number(price);
+        if (stock !== undefined) product.stock = Math.max(0, parseInt(stock, 10) || 0);
+        if (colors !== undefined) {
+            if (Array.isArray(colors)) {
+                product.colors = colors.map(c => String(c).trim()).filter(Boolean);
+            } else if (typeof colors === 'string') {
+                product.colors = colors.split(',').map(c => c.trim()).filter(Boolean);
+            }
+        }
         if (image !== undefined) product.image = image.trim();
         if (images !== undefined) product.images = Array.isArray(images) ? images : [images];
         if (description !== undefined) product.description = description;

@@ -21,6 +21,55 @@ function escapeHTML(str) {
         .replace(/'/g, '&#039;');
 }
 
+// ImgBB API Key Configuration (Paste your ImgBB API key below)
+const IMGBB_API_KEY = 'YOUR_KEY_HERE';
+
+/**
+ * Upload an image file directly to the ImgBB API
+ * @param {File} file
+ * @returns {Promise<string>} Direct image display URL
+ */
+async function uploadImageToImgBB(file) {
+    if (!IMGBB_API_KEY || IMGBB_API_KEY === 'YOUR_KEY_HERE') {
+        throw new Error('ImgBB API key is not configured. Please define your IMGBB_API_KEY in js/admin.js before uploading.');
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`https://api.imgbb.com/1/upload?key=${encodeURIComponent(IMGBB_API_KEY)}`, {
+        method: 'POST',
+        body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+        const errorMsg = data?.error?.message || 'ImgBB upload failed';
+        throw new Error(`ImgBB Upload Failed: ${errorMsg}`);
+    }
+
+    return data.data.display_url || data.data.url;
+}
+
+/**
+ * Live preview when an image file is selected in the file input
+ */
+function handleImageFileSelect(input) {
+    const container = document.getElementById('imagePreviewContainer');
+    const statusEl = document.getElementById('imageUploadStatus');
+    if (!container) return;
+
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const previewUrl = URL.createObjectURL(file);
+        container.innerHTML = `<img src="${previewUrl}" alt="Selected Image Preview" style="max-height: 110px; object-fit: contain;">`;
+        if (statusEl) {
+            statusEl.textContent = `Ready: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        }
+    }
+}
+
 /**
  * 1. Admin Authentication Guard
  */
@@ -127,7 +176,7 @@ function renderProductsTable(products) {
     if (!tbody) return;
 
     if (products.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94a3b8; padding: 30px;">No products found in catalog.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #94a3b8; padding: 30px;">No products found in catalog.</td></tr>`;
         return;
     }
 
@@ -137,8 +186,18 @@ function renderProductsTable(products) {
                 <img src="${escapeHTML(p.image)}" alt="${escapeHTML(p.name)}" class="product-thumb" onerror="this.src='images/logo.png'">
             </td>
             <td><code>${escapeHTML(p.id)}</code></td>
-            <td><strong>${escapeHTML(p.name)}</strong></td>
+            <td>
+                <strong>${escapeHTML(p.name)}</strong>
+                ${p.colors && p.colors.length > 0 ? `<div style="font-size: 11px; color: #64748b; margin-top: 3px;"><i class="fa-solid fa-palette"></i> ${escapeHTML(p.colors.join(', '))}</div>` : ''}
+            </td>
             <td>$${Number(p.price).toFixed(2)}</td>
+            <td>
+                ${(p.stock !== undefined && p.stock !== null && Number(p.stock) > 0)
+                    ? (Number(p.stock) <= 5
+                        ? `<span class="badge" style="background: #fef3c7; color: #b45309;" title="Low Stock">${p.stock} left</span>`
+                        : `<span class="badge" style="background: #dcfce7; color: #15803d;">${p.stock} in stock</span>`)
+                    : `<span class="badge" style="background: #fee2e2; color: #b91c1c;">Out of Stock</span>`}
+            </td>
             <td><i class="fa-solid fa-star" style="color: #f59e0b;"></i> ${p.rating ?? 5}</td>
             <td>
                 ${p.isFeatured ? '<span class="badge" style="background:#fef3c7; color:#b45309; margin-right:4px;">Featured</span>' : ''}
@@ -166,7 +225,8 @@ function filterProductsTable() {
     const filtered = state.products.filter(p => 
         (p.name && p.name.toLowerCase().includes(term)) ||
         (p.id && p.id.toLowerCase().includes(term)) ||
-        (p.description && p.description.toLowerCase().includes(term))
+        (p.description && p.description.toLowerCase().includes(term)) ||
+        (p.colors && p.colors.some(c => c.toLowerCase().includes(term)))
     );
     renderProductsTable(filtered);
 }
@@ -176,6 +236,16 @@ function openProductModal() {
     document.getElementById('productModalTitle').textContent = 'Add New Product';
     document.getElementById('productForm').reset();
     document.getElementById('formProductId').value = '';
+    document.getElementById('prodExistingImageUrl').value = '';
+    document.getElementById('prodStock').value = 0;
+    document.getElementById('prodColors').value = '';
+
+    const fileInput = document.getElementById('prodImageFile');
+    if (fileInput) fileInput.value = '';
+
+    const statusEl = document.getElementById('imageUploadStatus');
+    if (statusEl) statusEl.textContent = '';
+
     document.getElementById('imagePreviewContainer').innerHTML = '<span style="color: #94a3b8; font-size: 13px;">Image preview will appear here</span>';
     document.getElementById('productModal').classList.add('active');
 }
@@ -189,7 +259,16 @@ function openEditProductModal(id) {
     document.getElementById('prodName').value = product.name || '';
     document.getElementById('prodPrice').value = product.price || 0;
     document.getElementById('prodRating').value = product.rating ?? 5;
-    document.getElementById('prodImage').value = product.image || '';
+    document.getElementById('prodStock').value = product.stock ?? 0;
+    document.getElementById('prodColors').value = Array.isArray(product.colors) ? product.colors.join(', ') : (product.colors || '');
+    document.getElementById('prodExistingImageUrl').value = product.image || '';
+
+    const fileInput = document.getElementById('prodImageFile');
+    if (fileInput) fileInput.value = '';
+
+    const statusEl = document.getElementById('imageUploadStatus');
+    if (statusEl) statusEl.textContent = '(Optional: select a new file to change image)';
+
     document.getElementById('prodDescription').value = product.description || '';
     document.getElementById('prodIsFeatured').checked = Boolean(product.isFeatured);
     document.getElementById('prodIsLatest').checked = Boolean(product.isLatest);
@@ -211,7 +290,7 @@ function previewProductImage(url) {
         return;
     }
 
-    container.innerHTML = `<img src="${escapeHTML(url)}" alt="Preview" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\\'color:#dc2626; font-size:12px;\\'>Image failed to load</span>'">`;
+    container.innerHTML = `<img src="${escapeHTML(url)}" alt="Preview" style="max-height: 110px; object-fit: contain;" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\\'color:#dc2626; font-size:12px;\\'>Image failed to load</span>'">`;
 }
 
 async function handleProductSubmit(e) {
@@ -219,20 +298,44 @@ async function handleProductSubmit(e) {
 
     const saveBtn = document.getElementById('saveProductBtn');
     const existingId = document.getElementById('formProductId').value.trim();
+    const existingImage = document.getElementById('prodExistingImageUrl').value.trim();
+    const fileInput = document.getElementById('prodImageFile');
+    const file = fileInput && fileInput.files ? fileInput.files[0] : null;
 
-    const payload = {
-        name: document.getElementById('prodName').value.trim(),
-        price: parseFloat(document.getElementById('prodPrice').value),
-        rating: parseFloat(document.getElementById('prodRating').value) || 5,
-        image: document.getElementById('prodImage').value.trim(),
-        description: document.getElementById('prodDescription').value.trim(),
-        isFeatured: document.getElementById('prodIsFeatured').checked,
-        isLatest: document.getElementById('prodIsLatest').checked
-    };
+    if (!file && !existingImage) {
+        alert('Please choose an image file for the product.');
+        return;
+    }
+
+    let finalImageUrl = existingImage;
 
     try {
         saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving...';
+
+        // If a new file is chosen, upload it directly to ImgBB
+        if (file) {
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading to ImgBB...';
+            finalImageUrl = await uploadImageToImgBB(file);
+        }
+
+        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Product...';
+
+        const rawStock = document.getElementById('prodStock').value;
+        const stockVal = rawStock !== '' ? parseInt(rawStock, 10) : 0;
+        const rawColors = document.getElementById('prodColors').value;
+        const colorsArray = rawColors ? rawColors.split(',').map(c => c.trim()).filter(Boolean) : [];
+
+        const payload = {
+            name: document.getElementById('prodName').value.trim(),
+            price: parseFloat(document.getElementById('prodPrice').value),
+            rating: parseFloat(document.getElementById('prodRating').value) || 5,
+            stock: isNaN(stockVal) ? 0 : Math.max(0, stockVal),
+            colors: colorsArray,
+            image: finalImageUrl,
+            description: document.getElementById('prodDescription').value.trim(),
+            isFeatured: document.getElementById('prodIsFeatured').checked,
+            isLatest: document.getElementById('prodIsLatest').checked
+        };
 
         if (existingId) {
             // Update Product (PUT)

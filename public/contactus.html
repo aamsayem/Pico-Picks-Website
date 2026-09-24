@@ -38,59 +38,75 @@
 
             <div class="contact-row">
                 <!-- Left: Contact Details Card -->
-                <div class="col-2">
-                    <div class="contact-info-card">
-                        <h2>Reach Us</h2>
-                        <p style="color: #666; margin-bottom: 25px;">Have questions about our die-cast models or an ongoing order? We are here to help!</p>
+                <div class="contact-info-card">
+                    <h2>Reach Us</h2>
+                    <p class="contact-subtitle">Have questions about our die-cast models or an ongoing order? We are here to help!</p>
 
-                        <div class="contact-box">
+                    <div class="contact-box">
+                        <div class="contact-icon">
                             <i class="fa-solid fa-location-dot"></i>
-                            <div>
-                                <h4>Our Location</h4>
-                                <p>Chattogram, Bangladesh</p>
-                            </div>
                         </div>
+                        <div>
+                            <h4>Our Location</h4>
+                            <p>Chattogram, Bangladesh</p>
+                        </div>
+                    </div>
 
-                        <div class="contact-box">
+                    <div class="contact-box">
+                        <div class="contact-icon">
                             <i class="fa-solid fa-phone"></i>
-                            <div>
-                                <h4>Phone Number</h4>
-                                <p>+880 1886-294464</p>
-                            </div>
                         </div>
+                        <div>
+                            <h4>Phone Number</h4>
+                            <p><a href="tel:+8801886294464" style="color: inherit; text-decoration: none;">+880 1886-294464</a></p>
+                        </div>
+                    </div>
 
-                        <div class="contact-box">
+                    <div class="contact-box">
+                        <div class="contact-icon">
                             <i class="fa-solid fa-envelope"></i>
-                            <div>
-                                <h4>Email Address</h4>
-                                <p>picopicksbd@gmail.com</p>
-                            </div>
                         </div>
+                        <div>
+                            <h4>Email Address</h4>
+                            <p><a href="mailto:picopicksbd@gmail.com" style="color: inherit; text-decoration: none;">picopicksbd@gmail.com</a></p>
+                        </div>
+                    </div>
 
-                        <div class="contact-box">
+                    <div class="contact-box">
+                        <div class="contact-icon">
                             <i class="fa-solid fa-clock"></i>
-                            <div>
-                                <h4>Working Hours</h4>
-                                <p>Saturday - Thursday<br>10:00 AM - 10:00 PM</p>
-                            </div>
+                        </div>
+                        <div>
+                            <h4>Working Hours</h4>
+                            <p>Saturday - Thursday<br>10:00 AM - 10:00 PM</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right: Send Message Form Card -->
-                <div class="col-2">
-                    <div class="contact-form-card">
-                        <h2 style="font-size: 28px; color: #2f2a24; margin-bottom: 10px;">Send Us A Message</h2>
-                        <p style="color: #666; margin-bottom: 20px;">Fill out the form below and our support team will respond shortly.</p>
+                <div class="contact-form-card">
+                    <h2>Send Us A Message</h2>
+                    <p class="contact-subtitle">Fill out the form below and our support team will respond shortly.</p>
 
-                        <form id="ContactForm">
-                            <input type="text" placeholder="Your Full Name" required>
-                            <input type="email" placeholder="Your Email Address" required>
-                            <input type="text" placeholder="Subject" required>
-                            <textarea rows="5" placeholder="Type your message here..." required></textarea>
-                            <button type="submit" class="btn" style="width: 100%; border: none; cursor: pointer;">Send Message &#10140;</button>
-                        </form>
-                    </div>
+                    <form id="ContactForm">
+                        <div class="contact-input-group">
+                            <label for="contactFullName">Your Full Name *</label>
+                            <input type="text" id="contactFullName" placeholder="e.g. John Doe" required>
+                        </div>
+                        <div class="contact-input-group">
+                            <label for="contactEmail">Your Email Address *</label>
+                            <input type="email" id="contactEmail" placeholder="e.g. john@example.com" required>
+                        </div>
+                        <div class="contact-input-group">
+                            <label for="contactSubject">Subject *</label>
+                            <input type="text" id="contactSubject" placeholder="Order inquiry, model availability, etc." required>
+                        </div>
+                        <div class="contact-input-group">
+                            <label for="contactMessage">Message *</label>
+                            <textarea id="contactMessage" rows="5" placeholder="Type your message here..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn contact-submit-btn">Send Message <i class="fa-solid fa-arrow-right" style="margin-left: 6px;"></i></button>
+                    </form>
                 </div>
             </div>
         </div>

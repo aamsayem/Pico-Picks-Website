@@ -681,6 +681,7 @@
                                 <th>ID / Slug</th>
                                 <th>Product Name</th>
                                 <th>Price</th>
+                                <th>Stock</th>
                                 <th>Rating</th>
                                 <th>Badges</th>
                                 <th>Actions</th>
@@ -688,7 +689,7 @@
                         </thead>
                         <tbody id="productsTableBody">
                             <tr>
-                                <td colspan="7" style="text-align: center; color: #94a3b8; padding: 30px;">Loading catalog...</td>
+                                <td colspan="8" style="text-align: center; color: #94a3b8; padding: 30px;">Loading catalog...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -763,9 +764,25 @@
                         </div>
                     </div>
 
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="prodStock">Stock Quantity *</label>
+                            <input type="number" id="prodStock" class="form-control" required min="0" step="1" value="0" placeholder="e.g. 25">
+                        </div>
+                        <div class="form-group">
+                            <label for="prodColors">Available Colors (Comma-separated)</label>
+                            <input type="text" id="prodColors" class="form-control" placeholder="e.g. Red, Black, Metallic Blue">
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label for="prodImage">Primary Image URL / Path *</label>
-                        <input type="text" id="prodImage" class="form-control" required placeholder="images/product/BMW M4 GT3 Special1.jpg" oninput="previewProductImage(this.value)">
+                        <label for="prodImageFile">Product Image (Upload via ImgBB) *</label>
+                        <input type="file" id="prodImageFile" class="form-control" accept="image/*" onchange="handleImageFileSelect(this)">
+                        <input type="hidden" id="prodExistingImageUrl">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <small style="color: #64748b; font-size: 12px;">Choose an image file (PNG, JPG, WEBP). It will be uploaded directly to ImgBB.</small>
+                            <span id="imageUploadStatus" style="font-size: 12px; font-weight: 600; color: var(--primary);"></span>
+                        </div>
                         <div class="image-preview" id="imagePreviewContainer">
                             <span style="color: #94a3b8; font-size: 13px;">Image preview will appear here</span>
                         </div>
