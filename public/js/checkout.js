@@ -162,6 +162,7 @@ function renderOrderSummary() {
                 <h4>${escapeHTML(item.name)}</h4>
                 <div class="summary-meta">
                     <span class="qty-badge">Qty: ${item.quantity}</span>
+                    ${item.color ? `<span class="qty-badge" style="background:#ffedd5; color:#9a3412;">Color: ${escapeHTML(item.color)}</span>` : ''}
                     <span class="unit-price">$${Number(item.price).toFixed(2)} each</span>
                 </div>
             </div>

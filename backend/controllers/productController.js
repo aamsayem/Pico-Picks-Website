@@ -10,6 +10,8 @@ const INITIAL_PRODUCTS = [
         id: "bmw-m4-gt3-special",
         name: "BMW M4 GT3 Special",
         price: 1000.00,
+        stock: 15,
+        colors: ["Gulf Blue", "Alpine White", "Matte Black"],
         rating: 5,
         isFeatured: true,
         isLatest: false,
@@ -26,6 +28,8 @@ const INITIAL_PRODUCTS = [
         id: "slingshot",
         name: "Slingshot",
         price: 600.00,
+        stock: 20,
+        colors: ["Tactical Black", "Desert Sand", "Metallic Gray"],
         rating: 5,
         isFeatured: true,
         isLatest: false,
@@ -37,6 +41,8 @@ const INITIAL_PRODUCTS = [
         id: "1936-mercedes-benz-500k",
         name: "1936 Mercedes-Benz 500K Special Roadster",
         price: 1800.00,
+        stock: 8,
+        colors: ["Classic Burgundy", "Ivory Cream", "Midnight Black"],
         rating: 5,
         isFeatured: true,
         isLatest: false,
@@ -48,6 +54,8 @@ const INITIAL_PRODUCTS = [
         id: "dodge-challenger-srt-hellcat",
         name: "Dodge Challenger SRT Hellacat",
         price: 1800.00,
+        stock: 12,
+        colors: ["TorRed", "Plum Crazy", "Pitch Black"],
         rating: 5,
         isFeatured: true,
         isLatest: false,
@@ -59,6 +67,8 @@ const INITIAL_PRODUCTS = [
         id: "ford-mustang-gt",
         name: "Ford mustang GT",
         price: 1000.00,
+        stock: 18,
+        colors: ["Grabber Blue", "Race Red", "Shadow Black"],
         rating: 5,
         isFeatured: false,
         isLatest: true,
@@ -70,6 +80,8 @@ const INITIAL_PRODUCTS = [
         id: "laferrari-bburago",
         name: "Lafrarri burago",
         price: 600.00,
+        stock: 4,
+        colors: ["Rosso Corsa", "Giallo Modena", "Nero Daytona"],
         rating: 5,
         isFeatured: false,
         isLatest: true,
@@ -81,6 +93,8 @@ const INITIAL_PRODUCTS = [
         id: "benz-300-sl",
         name: "Benz 300 SL",
         price: 800.00,
+        stock: 6,
+        colors: ["Silver Metallic", "Graphite Gray"],
         rating: 5,
         isFeatured: false,
         isLatest: true,
@@ -92,6 +106,8 @@ const INITIAL_PRODUCTS = [
         id: "mercedes-benz-brabus-g800",
         name: "Mercedes-Benz Brabus G800",
         price: 1800.00,
+        stock: 10,
+        colors: ["Obsidian Black", "Diamond White", "Military Green"],
         rating: 5,
         isFeatured: false,
         isLatest: true,
@@ -103,6 +119,8 @@ const INITIAL_PRODUCTS = [
         id: "popup-book",
         name: "Popup Book",
         price: 250.00,
+        stock: 30,
+        colors: [],
         rating: 5,
         isFeatured: false,
         isLatest: false,
@@ -114,6 +132,8 @@ const INITIAL_PRODUCTS = [
         id: "miniature-t1",
         name: "Miniature T1",
         price: 120.00,
+        stock: 20,
+        colors: ["Red & White", "Blue & White", "Green & Cream"],
         rating: 4,
         isFeatured: false,
         isLatest: false,
@@ -125,6 +145,8 @@ const INITIAL_PRODUCTS = [
         id: "ae86-big",
         name: "AE86 Big",
         price: 700.00,
+        stock: 14,
+        colors: ["Panda White/Black", "Carbon Hood Black"],
         rating: 5,
         isFeatured: false,
         isLatest: false,
@@ -136,6 +158,8 @@ const INITIAL_PRODUCTS = [
         id: "dodge-bw",
         name: "Dodge BW",
         price: 1800.00,
+        stock: 7,
+        colors: ["Black & White Racing Edition"],
         rating: 5,
         isFeatured: false,
         isLatest: false,
@@ -147,6 +171,8 @@ const INITIAL_PRODUCTS = [
         id: "dodge-blue",
         name: "Dodge Blue",
         price: 1800.00,
+        stock: 9,
+        colors: ["Electric Blue", "Deep Navy"],
         rating: 5,
         isFeatured: false,
         isLatest: false,
@@ -158,6 +184,8 @@ const INITIAL_PRODUCTS = [
         id: "money-bank",
         name: "Money Bank",
         price: 320.00,
+        stock: 22,
+        colors: ["Gold", "Silver", "Gloss Red"],
         rating: 4,
         isFeatured: false,
         isLatest: false,
@@ -169,6 +197,8 @@ const INITIAL_PRODUCTS = [
         id: "ferrari-f50-bburago",
         name: "Ferarri F50 burago",
         price: 800.00,
+        stock: 3,
+        colors: ["Rosso Corsa", "Fly Yellow"],
         rating: 5,
         isFeatured: false,
         isLatest: false,
@@ -180,6 +210,8 @@ const INITIAL_PRODUCTS = [
         id: "pen-holder",
         name: "Pen holder",
         price: 350.00,
+        stock: 35,
+        colors: ["Gunmetal Gray", "Brushed Silver"],
         rating: 4,
         isFeatured: false,
         isLatest: false,
@@ -191,6 +223,8 @@ const INITIAL_PRODUCTS = [
         id: "spinner-key-ring",
         name: "Spinner key ring",
         price: 120.00,
+        stock: 50,
+        colors: ["Rainbow Titanium", "Matte Black", "Chrome"],
         rating: 5,
         isFeatured: false,
         isLatest: false,
@@ -202,6 +236,8 @@ const INITIAL_PRODUCTS = [
         id: "ferrari",
         name: "Ferrari",
         price: 1800.00,
+        stock: 11,
+        colors: ["Racing Red", "Monza Silver"],
         rating: 5,
         isFeatured: false,
         isLatest: false,
@@ -242,6 +278,17 @@ const getProducts = async (req, res) => {
             products = await Product.find({});
         }
 
+        // Auto-heal: Ensure existing documents with missing stock or null get a default stock
+        if (products.length > 0) {
+            const hasMissingStock = products.some(p => p.stock === undefined || p.stock === null);
+            if (hasMissingStock) {
+                await Product.updateMany(
+                    { $or: [{ stock: { $exists: false } }, { stock: null }] },
+                    { $set: { stock: 15 } }
+                );
+            }
+        }
+
         res.json(products);
     } catch (error) {
         console.error('Error fetching products:', error);
@@ -255,6 +302,11 @@ const findProductByIdOrSlug = async (idParam) => {
     let product = await Product.findOne({ id: idParam });
     if (!product && mongoose.Types.ObjectId.isValid(idParam)) {
         product = await Product.findById(idParam);
+    }
+    // Auto-heal if product in DB has null or undefined stock
+    if (product && (product.stock === undefined || product.stock === null)) {
+        product.stock = 15;
+        await product.save();
     }
     return product;
 };

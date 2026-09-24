@@ -199,6 +199,7 @@ async function renderCartPage() {
                             price: prod.price,
                             image: prod.image,
                             quantity: item.quantity,
+                            color: item.color || null,
                             itemSubtotal: lineSubtotal
                         });
                     }
@@ -240,6 +241,7 @@ async function renderCartPage() {
                             <div>
                                 <p>${escapeHTML(item.name)}</p>
                                 <small>Price: $${Number(item.price).toFixed(2)}</small>
+                                ${item.color ? `<br><small style="color: #c8743a; font-weight: 600;">Color: ${escapeHTML(item.color)}</small>` : ''}
                                 <br>
                                 <a href="#" onclick="removeFromCart('${item.productId}'); return false;">Remove</a>
                             </div>
