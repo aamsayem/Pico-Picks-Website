@@ -21,8 +21,8 @@ function escapeHTML(str) {
         .replace(/'/g, '&#039;');
 }
 
-// ImgBB API Key Configuration (Paste your ImgBB API key below)
-const IMGBB_API_KEY = 'YOUR_KEY_HERE';
+// ImgBB API Key Configuration
+const IMGBB_API_KEY = '5d33ed98748e3098e387cb994af22cd8';
 
 /**
  * Upload an image file directly to the ImgBB API
