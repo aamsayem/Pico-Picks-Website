@@ -299,92 +299,11 @@ async function renderCartPage() {
 
 /**
  * 4. Proceed to Checkout Logic
+ * Redirects user directly to the dedicated checkout page
  */
-async function proceedToCheckout(e) {
+function proceedToCheckout(e) {
     if (e && e.preventDefault) e.preventDefault();
-
-    if (!window.API || !API.getToken()) {
-        alert('Please log in or create an account to proceed with checkout.');
-        window.location.href = 'account.html';
-        return;
-    }
-
-    // Retrieve user profile to prefill
-    let user = null;
-    try {
-        user = await API.getProfile();
-    } catch (err) {
-        alert('Your session has expired. Please log in again.');
-        window.location.href = 'account.html';
-        return;
-    }
-
-    // Prompt for shipping information
-    const fullName = prompt('Confirm your Full Name:', user.username || '');
-    if (!fullName || !fullName.trim()) {
-        alert('Checkout cancelled: Full Name is required.');
-        return;
-    }
-
-    const address = prompt('Enter your Delivery Address:');
-    if (!address || !address.trim()) {
-        alert('Checkout cancelled: Delivery Address is required.');
-        return;
-    }
-
-    const city = prompt('Enter your City:', 'Dhaka');
-    if (!city || !city.trim()) {
-        alert('Checkout cancelled: City is required.');
-        return;
-    }
-
-    const phone = prompt('Enter your Contact Phone Number:');
-    if (!phone || !phone.trim()) {
-        alert('Checkout cancelled: Contact Phone is required.');
-        return;
-    }
-
-    const postalCode = prompt('Enter Postal Code (optional):', '') || '';
-
-    const shippingAddress = {
-        fullName: fullName.trim(),
-        address: address.trim(),
-        city: city.trim(),
-        phone: phone.trim(),
-        postalCode: postalCode.trim()
-    };
-
-    const checkoutBtn = document.getElementById('checkoutBtn');
-    if (checkoutBtn) {
-        checkoutBtn.textContent = 'Processing Order...';
-        checkoutBtn.style.pointerEvents = 'none';
-    }
-
-    try {
-        const orderRes = await API.createOrder({
-            shippingAddress,
-            paymentMethod: 'Cash on Delivery'
-        });
-
-        alert(`🎉 Order placed successfully!\n\nOrder ID: ${orderRes.order._id}\nTotal: $${Number(orderRes.order.totalAmount).toFixed(2)}\nPayment: Cash on Delivery\n\nYou can track this order in your Account dashboard.`);
-
-        // Clear local storage cart if any remains
-        localStorage.removeItem(CART_STORAGE_KEY);
-
-        // Refresh cart page
-        await renderCartPage();
-
-        // Redirect to account dashboard
-        window.location.href = 'account.html';
-    } catch (error) {
-        console.error('Order creation error:', error);
-        alert(`Failed to complete checkout: ${error.message}`);
-    } finally {
-        if (checkoutBtn) {
-            checkoutBtn.textContent = 'Proceed to Checkout ➜';
-            checkoutBtn.style.pointerEvents = 'auto';
-        }
-    }
+    window.location.href = 'checkout.html';
 }
 
 document.addEventListener('DOMContentLoaded', async function() {

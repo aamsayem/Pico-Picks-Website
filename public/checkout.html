@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Pico Picks</title>
+    <link rel="shortcut icon" href="images/logo.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Michroma&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css">
+    
+    <!-- html2pdf.js CDN for Client-Side PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="logo">
+                <a href="index.html"><img src="images/logo.png" width="70px" alt="Pico Picks"></a>
+            </div>
+            <nav>
+                <ul id="MenuItems">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html">Products</a></li>
+                    <li><a href="aboutus.html">About</a></li>
+                    <li><a href="contactus.html">Contact</a></li>
+                    <li><a href="account.html">Account</a></li>
+                </ul>
+            </nav>
+            <a href="cart.html"><img src="images/Cart.png" width="28px" height="28px" alt="Cart"></a>
+            <img src="images/menu-icon.png" class="menu-icon" onclick="menutoggle()" alt="Menu">
+        </div>
+    </div>
+
+    <!-- Main Checkout Page Container -->
+    <div class="checkout-page">
+        <div class="small-container">
+            <!-- Breadcrumbs / Steps -->
+            <div class="checkout-stepper">
+                <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                <span class="step-divider">/</span>
+                <span class="step-current"><i class="fa-solid fa-credit-card"></i> Checkout</span>
+                <span class="step-divider">/</span>
+                <span class="step-inactive"><i class="fa-solid fa-circle-check"></i> Confirmation</span>
+            </div>
+
+            <!-- Empty Cart State (Hidden by default) -->
+            <div id="checkoutEmptyState" class="checkout-empty-state" style="display: none;">
+                <div class="empty-icon"><i class="fa-solid fa-basket-shopping"></i></div>
+                <h2>Your Shopping Cart is Empty</h2>
+                <p>Looks like you haven't added any die-cast models to your cart yet.</p>
+                <a href="products.html" class="btn" style="margin-top: 15px;">Explore Products &#10140;</a>
+            </div>
+
+            <!-- Active Checkout Section (Form + Summary) -->
+            <div id="checkoutActiveSection">
+                <div class="checkout-grid">
+                    <!-- Left Column: Shipping & Payment Details -->
+                    <div class="checkout-col-left">
+                        <div class="checkout-card">
+                            <div class="card-header-styled">
+                                <div class="step-badge">1</div>
+                                <div>
+                                    <h3>Shipping & Contact Details</h3>
+                                    <p>Enter your delivery address for fast doorstep shipping</p>
+                                </div>
+                            </div>
+
+                            <form id="checkoutForm" onsubmit="handleCheckoutSubmit(event)">
+                                <div class="form-group-checkout">
+                                    <label for="custFullName">Full Name *</label>
+                                    <input type="text" id="custFullName" required placeholder="e.g. Abdullah Al Sayem">
+                                </div>
+
+                                <div class="checkout-row-2">
+                                    <div class="form-group-checkout">
+                                        <label for="custPhone">Phone Number *</label>
+                                        <input type="tel" id="custPhone" required placeholder="e.g. +880 1886-294464">
+                                    </div>
+                                    <div class="form-group-checkout">
+                                        <label for="custEmail">Email Address *</label>
+                                        <input type="email" id="custEmail" required placeholder="e.g. sayem@example.com">
+                                    </div>
+                                </div>
+
+                                <div class="form-group-checkout">
+                                    <label for="custAddress">Delivery Street Address *</label>
+                                    <input type="text" id="custAddress" required placeholder="House, Road, Area, Ward/Thana">
+                                </div>
+
+                                <div class="checkout-row-2">
+                                    <div class="form-group-checkout">
+                                        <label for="custCity">City / District *</label>
+                                        <input type="text" id="custCity" required placeholder="e.g. Chattogram or Dhaka">
+                                    </div>
+                                    <div class="form-group-checkout">
+                                        <label for="custPostal">Postal Code</label>
+                                        <input type="text" id="custPostal" placeholder="e.g. 4000">
+                                    </div>
+                                </div>
+
+                                <!-- Payment Method Section -->
+                                <div class="card-header-styled" style="margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 25px;">
+                                    <div class="step-badge">2</div>
+                                    <div>
+                                        <h3>Payment Method</h3>
+                                        <p>Select your preferred way to pay</p>
+                                    </div>
+                                </div>
+
+                                <div class="payment-options">
+                                    <label class="payment-option-card active" onclick="selectPaymentMethod('Cash on Delivery', this)">
+                                        <input type="radio" name="paymentMethod" value="Cash on Delivery" checked>
+                                        <div class="payment-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                                        <div class="payment-text">
+                                            <strong>Cash on Delivery (COD)</strong>
+                                            <span>Pay cash securely when your model is delivered</span>
+                                        </div>
+                                    </label>
+
+                                    <label class="payment-option-card" onclick="selectPaymentMethod('bKash / Mobile Banking', this)">
+                                        <input type="radio" name="paymentMethod" value="bKash / Mobile Banking">
+                                        <div class="payment-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                                        <div class="payment-text">
+                                            <strong>bKash / Mobile Financial Services</strong>
+                                            <span>Pay via bKash, Nagad, or Rocket merchant wallet</span>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="form-group-checkout" style="margin-top: 20px;">
+                                    <label for="orderNotes">Order Notes (Optional)</label>
+                                    <textarea id="orderNotes" rows="2" placeholder="Special delivery instructions or collector packaging requests..."></textarea>
+                                </div>
+
+                                <button type="submit" id="submitOrderBtn" class="btn checkout-place-btn">
+                                    <i class="fa-solid fa-lock"></i> Place Order (<span id="btnTotalText">$0.00</span>) &#10140;
+                                </button>
+
+                                <div class="checkout-guarantee">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                    <span>Safe & Encrypted Checkout. Official Pico Picks Guarantee.</span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Order Summary Card -->
+                    <div class="checkout-col-right">
+                        <div class="checkout-card order-summary-card">
+                            <div class="summary-header">
+                                <h3>Order Summary</h3>
+                                <a href="cart.html" class="edit-cart-link"><i class="fa-solid fa-pen-to-square"></i> Edit Cart</a>
+                            </div>
+
+                            <!-- Itemized List -->
+                            <div id="checkoutItemsList" class="checkout-items-list">
+                                <div style="text-align: center; color: #94a3b8; padding: 25px;">
+                                    <i class="fa-solid fa-spinner fa-spin"></i> Loading order items...
+                                </div>
+                            </div>
+
+                            <!-- Pricing Calculations -->
+                            <div class="summary-totals">
+                                <div class="totals-row">
+                                    <span>Subtotal</span>
+                                    <span id="summarySubtotal">$0.00</span>
+                                </div>
+                                <div class="totals-row">
+                                    <span>Tax / VAT (5%)</span>
+                                    <span id="summaryTax">$0.00</span>
+                                </div>
+                                <div class="totals-row">
+                                    <span>Shipping Fee</span>
+                                    <span id="summaryShipping">$0.00</span>
+                                </div>
+                                <div class="totals-row free-shipping-hint" id="shippingHint">
+                                    <small><i class="fa-solid fa-circle-info"></i> Free shipping on orders over $2000.00</small>
+                                </div>
+                                <div class="totals-row total-highlight">
+                                    <span>Grand Total</span>
+                                    <span id="summaryGrandTotal">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Success & PDF Invoice Section (Hidden initially) -->
+            <div id="checkoutSuccessSection" class="checkout-success-section" style="display: none;">
+                <div class="success-banner-card">
+                    <div class="success-icon-badge">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <h2>Order Placed Successfully!</h2>
+                    <p class="success-msg">
+                        Thank you for your order, <strong id="successCustomerName">Customer</strong>! 
+                        Your collectible die-cast models are reserved and being packed for delivery.
+                    </p>
+
+                    <div class="success-meta-bar">
+                        <div class="meta-item">
+                            <span>Order Reference:</span>
+                            <strong id="successOrderId">#N/A</strong>
+                        </div>
+                        <div class="meta-item">
+                            <span>Date:</span>
+                            <strong id="successOrderDate">N/A</strong>
+                        </div>
+                        <div class="meta-item">
+                            <span>Payment Method:</span>
+                            <strong id="successPaymentMethod">Cash on Delivery</strong>
+                        </div>
+                        <div class="meta-item">
+                            <span>Grand Total:</span>
+                            <strong id="successTotalAmount" style="color: #C8743A;">$0.00</strong>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="success-action-buttons">
+                        <button class="btn btn-pdf" onclick="downloadInvoicePDF()">
+                            <i class="fa-solid fa-file-pdf"></i> Download Invoice (PDF)
+                        </button>
+                        <a href="index.html" class="btn btn-outline">
+                            <i class="fa-solid fa-house"></i> Store Home
+                        </a>
+                        <a href="products.html" class="btn btn-outline">
+                            <i class="fa-solid fa-car-side"></i> View More Cars
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Beautiful Clean Printable Invoice Document -->
+                <div class="invoice-container-wrapper">
+                    <div id="printableInvoice" class="printable-invoice">
+                        <!-- Invoice Header -->
+                        <div class="invoice-header">
+                            <div class="invoice-brand">
+                                <img src="images/logo.png" alt="Pico Picks" class="invoice-logo">
+                                <div>
+                                    <h1>PICO PICKS</h1>
+                                    <span>Premium Die-Cast Collectibles</span>
+                                </div>
+                            </div>
+                            <div class="invoice-meta-info">
+                                <h2>COMMERCIAL INVOICE</h2>
+                                <p><strong>Invoice No:</strong> <span id="invNumber">INV-000000</span></p>
+                                <p><strong>Order Date:</strong> <span id="invDate">2026-09-24</span></p>
+                                <p><strong>Status:</strong> <span class="inv-status-badge" id="invStatus">CONFIRMED</span></p>
+                            </div>
+                        </div>
+
+                        <hr class="invoice-divider">
+
+                        <!-- Billing & Shipping Parties -->
+                        <div class="invoice-parties">
+                            <div class="party-col">
+                                <h4>Billed & Shipped From:</h4>
+                                <p><strong>Pico Picks Official Store</strong></p>
+                                <p>Chattogram, Bangladesh</p>
+                                <p>Email: picopicksbd@gmail.com</p>
+                                <p>Phone: +880 1886-294464</p>
+                            </div>
+                            <div class="party-col">
+                                <h4>Billed & Shipped To:</h4>
+                                <p><strong id="invCustName">John Doe</strong></p>
+                                <p id="invCustAddress">Delivery Address</p>
+                                <p><span id="invCustCity">City</span>, <span id="invCustPostal">Postal</span></p>
+                                <p>Phone: <span id="invCustPhone">+880 000-000000</span></p>
+                                <p>Email: <span id="invCustEmail">customer@example.com</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Itemized Table -->
+                        <table class="invoice-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Item & Description</th>
+                                    <th style="width: 110px; text-align: right;">Unit Price</th>
+                                    <th style="width: 70px; text-align: center;">Qty</th>
+                                    <th style="width: 120px; text-align: right;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invItemsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+
+                        <!-- Calculations Summary -->
+                        <div class="invoice-footer-grid">
+                            <div class="invoice-notes">
+                                <h4>Payment & Delivery Terms:</h4>
+                                <p><strong>Method:</strong> <span id="invPaymentMethod">Cash on Delivery</span></p>
+                                <p>Authentic die-cast replica with multi-layer protective packaging.</p>
+                                <p style="margin-top: 10px; font-style: italic; color: #64748b;">
+                                    "Our purpose is to sustainably make the pleasure and benefits of collecting cars accessible to all."
+                                </p>
+                            </div>
+                            <div class="invoice-totals-box">
+                                <div class="inv-row">
+                                    <span>Subtotal:</span>
+                                    <span id="invSubtotal">$0.00</span>
+                                </div>
+                                <div class="inv-row">
+                                    <span>Tax / VAT (5%):</span>
+                                    <span id="invTax">$0.00</span>
+                                </div>
+                                <div class="inv-row">
+                                    <span>Shipping Fee:</span>
+                                    <span id="invShipping">$0.00</span>
+                                </div>
+                                <div class="inv-row inv-total-row">
+                                    <span>Total Due:</span>
+                                    <span id="invGrandTotal">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="invoice-bottom-signature">
+                            <p>Thank you for choosing Pico Picks! Authorized Collector Invoice.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="footer-col-1">
+                    <h3>Download Our App</h3>
+                    <p>Download App for Android and IOS mobile phone.</p> 
+                    <div class="app-logo">
+                        <img src="images/play store.png" alt="Play Store">
+                    </div>      
+                </div>
+                <div class="footer-col-2">  
+                    <img src="images/logo.png" alt="Logo">
+                    <p>Our Purpose Is To Sustainably Make The Pleasure And Benefits Of Collecting Cars Accessible To The Many.</p>       
+                </div>
+                <div class="footer-col-3">
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li>Coupons</li>
+                        <li>Blog Post</li>
+                        <li>Return Policy</li>
+                        <li>Join Affiliate</li>
+                    </ul>
+                </div>
+                <div class="footer-col-4">
+                    <h3>Follow Us</h3>
+                    <ul>
+                        <li>Facebook</li>
+                        <li>Instagram</li>
+                        <li>TikTok</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="copyright">Copyright 2026 - Pico Picks</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        var MenuItems = document.getElementById("MenuItems");
+        MenuItems.style.maxHeight = "0px";
+        function menutoggle(){
+            if(MenuItems.style.maxHeight == "0px"){
+                MenuItems.style.maxHeight = "200px";
+            } else {
+                MenuItems.style.maxHeight = "0px";
+            }
+        }    
+    </script>
+    <script src="js/api.js"></script>
+    <script src="js/checkout.js"></script>
+</body>
+</html>

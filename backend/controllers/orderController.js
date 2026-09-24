@@ -26,15 +26,16 @@ const createOrder = async (req, res) => {
         let cart = null;
 
         if (!sourceItems || !Array.isArray(sourceItems) || sourceItems.length === 0) {
-            cart = await Cart.findOne({ user: req.user._id });
-            if (!cart || !cart.items || cart.items.length === 0) {
-                return res.status(400).json({ error: 'Your shopping cart is empty. Please add items before checkout.' });
+            if (req.user) {
+                cart = await Cart.findOne({ user: req.user._id });
+                if (cart && cart.items && cart.items.length > 0) {
+                    sourceItems = cart.items;
+                }
             }
-            sourceItems = cart.items;
         }
 
-        if (sourceItems.length === 0) {
-            return res.status(400).json({ error: 'No items provided for order' });
+        if (!sourceItems || sourceItems.length === 0) {
+            return res.status(400).json({ error: 'Your shopping cart is empty. Please add items before checkout.' });
         }
 
         // Build order items with verified database pricing to prevent client price tampering
@@ -73,7 +74,8 @@ const createOrder = async (req, res) => {
         const totalAmount = subtotal + tax + shippingFee;
 
         const order = await Order.create({
-            user: req.user._id,
+            user: req.user ? req.user._id : null,
+            guestEmail: (req.body.email || shippingAddress.email || '').trim(),
             orderItems: verifiedOrderItems,
             shippingAddress: {
                 fullName: shippingAddress.fullName.trim(),
@@ -92,12 +94,14 @@ const createOrder = async (req, res) => {
         });
 
         // Automatically clear customer's cart after successful order creation
-        if (!cart) {
-            cart = await Cart.findOne({ user: req.user._id });
-        }
-        if (cart) {
-            cart.items = [];
-            await cart.save();
+        if (req.user) {
+            if (!cart) {
+                cart = await Cart.findOne({ user: req.user._id });
+            }
+            if (cart) {
+                cart.items = [];
+                await cart.save();
+            }
         }
 
         res.status(201).json({
@@ -140,12 +144,14 @@ const getOrderById = async (req, res) => {
             return res.status(404).json({ error: 'Order not found' });
         }
 
-        // Authorization check: User must own the order OR be an admin
-        const isOwner = order.user && order.user._id.toString() === req.user._id.toString();
-        const isAdmin = req.user.role === 'admin';
+        // Authorization check: If logged in, ensure owner or admin
+        if (order.user && req.user) {
+            const isOwner = order.user._id.toString() === req.user._id.toString();
+            const isAdmin = req.user.role === 'admin';
 
-        if (!isOwner && !isAdmin) {
-            return res.status(403).json({ error: 'Access denied: You do not have permission to view this order' });
+            if (!isOwner && !isAdmin) {
+                return res.status(403).json({ error: 'Access denied: You do not have permission to view this order' });
+            }
         }
 
         res.json(order);

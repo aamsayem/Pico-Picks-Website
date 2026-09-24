@@ -33,16 +33,28 @@ const protect = async (req, res, next) => {
     return res.status(401).json({ error: 'Not authorized, no token provided' });
 };
 
-const adminOnly = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
-        return next();
+const optionalAuth = async (req, res, next) => {
+    let token;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        try {
+            token = req.headers.authorization.split(' ')[1];
+            const secret = process.env.JWT_SECRET || 'pico_picks_super_secret_jwt_key_2026';
+            const decoded = jwt.verify(token, secret);
+            const user = await User.findById(decoded.id).select('-password');
+            if (user) {
+                req.user = user;
+            }
+        } catch (error) {
+            // Silently continue for optional auth
+        }
     }
-    return res.status(403).json({ error: 'Access denied: Admin privileges required' });
+    return next();
 };
 
 module.exports = {
     protect,
     adminOnly,
+    optionalAuth,
     // Aliases for convenience
     authenticate: protect,
     isAdmin: adminOnly

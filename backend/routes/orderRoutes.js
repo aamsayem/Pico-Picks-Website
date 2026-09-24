@@ -13,18 +13,15 @@ const {
     getAllOrders,
     updateOrderStatus
 } = require('../controllers/orderController');
-const { protect, adminOnly } = require('../middleware/auth');
+const { protect, adminOnly, optionalAuth } = require('../middleware/auth');
 
-// All order endpoints require authenticated user
-router.use(protect);
-
-// Customer endpoints
-router.post('/', createOrder);
-router.get('/my-orders', getMyOrders);
-router.get('/:id', getOrderById);
+// Customer endpoints (create order supports both logged-in and guest checkout)
+router.post('/', optionalAuth, createOrder);
+router.get('/my-orders', protect, getMyOrders);
+router.get('/:id', optionalAuth, getOrderById);
 
 // Admin endpoints
-router.get('/', adminOnly, getAllOrders);
-router.put('/:id/status', adminOnly, updateOrderStatus);
+router.get('/', protect, adminOnly, getAllOrders);
+router.put('/:id/status', protect, adminOnly, updateOrderStatus);
 
 module.exports = router;
