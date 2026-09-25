@@ -103,15 +103,22 @@ const API = {
         return await this.request(`/products/${id}`);
     },
 
+    async addProductReview(productId, reviewData) {
+        return await this.request(`/products/${productId}/reviews`, {
+            method: 'POST',
+            body: JSON.stringify(reviewData)
+        });
+    },
+
     // Cart endpoints
     async getCart() {
         return await this.request('/cart');
     },
 
-    async addToCart(productId, quantity = 1) {
+    async addToCart(productId, quantity = 1, color = '') {
         return await this.request('/cart/add', {
             method: 'POST',
-            body: JSON.stringify({ productId, quantity })
+            body: JSON.stringify({ productId, quantity, color: color || '' })
         });
     },
 

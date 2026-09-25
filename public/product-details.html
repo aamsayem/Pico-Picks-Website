@@ -65,12 +65,14 @@
                         <i class="fa-solid fa-circle-notch fa-spin"></i> Checking stock...
                     </div>
 
-                    <!-- Color Selector Group -->
+                    <!-- Color Selector Group (Clickable Buttons / Pills) -->
                     <div id="productColorGroup" class="product-option-group" style="display: none;">
-                        <label for="productColorSelect"><strong>Select Color:</strong></label>
-                        <select id="productColorSelect" class="product-color-select">
-                            <!-- Populated dynamically -->
-                        </select>
+                        <label><strong>Select Color: <span id="selectedColorLabel" style="color: #C8743A; font-weight: 600;">(Please select a color)</span> *</strong></label>
+                        <div id="productColorPills" class="color-pills-container">
+                            <!-- Populated dynamically as clickable buttons -->
+                        </div>
+                        <input type="hidden" id="selectedColorInput" value="">
+                        <div id="colorSelectWarning" class="color-warning-msg" style="display: none;"></div>
                     </div>
 
                     <!-- Quantity & Add to Cart -->
@@ -93,6 +95,57 @@
 - Smooth Rolling Wheels: Ensures easy movement and fun play experience for kids on any surface.<br>
 - Perfect Gift for Kids & Collectors: A great collectible or gift idea for birthdays, parties, and special occasions. </p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Customer Reviews & Ratings Section -->
+        <div class="small-container reviews-section-container">
+            <h2 class="title" style="margin-bottom: 25px;">Customer Reviews & Ratings</h2>
+
+            <div class="reviews-summary-card">
+                <div class="reviews-rating-overall">
+                    <span class="reviews-avg-number" id="reviewsAvgRating">5.0</span>
+                    <div class="rating reviews-stars" id="reviewsStarsSummary">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <span class="reviews-total-count" id="reviewsTotalCount">Based on 0 customer reviews</span>
+                </div>
+            </div>
+
+            <!-- Review Submission Form for Logged-In Customers -->
+            <div class="review-submission-card" id="reviewSubmissionCard">
+                <h3>Leave a Customer Review</h3>
+                <div id="reviewAuthPrompt" style="display: none; padding: 16px 20px; background: #fff8f0; border-radius: 10px; border: 1px solid #fed7aa; color: #9a3412; font-size: 14px; margin-top: 10px;">
+                    <i class="fa-solid fa-circle-info"></i> Please <a href="account.html" style="color: #C8743A; font-weight: 700; text-decoration: underline;">log in to your account</a> to submit a verified rating and review.
+                </div>
+                <form id="productReviewForm" style="display: none; margin-top: 15px;">
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #2f2a24;">Your Rating *</label>
+                        <div class="star-rating-selector" id="starRatingSelector">
+                            <span class="star-btn active" data-rating="1"><i class="fa-solid fa-star"></i></span>
+                            <span class="star-btn active" data-rating="2"><i class="fa-solid fa-star"></i></span>
+                            <span class="star-btn active" data-rating="3"><i class="fa-solid fa-star"></i></span>
+                            <span class="star-btn active" data-rating="4"><i class="fa-solid fa-star"></i></span>
+                            <span class="star-btn active" data-rating="5"><i class="fa-solid fa-star"></i></span>
+                            <input type="hidden" id="selectedStarRating" value="5">
+                            <span id="starRatingText" style="margin-left: 12px; font-weight: 600; color: #C8743A;">5 out of 5 stars</span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label for="reviewCommentInput" style="display: block; font-weight: 600; margin-bottom: 8px; color: #2f2a24;">Your Feedback & Review *</label>
+                        <textarea id="reviewCommentInput" rows="4" class="form-control" required placeholder="Share your experience regarding the casting quality, paint detailing, and finish..." style="width: 100%; box-sizing: border-box; padding: 12px; border-radius: 8px; border: 1.5px solid #d1d5db; font-family: inherit; font-size: 14px; resize: vertical;"></textarea>
+                    </div>
+                    <button type="submit" class="btn" id="submitReviewBtn" style="cursor: pointer; margin: 0; padding: 10px 24px;">Submit Review &#10140;</button>
+                </form>
+            </div>
+
+            <!-- Customer Reviews List -->
+            <div class="reviews-list-container" id="reviewsListContainer">
+                <div style="text-align: center; color: #94a3b8; padding: 30px;">Loading customer reviews...</div>
             </div>
         </div>
 

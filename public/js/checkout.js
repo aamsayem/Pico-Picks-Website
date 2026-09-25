@@ -249,7 +249,8 @@ async function handleCheckoutSubmit(e) {
         paymentMethod: checkoutState.selectedPayment,
         items: checkoutState.cartItems.map(item => ({
             productId: item.productId || item.id,
-            quantity: item.quantity
+            quantity: item.quantity,
+            color: item.color || ''
         }))
     };
 

@@ -16,6 +16,11 @@ const cartItemSchema = new mongoose.Schema({
         required: [true, 'Quantity is required'],
         default: 1,
         min: [1, 'Quantity cannot be less than 1']
+    },
+    color: {
+        type: String,
+        default: '',
+        trim: true
     }
 }, { _id: false });
 

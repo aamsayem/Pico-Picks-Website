@@ -44,7 +44,7 @@ async function syncGuestCartToAPI() {
 
     try {
         for (const item of localItems) {
-            await API.addToCart(item.productId || item.id, item.quantity);
+            await API.addToCart(item.productId || item.id, item.quantity, item.color || '');
         }
         localStorage.removeItem(CART_STORAGE_KEY);
     } catch (e) {
@@ -61,7 +61,7 @@ async function addToCart(productId, quantity = 1, color = null) {
 
     if (window.API && API.getToken()) {
         try {
-            await API.addToCart(productId, qty);
+            await API.addToCart(productId, qty, color || '');
             alert(`Item added to your cart!${colorInfo}`);
             if (window.location.pathname.includes('cart.html')) {
                 await renderCartPage();

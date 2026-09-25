@@ -344,6 +344,7 @@ const createProduct = async (req, res) => {
             price,
             image,
             images,
+            galleryImages,
             description,
             rating,
             stock,
@@ -377,6 +378,15 @@ const createProduct = async (req, res) => {
             parsedColors = colors.split(',').map(c => c.trim()).filter(Boolean);
         }
 
+        let parsedGallery = [];
+        if (Array.isArray(galleryImages)) {
+            parsedGallery = galleryImages.map(img => String(img).trim()).filter(Boolean).slice(0, 4);
+        } else if (Array.isArray(images) && images.length > 1) {
+            parsedGallery = images.slice(1, 5).map(img => String(img).trim()).filter(Boolean);
+        }
+
+        const allImages = [image.trim(), ...parsedGallery];
+
         const product = await Product.create({
             id: slugId,
             name: name.trim(),
@@ -384,11 +394,13 @@ const createProduct = async (req, res) => {
             stock: stock !== undefined ? Math.max(0, parseInt(stock, 10) || 0) : 0,
             colors: parsedColors,
             image: image.trim(),
-            images: Array.isArray(images) && images.length > 0 ? images : [image.trim()],
+            galleryImages: parsedGallery,
+            images: allImages,
             description: description || '',
             rating: rating !== undefined ? Number(rating) : 5,
             isFeatured: Boolean(isFeatured),
-            isLatest: Boolean(isLatest)
+            isLatest: Boolean(isLatest),
+            reviews: []
         });
 
         res.status(201).json(product);
@@ -414,6 +426,7 @@ const updateProduct = async (req, res) => {
             price,
             image,
             images,
+            galleryImages,
             description,
             rating,
             stock,
@@ -433,7 +446,17 @@ const updateProduct = async (req, res) => {
             }
         }
         if (image !== undefined) product.image = image.trim();
-        if (images !== undefined) product.images = Array.isArray(images) ? images : [images];
+
+        if (galleryImages !== undefined) {
+            const parsedGallery = Array.isArray(galleryImages)
+                ? galleryImages.map(img => String(img).trim()).filter(Boolean).slice(0, 4)
+                : [];
+            product.galleryImages = parsedGallery;
+            product.images = [product.image, ...parsedGallery];
+        } else if (images !== undefined) {
+            product.images = Array.isArray(images) ? images : [images];
+        }
+
         if (description !== undefined) product.description = description;
         if (rating !== undefined) product.rating = Number(rating);
         if (isFeatured !== undefined) product.isFeatured = Boolean(isFeatured);
@@ -466,6 +489,79 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+// @desc    Add or update customer review for a product
+// @route   POST /api/products/:id/reviews
+// @access  Private (Authenticated users)
+const addProductReview = async (req, res) => {
+    try {
+        const { rating, comment } = req.body;
+
+        if (!rating || comment === undefined || comment === null || String(comment).trim() === '') {
+            return res.status(400).json({ error: 'Please provide both a star rating and your review comments' });
+        }
+
+        const numRating = Number(rating);
+        if (isNaN(numRating) || numRating < 1 || numRating > 5) {
+            return res.status(400).json({ error: 'Rating must be an integer between 1 and 5' });
+        }
+
+        const product = await findProductByIdOrSlug(req.params.id);
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        const userId = req.user ? req.user._id : null;
+        const userName = req.user ? (req.user.username || req.user.name) : 'Customer';
+
+        if (!userId) {
+            return res.status(401).json({ error: 'You must be logged in to post a review' });
+        }
+
+        // Initialize reviews array if undefined
+        if (!Array.isArray(product.reviews)) {
+            product.reviews = [];
+        }
+
+        // Check if user already reviewed
+        const existingReviewIndex = product.reviews.findIndex(
+            r => r.user && r.user.toString() === userId.toString()
+        );
+
+        if (existingReviewIndex > -1) {
+            // Update existing review
+            product.reviews[existingReviewIndex].rating = numRating;
+            product.reviews[existingReviewIndex].comment = String(comment).trim();
+            product.reviews[existingReviewIndex].userName = userName;
+            product.reviews[existingReviewIndex].createdAt = new Date();
+        } else {
+            // Add new review
+            product.reviews.push({
+                user: userId,
+                userName,
+                rating: numRating,
+                comment: String(comment).trim(),
+                createdAt: new Date()
+            });
+        }
+
+        // Dynamically recalculate average rating
+        const totalStars = product.reviews.reduce((acc, item) => acc + Number(item.rating || 0), 0);
+        product.rating = Number((totalStars / product.reviews.length).toFixed(1));
+
+        await product.save();
+
+        res.status(201).json({
+            message: existingReviewIndex > -1 ? 'Review updated successfully' : 'Review submitted successfully',
+            reviews: product.reviews,
+            rating: product.rating,
+            numReviews: product.reviews.length
+        });
+    } catch (error) {
+        console.error('Error submitting product review:', error);
+        res.status(500).json({ error: error.message || 'Failed to submit review' });
+    }
+};
+
 // @desc    Seed database with initial products
 // @route   POST /api/products/seed
 // @access  Public
@@ -485,5 +581,6 @@ module.exports = {
     createProduct,
     updateProduct,
     deleteProduct,
+    addProductReview,
     seedProducts
 };

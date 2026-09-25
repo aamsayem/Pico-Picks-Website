@@ -65,7 +65,8 @@ const createOrder = async (req, res) => {
                 name: product.name,
                 image: product.image || '',
                 price: itemPrice,
-                quantity: qty
+                quantity: qty,
+                color: item.color || ''
             });
         }
 

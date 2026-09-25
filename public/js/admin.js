@@ -77,6 +77,39 @@ function handleImageFileSelect(input) {
 }
 
 /**
+ * Live preview when gallery image files are selected
+ */
+function handleGalleryFilesSelect(input) {
+    const container = document.getElementById('galleryPreviewContainer');
+    const statusEl = document.getElementById('galleryUploadStatus');
+    if (!container) return;
+
+    if (!input.files || input.files.length === 0) {
+        container.innerHTML = '<span style="color: #94a3b8; font-size: 12px;">Gallery thumbnails will appear here</span>';
+        if (statusEl) statusEl.textContent = '';
+        return;
+    }
+
+    const files = Array.from(input.files).slice(0, 4);
+    if (input.files.length > 4) {
+        alert('You can select a maximum of 4 gallery images. Only the first 4 will be uploaded.');
+    }
+
+    container.innerHTML = files.map(file => {
+        const url = URL.createObjectURL(file);
+        return `
+            <div style="position:relative; width:65px; height:65px; border-radius:6px; overflow:hidden; border:1px solid #cbd5e1;">
+                <img src="${url}" alt="${escapeHTML(file.name)}" style="width:100%; height:100%; object-fit:cover;">
+            </div>
+        `;
+    }).join('');
+
+    if (statusEl) {
+        statusEl.textContent = `${files.length} gallery image(s) ready to upload`;
+    }
+}
+
+/**
  * 1. Admin Authentication Guard
  */
 async function checkAdminAuth() {
@@ -252,6 +285,15 @@ function openProductModal() {
     const statusEl = document.getElementById('imageUploadStatus');
     if (statusEl) statusEl.textContent = '';
 
+    const galleryInput = document.getElementById('prodGalleryFiles');
+    if (galleryInput) galleryInput.value = '';
+    const existingGallery = document.getElementById('prodExistingGalleryUrls');
+    if (existingGallery) existingGallery.value = '';
+    const galleryStatus = document.getElementById('galleryUploadStatus');
+    if (galleryStatus) galleryStatus.textContent = '';
+    const galleryContainer = document.getElementById('galleryPreviewContainer');
+    if (galleryContainer) galleryContainer.innerHTML = '<span style="color: #94a3b8; font-size: 12px;">Gallery thumbnails will appear here</span>';
+
     document.getElementById('imagePreviewContainer').innerHTML = '<span style="color: #94a3b8; font-size: 13px;">Image preview will appear here</span>';
     document.getElementById('productModal').classList.add('active');
 }
@@ -274,6 +316,36 @@ function openEditProductModal(id) {
 
     const statusEl = document.getElementById('imageUploadStatus');
     if (statusEl) statusEl.textContent = '(Optional: select a new file to change image)';
+
+    const existingGalleryUrls = (Array.isArray(product.galleryImages) && product.galleryImages.length > 0)
+        ? product.galleryImages
+        : (Array.isArray(product.images) && product.images.length > 1 ? product.images.slice(1, 5) : []);
+
+    const existingGalleryInput = document.getElementById('prodExistingGalleryUrls');
+    if (existingGalleryInput) existingGalleryInput.value = JSON.stringify(existingGalleryUrls);
+
+    const galleryInput = document.getElementById('prodGalleryFiles');
+    if (galleryInput) galleryInput.value = '';
+
+    const galleryStatus = document.getElementById('galleryUploadStatus');
+    if (galleryStatus) {
+        galleryStatus.textContent = existingGalleryUrls.length > 0
+            ? `(${existingGalleryUrls.length} existing thumbnails. Select new files to replace)`
+            : '';
+    }
+
+    const galleryContainer = document.getElementById('galleryPreviewContainer');
+    if (galleryContainer) {
+        if (existingGalleryUrls.length > 0) {
+            galleryContainer.innerHTML = existingGalleryUrls.map((url, i) => `
+                <div style="position:relative; width:65px; height:65px; border-radius:6px; overflow:hidden; border:1px solid #cbd5e1;" title="Thumbnail ${i+1}">
+                    <img src="${escapeHTML(url)}" alt="Thumbnail" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='images/logo.png'">
+                </div>
+            `).join('');
+        } else {
+            galleryContainer.innerHTML = '<span style="color: #94a3b8; font-size: 12px;">No existing gallery thumbnails</span>';
+        }
+    }
 
     document.getElementById('prodDescription').value = product.description || '';
     document.getElementById('prodIsFeatured').checked = Boolean(product.isFeatured);
@@ -318,10 +390,29 @@ async function handleProductSubmit(e) {
     try {
         saveBtn.disabled = true;
 
-        // If a new file is chosen, upload it directly to ImgBB
+        // If a new primary image file is chosen, upload it directly to ImgBB
         if (file) {
-            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading to ImgBB...';
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading Image to ImgBB...';
             finalImageUrl = await uploadImageToImgBB(file);
+        }
+
+        // Check for gallery files
+        const galleryInput = document.getElementById('prodGalleryFiles');
+        const galleryFiles = galleryInput && galleryInput.files ? Array.from(galleryInput.files).slice(0, 4) : [];
+        const existingGalleryJson = document.getElementById('prodExistingGalleryUrls')?.value || '';
+        let finalGalleryUrls = [];
+
+        if (existingGalleryJson) {
+            try {
+                finalGalleryUrls = JSON.parse(existingGalleryJson);
+            } catch (e) {
+                finalGalleryUrls = [];
+            }
+        }
+
+        if (galleryFiles.length > 0) {
+            saveBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading ${galleryFiles.length} Gallery Photos...`;
+            finalGalleryUrls = await Promise.all(galleryFiles.map(f => uploadImageToImgBB(f)));
         }
 
         saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Product...';
@@ -338,6 +429,7 @@ async function handleProductSubmit(e) {
             stock: isNaN(stockVal) ? 0 : Math.max(0, stockVal),
             colors: colorsArray,
             image: finalImageUrl,
+            galleryImages: finalGalleryUrls,
             description: document.getElementById('prodDescription').value.trim(),
             isFeatured: document.getElementById('prodIsFeatured').checked,
             isLatest: document.getElementById('prodIsLatest').checked

@@ -12,6 +12,7 @@ const {
     createProduct,
     updateProduct,
     deleteProduct,
+    addProductReview,
     seedProducts
 } = require('../controllers/productController');
 const { protect, adminOnly } = require('../middleware/auth');
@@ -20,6 +21,9 @@ const { protect, adminOnly } = require('../middleware/auth');
 router.get('/', getProducts);
 router.get('/:id', getProductById);
 router.post('/seed', seedProducts);
+
+// Customer-protected reviews route
+router.post('/:id/reviews', protect, addProductReview);
 
 // Admin-protected routes
 router.post('/', protect, adminOnly, createProduct);

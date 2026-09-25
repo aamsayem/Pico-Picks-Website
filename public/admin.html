@@ -791,6 +791,19 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="prodGalleryFiles">4 Gallery / Thumbnail Images (Upload via ImgBB)</label>
+                        <input type="file" id="prodGalleryFiles" class="form-control" accept="image/*" multiple onchange="handleGalleryFilesSelect(this)">
+                        <input type="hidden" id="prodExistingGalleryUrls">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <small style="color: #64748b; font-size: 12px;">Select up to 4 photos. They will be uploaded directly to ImgBB and displayed as thumbnails under the main photo.</small>
+                            <span id="galleryUploadStatus" style="font-size: 12px; font-weight: 600; color: var(--primary);"></span>
+                        </div>
+                        <div class="gallery-preview-grid" id="galleryPreviewContainer" style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                            <span style="color: #94a3b8; font-size: 12px;">Gallery thumbnails will appear here</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="prodDescription">Product Description</label>
                         <textarea id="prodDescription" class="form-control" rows="3" placeholder="Enter key features and specifications..."></textarea>
                     </div>

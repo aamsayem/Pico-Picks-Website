@@ -4,6 +4,34 @@
 
 const mongoose = require('mongoose');
 
+const reviewSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    userName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    rating: {
+        type: Number,
+        required: [true, 'Rating is required'],
+        min: 1,
+        max: 5
+    },
+    comment: {
+        type: String,
+        required: [true, 'Review comment is required'],
+        trim: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 const productSchema = new mongoose.Schema({
     id: {
         type: String,
@@ -39,6 +67,10 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Primary image path is required']
     },
+    galleryImages: {
+        type: [String],
+        default: []
+    },
     images: {
         type: [String],
         default: []
@@ -54,6 +86,10 @@ const productSchema = new mongoose.Schema({
     },
     colors: {
         type: [String],
+        default: []
+    },
+    reviews: {
+        type: [reviewSchema],
         default: []
     }
 }, {

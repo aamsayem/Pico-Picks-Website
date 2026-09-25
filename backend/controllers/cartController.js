@@ -53,6 +53,7 @@ const populateCartDetails = async (cartItems) => {
                 price: product.price,
                 image: product.image,
                 quantity: item.quantity,
+                color: item.color || '',
                 itemSubtotal
             });
         }
@@ -90,8 +91,9 @@ const getCart = async (req, res) => {
 // @access  Private (Customer/User)
 const addToCart = async (req, res) => {
     try {
-        const { productId, quantity } = req.body;
+        const { productId, quantity, color } = req.body;
         const qty = parseInt(quantity, 10) || 1;
+        const chosenColor = (color || '').trim();
 
         if (!productId) {
             return res.status(400).json({ error: 'Product ID is required' });
@@ -107,12 +109,14 @@ const addToCart = async (req, res) => {
         }
 
         const cart = await getOrCreateUserCart(req.user._id);
-        const existingItemIndex = cart.items.findIndex(item => item.productId === product.id);
+        const existingItemIndex = cart.items.findIndex(
+            item => item.productId === product.id && (item.color || '') === chosenColor
+        );
 
         if (existingItemIndex > -1) {
             cart.items[existingItemIndex].quantity += qty;
         } else {
-            cart.items.push({ productId: product.id, quantity: qty });
+            cart.items.push({ productId: product.id, quantity: qty, color: chosenColor });
         }
 
         await cart.save();
