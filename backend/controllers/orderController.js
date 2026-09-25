@@ -79,7 +79,9 @@ const createOrder = async (req, res) => {
             discountAmount = Math.max(0, Math.min(subtotal, parseFloat(req.body.discountAmount) || 0));
         }
 
-        const shippingFee = (subtotal - discountAmount) > 2000 ? 0.00 : (subtotal > 0 ? 50.00 : 0.00);
+        // Delivery area shipping charge: Inside Chattogram (৳70), Outside Chattogram (৳130)
+        const deliveryArea = (req.body.deliveryArea === 'Outside Chattogram') ? 'Outside Chattogram' : 'Inside Chattogram';
+        const shippingFee = deliveryArea === 'Outside Chattogram' ? 130.00 : 70.00;
         const totalAmount = Math.max(0, subtotal - discountAmount + shippingFee);
 
         const order = await Order.create({
@@ -100,6 +102,7 @@ const createOrder = async (req, res) => {
             discountAmount,
             couponCode,
             tax,
+            deliveryArea,
             shippingFee,
             totalAmount
         });

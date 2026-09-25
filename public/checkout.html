@@ -109,9 +109,44 @@
                                     </div>
                                 </div>
 
-                                <!-- Payment Method Section -->
+                                <!-- Delivery Area Section -->
                                 <div class="card-header-styled" style="margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 25px;">
                                     <div class="step-badge">2</div>
+                                    <div>
+                                        <h3>Delivery Area</h3>
+                                        <p>Select your delivery destination</p>
+                                    </div>
+                                </div>
+
+                                <div class="delivery-area-options">
+                                    <label class="delivery-option-card active" onclick="selectDeliveryArea('Inside Chattogram', 70, this)">
+                                        <input type="radio" name="deliveryArea" value="Inside Chattogram" checked>
+                                        <div class="delivery-icon"><i class="fa-solid fa-city"></i></div>
+                                        <div class="delivery-text">
+                                            <div class="delivery-title-row">
+                                                <strong>Inside Chattogram</strong>
+                                                <span class="delivery-badge-fee">৳70.00</span>
+                                            </div>
+                                            <span>Home delivery within Chattogram metropolitan area (1-2 days)</span>
+                                        </div>
+                                    </label>
+
+                                    <label class="delivery-option-card" onclick="selectDeliveryArea('Outside Chattogram', 130, this)">
+                                        <input type="radio" name="deliveryArea" value="Outside Chattogram">
+                                        <div class="delivery-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                                        <div class="delivery-text">
+                                            <div class="delivery-title-row">
+                                                <strong>Outside Chattogram</strong>
+                                                <span class="delivery-badge-fee">৳130.00</span>
+                                            </div>
+                                            <span>Courier delivery across all other districts in Bangladesh (2-4 days)</span>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- Payment Method Section -->
+                                <div class="card-header-styled" style="margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 25px;">
+                                    <div class="step-badge">3</div>
                                     <div>
                                         <h3>Payment Method</h3>
                                         <p>Select your preferred way to pay</p>
@@ -191,11 +226,11 @@
                                     <span id="summaryDiscount">-৳0.00</span>
                                 </div>
                                 <div class="totals-row">
-                                    <span>Shipping Fee</span>
-                                    <span id="summaryShipping">৳0.00</span>
+                                    <span>Shipping (<span id="summaryDeliveryArea">Inside Chattogram</span>)</span>
+                                    <span id="summaryShipping">৳70.00</span>
                                 </div>
                                 <div class="totals-row free-shipping-hint" id="shippingHint">
-                                    <small><i class="fa-solid fa-circle-info"></i> Free shipping on orders over ৳2000.00</small>
+                                    <small><i class="fa-solid fa-truck-ramp-box"></i> Direct door-to-door delivery with packaging guarantee</small>
                                 </div>
                                 <div class="totals-row total-highlight">
                                     <span>Grand Total</span>
@@ -227,6 +262,10 @@
                         <div class="meta-item">
                             <span>Date:</span>
                             <strong id="successOrderDate">N/A</strong>
+                        </div>
+                        <div class="meta-item">
+                            <span>Delivery Area:</span>
+                            <strong id="successDeliveryArea">Inside Chattogram</strong>
                         </div>
                         <div class="meta-item">
                             <span>Payment Method:</span>
@@ -329,8 +368,12 @@
                                     <span id="invDiscount">-৳0.00</span>
                                 </div>
                                 <div class="inv-row">
+                                    <span>Delivery Area:</span>
+                                    <span id="invDeliveryArea">Inside Chattogram</span>
+                                </div>
+                                <div class="inv-row">
                                     <span>Shipping Fee:</span>
-                                    <span id="invShipping">৳0.00</span>
+                                    <span id="invShipping">৳70.00</span>
                                 </div>
                                 <div class="inv-row inv-total-row">
                                     <span>Total Due:</span>

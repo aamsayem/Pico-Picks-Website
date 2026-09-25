@@ -226,9 +226,9 @@ function calculateAndRenderTotals() {
         }
     }
 
-    // Shipping calculation: Free over ৳2000, ৳50 flat, or ৳0 if 0 items selected
-    const shippingFee = selectedSubtotal > 0 ? ((selectedSubtotal - discountAmount) > 2000 ? 0.00 : 50.00) : 0.00;
-    const grandTotal = Math.max(0, selectedSubtotal - discountAmount + shippingFee);
+    // Shipping calculation: ৳70 (Inside Chattogram) or ৳130 (Outside Chattogram), selected at checkout
+    const estShippingFee = selectedSubtotal > 0 ? 70.00 : 0.00;
+    const grandTotal = Math.max(0, selectedSubtotal - discountAmount + estShippingFee);
 
     // Update UI Elements
     const subtotalEl = document.getElementById('cartSubtotalText');
@@ -251,9 +251,9 @@ function calculateAndRenderTotals() {
     }
 
     if (shippingEl) {
-        shippingEl.textContent = shippingFee === 0 ? (selectedSubtotal > 0 ? 'FREE' : '৳0.00') : `৳${shippingFee.toFixed(2)}`;
-        shippingEl.style.color = shippingFee === 0 && selectedSubtotal > 0 ? '#16a34a' : 'inherit';
-        shippingEl.style.fontWeight = shippingFee === 0 && selectedSubtotal > 0 ? '700' : 'normal';
+        shippingEl.textContent = selectedSubtotal > 0 ? 'From ৳70.00' : '৳0.00';
+        shippingEl.style.color = 'inherit';
+        shippingEl.style.fontWeight = 'normal';
     }
 
     if (grandTotalEl) grandTotalEl.textContent = `৳${grandTotal.toFixed(2)}`;

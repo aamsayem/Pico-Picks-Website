@@ -119,9 +119,14 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    deliveryArea: {
+        type: String,
+        enum: ['Inside Chattogram', 'Outside Chattogram'],
+        default: 'Inside Chattogram'
+    },
     shippingFee: {
         type: Number,
-        default: 0
+        default: 70
     },
     totalAmount: {
         type: Number,

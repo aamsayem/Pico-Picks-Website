@@ -43,9 +43,18 @@
     
 
        <div class="small-container">
+        <!-- Interactive Category Selection Tabs -->
+        <div class="category-filter-bar">
+            <button type="button" class="cat-filter-btn active" data-category="all"><i class="fa-solid fa-border-all"></i> All Models</button>
+            <button type="button" class="cat-filter-btn" data-category="sports"><i class="fa-solid fa-bolt"></i> Sports & Supercars</button>
+            <button type="button" class="cat-filter-btn" data-category="muscle"><i class="fa-solid fa-gauge-high"></i> Muscle & JDM</button>
+            <button type="button" class="cat-filter-btn" data-category="classic"><i class="fa-solid fa-car-side"></i> Vintage Classics</button>
+            <button type="button" class="cat-filter-btn" data-category="accessories"><i class="fa-solid fa-wrench"></i> Collectible Accessories</button>
+        </div>
+
         <div class="row row-2">
-            <h2 class="title">All Products</h2>
-            <select>
+            <h2 class="title" id="catalogTitle">All Products</h2>
+            <select id="catalogSortSelect">
                 <option>Default Sorting</option>
                 <option>Sort by Price</option>
                 <option>Sort by Name</option>
@@ -336,6 +345,7 @@
     </script>
     <script src="js/api.js"></script>
     <script src="js/products.js"></script>
+    <script src="js/cart.js"></script>
     <script src="js/wishlist.js"></script>
     <script src="js/product-loader.js"></script>
 </body>

@@ -12,7 +12,8 @@ const checkoutState = {
     discountAmount: 0,
     couponCode: '',
     tax: 0,
-    shippingFee: 0,
+    deliveryArea: 'Inside Chattogram',
+    shippingFee: 70.00,
     total: 0,
     selectedPayment: 'Cash on Delivery',
     currentOrder: null
@@ -152,9 +153,10 @@ async function loadCheckoutCart() {
 
     // Tax is 0 per Phase 3 specifications
     checkoutState.tax = 0.00;
-    // Shipping: Free over ৳2000 (after discount), else ৳50
+    // Delivery Area Shipping: Inside Chattogram = ৳70.00, Outside Chattogram = ৳130.00
+    checkoutState.deliveryArea = checkoutState.deliveryArea || 'Inside Chattogram';
+    checkoutState.shippingFee = subtotal > 0 ? (checkoutState.deliveryArea === 'Outside Chattogram' ? 130.00 : 70.00) : 0.00;
     const effectiveSubtotal = Math.max(0, subtotal - checkoutState.discountAmount);
-    checkoutState.shippingFee = subtotal > 0 ? (effectiveSubtotal > 2000 ? 0.00 : 50.00) : 0.00;
     checkoutState.total = Math.max(0, effectiveSubtotal + checkoutState.shippingFee);
 
     // Handle Empty State
@@ -218,30 +220,20 @@ function renderOrderSummary() {
         }
     }
 
+    const deliveryAreaEl = document.getElementById('summaryDeliveryArea');
+    if (deliveryAreaEl) deliveryAreaEl.textContent = checkoutState.deliveryArea || 'Inside Chattogram';
+
     if (shippingEl) {
-        shippingEl.textContent = checkoutState.shippingFee === 0 
-            ? 'FREE' 
-            : `৳${Number(checkoutState.shippingFee).toFixed(2)}`;
-        if (checkoutState.shippingFee === 0) {
-            shippingEl.style.color = '#16a34a';
-            shippingEl.style.fontWeight = '700';
-        } else {
-            shippingEl.style.color = 'inherit';
-            shippingEl.style.fontWeight = 'normal';
-        }
+        shippingEl.textContent = `৳${Number(checkoutState.shippingFee).toFixed(2)}`;
+        shippingEl.style.color = '#C8743A';
+        shippingEl.style.fontWeight = '600';
     }
 
     if (grandTotalEl) grandTotalEl.textContent = `৳${Number(checkoutState.total).toFixed(2)}`;
     if (btnTotalText) btnTotalText.textContent = `৳${Number(checkoutState.total).toFixed(2)}`;
 
     if (shippingHint) {
-        const effectiveSubtotal = checkoutState.subtotal - checkoutState.discountAmount;
-        if (effectiveSubtotal >= 2000) {
-            shippingHint.innerHTML = '<small style="color: #16a34a; font-weight: 600;"><i class="fa-solid fa-check"></i> You have qualified for Free Shipping!</small>';
-        } else {
-            const needed = 2000 - effectiveSubtotal;
-            shippingHint.innerHTML = `<small><i class="fa-solid fa-circle-info"></i> Add ৳${needed.toFixed(2)} more for Free Shipping</small>`;
-        }
+        shippingHint.innerHTML = '<small><i class="fa-solid fa-truck-ramp-box"></i> Direct door-to-door delivery with packaging guarantee</small>';
     }
 }
 
@@ -312,7 +304,7 @@ async function applyCheckoutCoupon() {
         sessionStorage.removeItem('pico_checkout_coupon');
 
         const effectiveSubtotal = checkoutState.subtotal;
-        checkoutState.shippingFee = effectiveSubtotal > 2000 ? 0.00 : 50.00;
+        checkoutState.shippingFee = checkoutState.deliveryArea === 'Outside Chattogram' ? 130.00 : 70.00;
         checkoutState.total = Math.max(0, effectiveSubtotal + checkoutState.shippingFee);
 
         if (msgEl) {
@@ -329,6 +321,28 @@ async function applyCheckoutCoupon() {
         }
     }
 }
+
+/**
+ * 2.8 Delivery Area Switcher (Inside Chattogram: ৳70, Outside Chattogram: ৳130)
+ */
+function selectDeliveryArea(area, fee, labelElement) {
+    checkoutState.deliveryArea = area;
+    checkoutState.shippingFee = Number(fee) || (area === 'Outside Chattogram' ? 130.00 : 70.00);
+    const effectiveSubtotal = Math.max(0, checkoutState.subtotal - checkoutState.discountAmount);
+    checkoutState.total = Math.max(0, effectiveSubtotal + (checkoutState.subtotal > 0 ? checkoutState.shippingFee : 0));
+
+    const cards = document.querySelectorAll('.delivery-option-card');
+    cards.forEach(card => card.classList.remove('active'));
+
+    if (labelElement) {
+        labelElement.classList.add('active');
+        const radio = labelElement.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+    }
+
+    renderOrderSummary();
+}
+window.selectDeliveryArea = selectDeliveryArea;
 
 /**
  * 3. Payment Method Switcher
@@ -381,6 +395,7 @@ async function handleCheckoutSubmit(e) {
         },
         email,
         paymentMethod: checkoutState.selectedPayment,
+        deliveryArea: checkoutState.deliveryArea || 'Inside Chattogram',
         couponCode: checkoutState.couponCode || '',
         discountAmount: checkoutState.discountAmount || 0,
         items: checkoutState.cartItems.map(item => ({
@@ -455,12 +470,14 @@ function showOrderSuccess(order, customer) {
     const nameEl = document.getElementById('successCustomerName');
     const idEl = document.getElementById('successOrderId');
     const dateEl = document.getElementById('successOrderDate');
+    const areaEl = document.getElementById('successDeliveryArea');
     const payEl = document.getElementById('successPaymentMethod');
     const totalEl = document.getElementById('successTotalAmount');
 
     if (nameEl) nameEl.textContent = customer.fullName || 'Collector';
     if (idEl) idEl.textContent = `#${shortId}`;
     if (dateEl) dateEl.textContent = formattedDate;
+    if (areaEl) areaEl.textContent = order.deliveryArea || checkoutState.deliveryArea || 'Inside Chattogram';
     if (payEl) payEl.textContent = order.paymentMethod || 'Cash on Delivery';
     if (totalEl) totalEl.textContent = `৳${Number(order.totalAmount || 0).toFixed(2)}`;
 
@@ -474,6 +491,7 @@ function showOrderSuccess(order, customer) {
     const invCustPostal = document.getElementById('invCustPostal');
     const invCustPhone = document.getElementById('invCustPhone');
     const invCustEmail = document.getElementById('invCustEmail');
+    const invDeliveryArea = document.getElementById('invDeliveryArea');
     const invPaymentMethod = document.getElementById('invPaymentMethod');
     const invItemsBody = document.getElementById('invItemsTableBody');
     const invSubtotal = document.getElementById('invSubtotal');
@@ -492,6 +510,7 @@ function showOrderSuccess(order, customer) {
     if (invCustPostal) invCustPostal.textContent = customer.postalCode || '';
     if (invCustPhone) invCustPhone.textContent = customer.phone || 'N/A';
     if (invCustEmail) invCustEmail.textContent = customer.email || 'N/A';
+    if (invDeliveryArea) invDeliveryArea.textContent = order.deliveryArea || checkoutState.deliveryArea || 'Inside Chattogram';
     if (invPaymentMethod) invPaymentMethod.textContent = order.paymentMethod || 'Cash on Delivery';
 
     if (invItemsBody) {
@@ -525,7 +544,7 @@ function showOrderSuccess(order, customer) {
         }
     }
 
-    if (invShipping) invShipping.textContent = order.shippingFee === 0 ? 'FREE' : `৳${Number(order.shippingFee || 0).toFixed(2)}`;
+    if (invShipping) invShipping.textContent = `৳${Number(order.shippingFee !== undefined ? order.shippingFee : checkoutState.shippingFee).toFixed(2)}`;
     if (invGrandTotal) invGrandTotal.textContent = `৳${Number(order.totalAmount || 0).toFixed(2)}`;
 
     // Scroll smoothly to receipt header
