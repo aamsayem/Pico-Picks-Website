@@ -164,20 +164,30 @@ function switchTab(tabName) {
 
     const productsSection = document.getElementById('productsSection');
     const ordersSection = document.getElementById('ordersSection');
+    const couponsSection = document.getElementById('couponsSection');
     const pageTitle = document.getElementById('pageTitle');
 
     if (tabName === 'products') {
         buttons[0]?.classList.add('active');
-        productsSection.classList.add('active');
-        ordersSection.classList.remove('active');
+        productsSection?.classList.add('active');
+        ordersSection?.classList.remove('active');
+        couponsSection?.classList.remove('active');
         pageTitle.textContent = 'Product Management';
         loadProducts();
     } else if (tabName === 'orders') {
         buttons[1]?.classList.add('active');
-        ordersSection.classList.add('active');
-        productsSection.classList.remove('active');
+        ordersSection?.classList.add('active');
+        productsSection?.classList.remove('active');
+        couponsSection?.classList.remove('active');
         pageTitle.textContent = 'Customer Orders';
         loadOrders();
+    } else if (tabName === 'coupons') {
+        buttons[2]?.classList.add('active');
+        couponsSection?.classList.add('active');
+        productsSection?.classList.remove('active');
+        ordersSection?.classList.remove('active');
+        pageTitle.textContent = 'Coupon Management';
+        loadCoupons();
     }
 }
 
@@ -630,7 +640,8 @@ function viewOrderDetails(orderId) {
                     <strong>Method:</strong> ${escapeHTML(order.paymentMethod || 'Cash on Delivery')}<br>
                     <strong>Payment Status:</strong> ${escapeHTML(order.paymentStatus || 'Pending')}<br>
                     <strong>Subtotal:</strong> ৳${Number(order.subtotal || 0).toFixed(2)}<br>
-                    <strong>Tax:</strong> ৳${Number(order.tax || 0).toFixed(2)} | <strong>Shipping:</strong> ৳${Number(order.shippingFee || 0).toFixed(2)}<br>
+                    ${Number(order.discountAmount) > 0 ? `<strong style="color: #16a34a;">Discount (${escapeHTML(order.couponCode || 'PROMO')}):</strong> -৳${Number(order.discountAmount).toFixed(2)}<br>` : ''}
+                    <strong>Shipping:</strong> ৳${Number(order.shippingFee || 0).toFixed(2)}<br>
                     <span style="font-size: 15px; color: #C8743A; font-weight: 700;">Grand Total: ৳${Number(order.totalAmount || 0).toFixed(2)}</span>
                 </p>
             </div>
@@ -671,6 +682,102 @@ function viewOrderDetails(orderId) {
 function closeOrderDetailsModal() {
     document.getElementById('orderDetailsModal').classList.remove('active');
 }
+
+/**
+ * 4.5 Coupon Management (CRUD)
+ */
+async function loadCoupons() {
+    const tbody = document.getElementById('couponsTableBody');
+    if (!tbody) return;
+    try {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 30px;">Loading coupons...</td></tr>`;
+        const coupons = await API.getCoupons();
+        state.coupons = coupons || [];
+        renderCouponsTable(state.coupons);
+    } catch (error) {
+        console.error('Error loading coupons:', error);
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #dc2626; padding: 30px;">Failed to load coupons: ${escapeHTML(error.message)}</td></tr>`;
+    }
+}
+
+function renderCouponsTable(coupons) {
+    const tbody = document.getElementById('couponsTableBody');
+    if (!tbody) return;
+
+    if (coupons.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 30px;">No coupons found. Click "Add Coupon" to create one.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = coupons.map(c => `
+        <tr>
+            <td><strong style="color: #C8743A; font-size: 15px; font-family: monospace;">${escapeHTML(c.code)}</strong></td>
+            <td><span class="badge" style="background:#e0e7ff; color:#3730a3;">${c.discountType === 'percentage' ? 'Percentage' : 'Flat Discount'}</span></td>
+            <td><strong>${c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `৳${Number(c.discountValue).toFixed(2)} OFF`}</strong></td>
+            <td>৳${Number(c.minOrderAmount || 0).toFixed(2)}</td>
+            <td>
+                <span class="badge ${c.isActive ? 'badge-delivered' : 'badge-cancelled'}">
+                    ${c.isActive ? 'Active' : 'Inactive'}
+                </span>
+            </td>
+            <td>
+                <button class="btn-action btn-delete" onclick="handleDeleteCoupon('${c._id}')" title="Delete Coupon">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openCouponModal() {
+    document.getElementById('couponForm').reset();
+    document.getElementById('couponModal').classList.add('active');
+}
+
+function closeCouponModal() {
+    document.getElementById('couponModal').classList.remove('active');
+}
+
+async function handleCouponSubmit(e) {
+    e.preventDefault();
+    const code = document.getElementById('newCouponCode').value.trim().toUpperCase();
+    const discountType = document.getElementById('newCouponType').value;
+    const discountValue = parseFloat(document.getElementById('newCouponValue').value);
+    const minOrderAmount = parseFloat(document.getElementById('newCouponMinOrder').value) || 0;
+    const isActive = document.getElementById('newCouponIsActive').checked;
+
+    try {
+        const btn = document.getElementById('saveCouponBtn');
+        if (btn) btn.disabled = true;
+        await API.createCoupon({ code, discountType, discountValue, minOrderAmount, isActive });
+        alert(`Coupon "${code}" created successfully!`);
+        closeCouponModal();
+        await loadCoupons();
+    } catch (err) {
+        alert(`Failed to create coupon: ${err.message}`);
+    } finally {
+        const btn = document.getElementById('saveCouponBtn');
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function handleDeleteCoupon(id) {
+    if (!confirm('Are you sure you want to delete this coupon?')) return;
+    try {
+        await API.deleteCoupon(id);
+        alert('Coupon deleted successfully');
+        await loadCoupons();
+    } catch (err) {
+        alert(`Failed to delete coupon: ${err.message}`);
+    }
+}
+
+// Global exposure
+window.openCouponModal = openCouponModal;
+window.closeCouponModal = closeCouponModal;
+window.handleCouponSubmit = handleCouponSubmit;
+window.handleDeleteCoupon = handleDeleteCoupon;
+window.loadCoupons = loadCoupons;
 
 /**
  * 5. Initialization

@@ -59,14 +59,15 @@ const populateCartDetails = async (cartItems) => {
         }
     }
 
-    const tax = subtotal > 0 ? 30.00 : 0.00;
+    // Tax is eliminated per Phase 3 specifications
+    const tax = 0.00;
     const shippingFee = subtotal > 0 ? (subtotal > 2000 ? 0.00 : 50.00) : 0.00;
-    const total = subtotal + tax + shippingFee;
+    const total = subtotal + shippingFee;
 
     return {
         items: populatedItems,
         subtotal,
-        tax,
+        tax: 0,
         shippingFee,
         total
     };

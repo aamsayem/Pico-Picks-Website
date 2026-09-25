@@ -33,10 +33,38 @@ function renderRatingStars(rating) {
     return stars;
 }
 
+function toggleWishlistCard(btnEl, productJson) {
+    try {
+        const prod = typeof productJson === 'string' ? JSON.parse(decodeURIComponent(productJson)) : productJson;
+        if (typeof toggleWishlist === 'function') {
+            toggleWishlist(prod, btnEl);
+        }
+    } catch (e) {
+        console.error('Wishlist card toggle error:', e);
+    }
+}
+window.toggleWishlistCard = toggleWishlistCard;
+
 function createProductCard(product) {
-    const prodId = product.id || product._id;
+    const prodId = String(product.id || product._id);
+    const isWished = (typeof isInWishlist === 'function') ? isInWishlist(prodId) : false;
+    const heartIconClass = isWished ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+    const activeClass = isWished ? 'in-wishlist' : '';
+    const safeProductData = encodeURIComponent(JSON.stringify({
+        id: prodId,
+        name: product.name,
+        price: product.price,
+        image: product.image
+    }));
+
     return `
-        <div class="col-4">
+        <div class="col-4 product-card-container">
+            <button type="button" class="product-wishlist-btn ${activeClass}" 
+                onclick="event.stopPropagation(); toggleWishlistCard(this, '${safeProductData}')" 
+                title="${isWished ? 'Remove from Wishlist' : 'Add to Wishlist'}" 
+                aria-label="Wishlist">
+                <i class="${heartIconClass}"></i>
+            </button>
             <a href="product-details.html?id=${encodeURIComponent(prodId)}">
                 <img src="${product.image}" alt="${escapeHTML(product.name)}" onerror="this.src='images/logo.png'">
             </a>

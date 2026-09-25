@@ -1,8 +1,13 @@
 /**
- * Pico Picks Cart & Checkout System (Live API Driven)
+ * Pico Picks Cart & Checkout System (Live API Driven + Selective Cart + Coupon Engine)
  */
 
 const CART_STORAGE_KEY = 'pico_cart';
+
+// In-memory cart runtime state
+let currentCartItems = [];
+let selectedCartItemIds = new Set();
+let appliedCoupon = null;
 
 function escapeHTML(str) {
     if (!str) return '';
@@ -94,6 +99,8 @@ async function addToCart(productId, quantity = 1, color = null) {
  * Remove item from Cart via live API
  */
 async function removeFromCart(productId) {
+    selectedCartItemIds.delete(productId);
+
     if (window.API && API.getToken()) {
         try {
             await API.removeFromCart(productId);
@@ -125,6 +132,7 @@ async function updateCartQuantity(productId, quantity) {
         try {
             if (qty <= 0) {
                 await API.removeFromCart(productId);
+                selectedCartItemIds.delete(productId);
             } else {
                 await API.updateCart(productId, qty);
             }
@@ -140,6 +148,7 @@ async function updateCartQuantity(productId, quantity) {
     let cart = getLocalCart();
     if (qty <= 0) {
         cart = cart.filter(item => (item.productId !== productId && item.id !== productId));
+        selectedCartItemIds.delete(productId);
     } else {
         const item = cart.find(i => (i.productId === productId || i.id === productId));
         if (item) item.quantity = qty;
@@ -152,36 +161,215 @@ async function updateCartQuantity(productId, quantity) {
 }
 
 /**
+ * Toggle Select All Cart items
+ */
+function toggleSelectAllCart(checked) {
+    if (checked) {
+        currentCartItems.forEach(item => selectedCartItemIds.add(item.productId));
+    } else {
+        selectedCartItemIds.clear();
+    }
+
+    const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
+    itemCheckboxes.forEach(cb => cb.checked = checked);
+
+    calculateAndRenderTotals();
+}
+
+/**
+ * Toggle single Cart item checkbox
+ */
+function toggleCartItemSelection(productId, checked) {
+    if (checked) {
+        selectedCartItemIds.add(productId);
+    } else {
+        selectedCartItemIds.delete(productId);
+    }
+
+    const selectAllCheckbox = document.getElementById('selectAllCart');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = currentCartItems.length > 0 && selectedCartItemIds.size === currentCartItems.length;
+    }
+
+    calculateAndRenderTotals();
+}
+
+/**
+ * Calculate totals strictly based on SELECTED items + Applied Coupon (Tax Eliminated!)
+ */
+function calculateAndRenderTotals() {
+    let selectedSubtotal = 0;
+
+    currentCartItems.forEach(item => {
+        if (selectedCartItemIds.has(item.productId)) {
+            selectedSubtotal += Number(item.price) * Number(item.quantity);
+        }
+    });
+
+    // Recompute coupon discount against current selected subtotal
+    let discountAmount = 0;
+    if (appliedCoupon && selectedSubtotal > 0) {
+        if (selectedSubtotal >= (appliedCoupon.minOrderAmount || 0)) {
+            if (appliedCoupon.discountType === 'percentage') {
+                discountAmount = Math.round((selectedSubtotal * appliedCoupon.discountValue) / 100);
+            } else {
+                discountAmount = Math.min(appliedCoupon.discountValue, selectedSubtotal);
+            }
+        } else {
+            // Under minimum order amount
+            const msgEl = document.getElementById('cartCouponMsg');
+            if (msgEl) {
+                msgEl.style.display = 'block';
+                msgEl.className = 'coupon-feedback-msg error';
+                msgEl.textContent = `Coupon "${appliedCoupon.code}" requires minimum order of ৳${appliedCoupon.minOrderAmount}.`;
+            }
+        }
+    }
+
+    // Shipping calculation: Free over ৳2000, ৳50 flat, or ৳0 if 0 items selected
+    const shippingFee = selectedSubtotal > 0 ? ((selectedSubtotal - discountAmount) > 2000 ? 0.00 : 50.00) : 0.00;
+    const grandTotal = Math.max(0, selectedSubtotal - discountAmount + shippingFee);
+
+    // Update UI Elements
+    const subtotalEl = document.getElementById('cartSubtotalText');
+    const discountRow = document.getElementById('cartDiscountRow');
+    const couponNameEl = document.getElementById('cartCouponName');
+    const discountTextEl = document.getElementById('cartDiscountText');
+    const shippingEl = document.getElementById('cartShippingText');
+    const grandTotalEl = document.getElementById('cartGrandTotalText');
+
+    if (subtotalEl) subtotalEl.textContent = `৳${selectedSubtotal.toFixed(2)}`;
+
+    if (discountRow) {
+        if (discountAmount > 0 && appliedCoupon) {
+            discountRow.style.display = 'table-row';
+            if (couponNameEl) couponNameEl.textContent = appliedCoupon.code;
+            if (discountTextEl) discountTextEl.textContent = `-৳${discountAmount.toFixed(2)}`;
+        } else {
+            discountRow.style.display = 'none';
+        }
+    }
+
+    if (shippingEl) {
+        shippingEl.textContent = shippingFee === 0 ? (selectedSubtotal > 0 ? 'FREE' : '৳0.00') : `৳${shippingFee.toFixed(2)}`;
+        shippingEl.style.color = shippingFee === 0 && selectedSubtotal > 0 ? '#16a34a' : 'inherit';
+        shippingEl.style.fontWeight = shippingFee === 0 && selectedSubtotal > 0 ? '700' : 'normal';
+    }
+
+    if (grandTotalEl) grandTotalEl.textContent = `৳${grandTotal.toFixed(2)}`;
+
+    // Update checkout button text with count of selected items
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    if (checkoutBtn) {
+        const count = selectedCartItemIds.size;
+        checkoutBtn.innerHTML = `Proceed to Checkout (${count} item${count === 1 ? '' : 's'}) &#10140;`;
+    }
+}
+
+/**
+ * Apply Coupon Code in Cart
+ */
+async function applyCartCoupon() {
+    const input = document.getElementById('cartCouponInput');
+    const msgEl = document.getElementById('cartCouponMsg');
+    const btn = document.getElementById('cartApplyCouponBtn');
+    const code = input ? input.value.trim().toUpperCase() : '';
+
+    if (!code) {
+        if (msgEl) {
+            msgEl.style.display = 'block';
+            msgEl.className = 'coupon-feedback-msg error';
+            msgEl.textContent = 'Please enter a coupon code.';
+        }
+        return;
+    }
+
+    // Compute current selected subtotal
+    let selectedSubtotal = 0;
+    currentCartItems.forEach(item => {
+        if (selectedCartItemIds.has(item.productId)) {
+            selectedSubtotal += Number(item.price) * Number(item.quantity);
+        }
+    });
+
+    if (selectedSubtotal <= 0) {
+        if (msgEl) {
+            msgEl.style.display = 'block';
+            msgEl.className = 'coupon-feedback-msg error';
+            msgEl.textContent = 'Please select at least one item before applying a coupon.';
+        }
+        return;
+    }
+
+    try {
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Checking...';
+        }
+
+        const res = await API.validateCoupon(code, selectedSubtotal);
+
+        if (res && res.valid) {
+            appliedCoupon = {
+                code: res.code,
+                discountType: res.discountType,
+                discountValue: res.discountValue,
+                discountAmount: res.discountAmount,
+                minOrderAmount: res.minOrderAmount || 0
+            };
+
+            // Store in sessionStorage for checkout handover
+            sessionStorage.setItem('pico_checkout_coupon', JSON.stringify(appliedCoupon));
+
+            if (msgEl) {
+                msgEl.style.display = 'block';
+                msgEl.className = 'coupon-feedback-msg success';
+                msgEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${res.message || `Coupon "${res.code}" applied!`}`;
+            }
+
+            calculateAndRenderTotals();
+        } else {
+            throw new Error(res?.error || 'Invalid coupon code');
+        }
+    } catch (err) {
+        appliedCoupon = null;
+        sessionStorage.removeItem('pico_checkout_coupon');
+        if (msgEl) {
+            msgEl.style.display = 'block';
+            msgEl.className = 'coupon-feedback-msg error';
+            msgEl.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${err.message || 'Invalid coupon code'}`;
+        }
+        calculateAndRenderTotals();
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Apply';
+        }
+    }
+}
+
+/**
  * Render Cart Page contents dynamically
  */
 async function renderCartPage() {
-    const cartTable = document.querySelector('.cart-page table');
-    const totalPriceTable = document.querySelector('.total-price table');
-    if (!cartTable || !totalPriceTable) return;
+    const tableBody = document.getElementById('cartTableBody');
+    if (!tableBody) return;
 
     await syncGuestCartToAPI();
 
     let items = [];
-    let subtotal = 0;
-    let tax = 0;
-    let shippingFee = 0;
-    let total = 0;
 
     // Load from Live Express API if authenticated
     if (window.API && API.getToken()) {
         try {
             const apiCart = await API.getCart();
             items = apiCart.items || [];
-            subtotal = apiCart.subtotal || 0;
-            tax = apiCart.tax || 0;
-            shippingFee = apiCart.shippingFee || 0;
-            total = apiCart.total || 0;
         } catch (e) {
             console.warn('API cart load failure:', e.message);
         }
     }
 
-    // Guest fallback: resolve prices from API catalog
+    // Guest fallback: resolve items from catalog
     if (items.length === 0 && (!window.API || !API.getToken())) {
         const localCart = getLocalCart();
         if (localCart.length > 0) {
@@ -192,7 +380,6 @@ async function renderCartPage() {
                     const prod = catalog.find(p => p.id === id || p._id === id);
                     if (prod) {
                         const lineSubtotal = prod.price * item.quantity;
-                        subtotal += lineSubtotal;
                         items.push({
                             productId: prod.id,
                             name: prod.name,
@@ -204,46 +391,61 @@ async function renderCartPage() {
                         });
                     }
                 });
-                tax = subtotal > 0 ? 30.00 : 0.00;
-                shippingFee = subtotal > 2000 ? 0.00 : (subtotal > 0 ? 50.00 : 0.00);
-                total = subtotal + tax + shippingFee;
             } catch (e) {
                 console.warn('Catalog lookup error for guest cart:', e.message);
             }
         }
     }
 
+    currentCartItems = items;
+
+    // By default, select all items if no selections made yet
+    if (selectedCartItemIds.size === 0) {
+        items.forEach(i => selectedCartItemIds.add(i.productId));
+    } else {
+        // Retain only IDs that still exist in the cart
+        const existingIds = new Set(items.map(i => i.productId));
+        selectedCartItemIds = new Set([...selectedCartItemIds].filter(id => existingIds.has(id)));
+    }
+
     // Render Table Rows
-    let tableHTML = `
-        <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Subtotal</th>
-        </tr>
-    `;
+    let tableHTML = '';
 
     if (items.length === 0) {
-        tableHTML += `
+        tableHTML = `
             <tr>
-                <td colspan="3" style="text-align: center; padding: 40px 10px;">
-                    <h3>Your cart is empty</h3>
-                    <p style="margin-top: 10px;"><a href="products.html" class="btn" style="display: inline-block; padding: 8px 20px;">Explore Products</a></p>
+                <td colspan="4" style="text-align: center; padding: 45px 15px;">
+                    <div style="font-size: 32px; color: #cbd5e1; margin-bottom: 10px;"><i class="fa-solid fa-basket-shopping"></i></div>
+                    <h3 style="font-size: 20px; color: #1e293b;">Your cart is empty</h3>
+                    <p style="color: #64748b; margin-top: 6px;">Add some die-cast models to begin building your collection.</p>
+                    <p style="margin-top: 15px;"><a href="products.html" class="btn" style="display: inline-block; padding: 8px 24px;">Explore Products</a></p>
                 </td>
             </tr>
         `;
+        const selectAllCheckbox = document.getElementById('selectAllCart');
+        if (selectAllCheckbox) selectAllCheckbox.checked = false;
     } else {
         items.forEach(item => {
+            const isSelected = selectedCartItemIds.has(item.productId);
+            const lineSubtotal = Number(item.price) * Number(item.quantity);
+
             tableHTML += `
                 <tr>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <input type="checkbox" class="cart-item-checkbox" data-id="${item.productId}" 
+                            ${isSelected ? 'checked' : ''} 
+                            onchange="toggleCartItemSelection('${item.productId}', this.checked)"
+                            aria-label="Select ${escapeHTML(item.name)}">
+                    </td>
                     <td>
                         <div class="cart-info">
                             <img src="${item.image}" alt="${escapeHTML(item.name)}" onerror="this.src='images/logo.png'">
                             <div>
-                                <p>${escapeHTML(item.name)}</p>
-                                <small>Price: ৳${Number(item.price).toFixed(2)}</small>
+                                <p style="font-weight: 600;">${escapeHTML(item.name)}</p>
+                                <small style="color: #64748b;">Price: ৳${Number(item.price).toFixed(2)}</small>
                                 ${item.color ? `<br><small style="color: #c8743a; font-weight: 600;">Color: ${escapeHTML(item.color)}</small>` : ''}
                                 <br>
-                                <a href="#" onclick="removeFromCart('${item.productId}'); return false;">Remove</a>
+                                <a href="#" onclick="removeFromCart('${item.productId}'); return false;" style="color: #ef4444; font-size: 13px;">Remove</a>
                             </div>
                         </div>
                     </td>
@@ -254,56 +456,30 @@ async function renderCartPage() {
                             <button type="button" class="qty-btn qty-inc" onclick="stepCartQuantity('${item.productId}', 1)" aria-label="Increase quantity">+</button>
                         </div>
                     </td>
-                    <td>৳${Number(item.itemSubtotal).toFixed(2)}</td>
+                    <td style="font-weight: 600; color: #1e293b;">৳${lineSubtotal.toFixed(2)}</td>
                 </tr>
             `;
         });
-    }
 
-    cartTable.innerHTML = tableHTML;
-
-    // Render Totals Table
-    totalPriceTable.innerHTML = `
-        <tr>
-            <td>Subtotal</td>
-            <td>৳${Number(subtotal).toFixed(2)}</td>
-        </tr>
-        <tr>
-            <td>Tax</td>
-            <td>৳${Number(tax).toFixed(2)}</td>
-        </tr>
-        <tr>
-            <td>Shipping</td>
-            <td>৳${Number(shippingFee).toFixed(2)}</td>
-        </tr>
-        <tr>
-            <td>Total</td>
-            <td>৳${Number(total).toFixed(2)}</td>
-        </tr>
-    `;
-
-    // Render / Update Proceed to Checkout Button
-    const actionsContainer = document.querySelector('.cart-checkout-actions');
-    const totalPriceContainer = document.querySelector('.total-price');
-    const targetParent = actionsContainer || totalPriceContainer;
-    if (targetParent) {
-        let checkoutBtn = document.getElementById('checkoutBtn');
-        if (items.length > 0) {
-            if (!checkoutBtn) {
-                checkoutBtn = document.createElement('a');
-                checkoutBtn.id = 'checkoutBtn';
-                checkoutBtn.className = 'btn checkout-btn';
-                checkoutBtn.textContent = 'Proceed to Checkout ➜';
-                checkoutBtn.onclick = proceedToCheckout;
-                targetParent.appendChild(checkoutBtn);
-            } else {
-                checkoutBtn.style.display = 'inline-flex';
-                checkoutBtn.onclick = proceedToCheckout;
-            }
-        } else if (checkoutBtn) {
-            checkoutBtn.style.display = 'none';
+        const selectAllCheckbox = document.getElementById('selectAllCart');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = selectedCartItemIds.size === items.length;
         }
     }
+
+    tableBody.innerHTML = tableHTML;
+
+    // Restore any existing saved coupon from sessionStorage
+    try {
+        const savedCoupon = sessionStorage.getItem('pico_checkout_coupon');
+        if (savedCoupon && !appliedCoupon) {
+            appliedCoupon = JSON.parse(savedCoupon);
+            const input = document.getElementById('cartCouponInput');
+            if (input && appliedCoupon.code) input.value = appliedCoupon.code;
+        }
+    } catch (e) {}
+
+    calculateAndRenderTotals();
 }
 
 /**
@@ -319,11 +495,33 @@ async function stepCartQuantity(productId, delta) {
 }
 
 /**
- * 4. Proceed to Checkout Logic
- * Redirects user directly to the dedicated checkout page
+ * Proceed to Checkout Logic
+ * Passes ONLY the selected cart items and any applied coupon to checkout.html
  */
 function proceedToCheckout(e) {
     if (e && e.preventDefault) e.preventDefault();
+
+    if (currentCartItems.length === 0) {
+        alert('Your shopping cart is empty.');
+        return;
+    }
+
+    const selectedItems = currentCartItems.filter(item => selectedCartItemIds.has(item.productId));
+
+    if (selectedItems.length === 0) {
+        alert('Please select at least one item using the checkboxes to proceed to checkout.');
+        return;
+    }
+
+    // Save only checked items to sessionStorage for checkout.html
+    sessionStorage.setItem('pico_checkout_items', JSON.stringify(selectedItems));
+
+    if (appliedCoupon) {
+        sessionStorage.setItem('pico_checkout_coupon', JSON.stringify(appliedCoupon));
+    } else {
+        sessionStorage.removeItem('pico_checkout_coupon');
+    }
+
     window.location.href = 'checkout.html';
 }
 
@@ -332,3 +530,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         await renderCartPage();
     }
 });
+
+// Global attachments
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.updateCartQuantity = updateCartQuantity;
+window.stepCartQuantity = stepCartQuantity;
+window.toggleSelectAllCart = toggleSelectAllCart;
+window.toggleCartItemSelection = toggleCartItemSelection;
+window.applyCartCoupon = applyCartCoupon;
+window.proceedToCheckout = proceedToCheckout;

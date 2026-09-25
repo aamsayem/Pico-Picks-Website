@@ -305,6 +305,43 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             };
         }
+
+        // 3.5 Wishlist Button Handler
+        const detailsWishlistBtn = document.getElementById('detailsWishlistBtn');
+        if (detailsWishlistBtn) {
+            const prodId = String(product.id || product._id);
+            const isWished = (typeof isInWishlist === 'function') ? isInWishlist(prodId) : false;
+            updateDetailsWishlistBtn(detailsWishlistBtn, isWished);
+
+            detailsWishlistBtn.onclick = function(e) {
+                e.preventDefault();
+                if (typeof toggleWishlist === 'function') {
+                    toggleWishlist({
+                        id: prodId,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image
+                    }, detailsWishlistBtn);
+                    const nowWished = (typeof isInWishlist === 'function') ? isInWishlist(prodId) : false;
+                    updateDetailsWishlistBtn(detailsWishlistBtn, nowWished);
+                }
+            };
+        }
+
+        function updateDetailsWishlistBtn(btn, active) {
+            if (!btn) return;
+            const icon = btn.querySelector('i');
+            const span = btn.querySelector('span');
+            if (active) {
+                btn.classList.add('in-wishlist');
+                if (icon) icon.className = 'fa-solid fa-heart';
+                if (span) span.textContent = 'Saved in Wishlist';
+            } else {
+                btn.classList.remove('in-wishlist');
+                if (icon) icon.className = 'fa-regular fa-heart';
+                if (span) span.textContent = 'Add to Wishlist';
+            }
+        }
     }
 
     // 4. Initialize Customer Reviews & Ratings

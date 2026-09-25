@@ -2745,3 +2745,496 @@ th:last-child{
     line-height: 1.6;
     margin: 0;
 }
+
+/* ==========================================================================
+   Phase 3 Additions: Wishlist, Selective Cart, Coupon System
+   ========================================================================== */
+
+/* Navbar Icons Wrapper & Badges */
+.nav-icons-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: 10px;
+}
+
+.nav-icon-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #2f2a24;
+    font-size: 20px;
+    transition: transform 0.2s ease, color 0.2s ease;
+    text-decoration: none;
+}
+
+.nav-icon-btn:hover {
+    color: #C8743A;
+    transform: translateY(-2px);
+}
+
+.nav-icon-btn.active i {
+    color: #ef4444;
+}
+
+.nav-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Barlow Condensed', sans-serif;
+    min-width: 17px;
+    height: 17px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Product Card Wishlist Heart Button */
+.product-card-container {
+    position: relative;
+}
+
+.product-wishlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 5;
+}
+
+.product-wishlist-btn:hover {
+    background: #fff;
+    color: #ef4444;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.product-wishlist-btn.in-wishlist {
+    color: #ef4444;
+    background: #fff;
+}
+
+.product-wishlist-btn.in-wishlist i {
+    color: #ef4444;
+}
+
+/* Product Details Page Wishlist Button */
+.btn-wishlist-detail {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    color: #475569;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    font-size: 15px;
+    text-decoration: none;
+}
+
+.btn-wishlist-detail:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: #fef2f2;
+}
+
+.btn-wishlist-detail.in-wishlist {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.btn-wishlist-detail.in-wishlist i {
+    color: #ef4444;
+}
+
+/* Toast Notifications */
+.pico-toast {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: #1e293b;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pico-toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Dedicated Wishlist Page */
+.wishlist-page {
+    margin-top: 100px;
+    margin-bottom: 70px;
+    min-height: 60vh;
+}
+
+.wishlist-header-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 24px 30px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.wishlist-title {
+    font-size: 28px;
+    font-family: 'Michroma', sans-serif;
+    color: #1e293b;
+    margin-bottom: 6px;
+}
+
+.wishlist-subtitle {
+    color: #64748b;
+    font-size: 15px;
+    margin: 0;
+}
+
+.wishlist-counter-badge {
+    background: rgba(200, 116, 58, 0.12);
+    color: #C8743A;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 20px;
+}
+
+.wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 25px;
+}
+
+.wishlist-card {
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+    position: relative;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.wishlist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.09);
+}
+
+.wishlist-card-img-link {
+    display: block;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.wishlist-card-img-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.wishlist-card:hover .wishlist-card-img-link img {
+    transform: scale(1.04);
+}
+
+.wishlist-remove-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 5;
+}
+
+.wishlist-remove-btn:hover {
+    background: #ef4444;
+    color: #fff;
+    border-color: #ef4444;
+}
+
+.wishlist-card-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.wishlist-card-title {
+    text-decoration: none;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.wishlist-card-title h4 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.wishlist-card-price {
+    font-size: 17px;
+    font-weight: 700;
+    color: #C8743A;
+    margin-bottom: 14px;
+}
+
+.wishlist-card-actions {
+    margin-top: auto;
+}
+
+.wishlist-move-btn {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 8px;
+}
+
+.wishlist-empty-state {
+    text-align: center;
+    background: #fff;
+    padding: 60px 20px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+}
+
+.empty-icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #fef2f2;
+    color: #ef4444;
+    font-size: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.wishlist-empty-state h2 {
+    font-size: 24px;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.wishlist-empty-state p {
+    color: #64748b;
+    max-width: 480px;
+    margin: 0 auto;
+    font-size: 15px;
+}
+
+/* Selective Cart Checkboxes & Layout */
+.cart-item-checkbox, #selectAllCart {
+    width: 18px;
+    height: 18px;
+    accent-color: #C8743A;
+    cursor: pointer;
+}
+
+.cart-bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+    .cart-bottom-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Coupon Card in Cart & Checkout */
+.coupon-box-card {
+    background: #fff;
+    padding: 24px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+.coupon-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.coupon-card-header h4 {
+    font-size: 17px;
+    color: #1e293b;
+    margin: 0;
+}
+
+.coupon-box-card p {
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.coupon-form-group {
+    display: flex;
+    gap: 10px;
+}
+
+.coupon-form-group input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.coupon-form-group input:focus {
+    border-color: #C8743A;
+}
+
+.btn-coupon {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #C8743A;
+    color: #fff;
+    border: none;
+    transition: background 0.2s;
+}
+
+.btn-coupon:hover {
+    background: #a85d2b;
+}
+
+.coupon-feedback-msg {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.coupon-feedback-msg.success {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+.coupon-feedback-msg.error {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+/* Checkout Coupon Box */
+.checkout-coupon-box {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.checkout-coupon-box label {
+    display: block;
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 6px;
+}
+
+.coupon-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+.coupon-input-row input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    outline: none;
+}
+
+.coupon-input-row input:focus {
+    border-color: #C8743A;
+}
+
+.btn-coupon-sm {
+    padding: 8px 14px;
+    background: #C8743A;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-coupon-sm:hover {
+    background: #a85d2b;
+}

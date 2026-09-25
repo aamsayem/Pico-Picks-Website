@@ -70,9 +70,17 @@ const createOrder = async (req, res) => {
             });
         }
 
-        const tax = subtotal > 0 ? 30.00 : 0.00;
-        const shippingFee = subtotal > 2000 ? 0.00 : 50.00;
-        const totalAmount = subtotal + tax + shippingFee;
+        // Tax is completely removed per Phase 3 specifications
+        const tax = 0.00;
+        let discountAmount = 0.00;
+        const couponCode = (req.body.couponCode || '').trim().toUpperCase();
+
+        if (req.body.discountAmount) {
+            discountAmount = Math.max(0, Math.min(subtotal, parseFloat(req.body.discountAmount) || 0));
+        }
+
+        const shippingFee = (subtotal - discountAmount) > 2000 ? 0.00 : (subtotal > 0 ? 50.00 : 0.00);
+        const totalAmount = Math.max(0, subtotal - discountAmount + shippingFee);
 
         const order = await Order.create({
             user: req.user ? req.user._id : null,
@@ -89,18 +97,21 @@ const createOrder = async (req, res) => {
             paymentStatus: 'Pending',
             orderStatus: 'Pending',
             subtotal,
+            discountAmount,
+            couponCode,
             tax,
             shippingFee,
             totalAmount
         });
 
-        // Automatically clear customer's cart after successful order creation
+        // Automatically clear ONLY the purchased items from customer's cart
         if (req.user) {
             if (!cart) {
                 cart = await Cart.findOne({ user: req.user._id });
             }
-            if (cart) {
-                cart.items = [];
+            if (cart && Array.isArray(cart.items)) {
+                const orderedProductIds = new Set(verifiedOrderItems.map(i => String(i.productId)));
+                cart.items = cart.items.filter(item => !orderedProductIds.has(String(item.productId)));
                 await cart.save();
             }
         }

@@ -1,6 +1,6 @@
 /**
  * Pico Picks Dedicated Checkout & PDF Invoice Controller
- * Handles Cart Synchronization, Form Validation, Order Creation, and PDF Invoice Generation
+ * Handles Selective Cart Synchronization, Coupon Application, Tax Removal, Order Creation, and PDF Invoice Generation
  */
 
 const CART_STORAGE_KEY = 'pico_cart';
@@ -9,6 +9,8 @@ const checkoutState = {
     currentUser: null,
     cartItems: [],
     subtotal: 0,
+    discountAmount: 0,
+    couponCode: '',
     tax: 0,
     shippingFee: 0,
     total: 0,
@@ -60,32 +62,39 @@ async function checkUserSession() {
 }
 
 /**
- * Load items from Live API cart (or guest LocalStorage fallback)
+ * Load items for Checkout:
+ * Prioritizes selected items from Selective Cart (sessionStorage), with API / LocalStorage fallback
  */
 async function loadCheckoutCart() {
     let items = [];
     let subtotal = 0;
-    let tax = 0;
-    let shippingFee = 0;
-    let total = 0;
 
-    // Check Live API Cart first if token exists
-    if (window.API && API.getToken()) {
+    // Check if selective cart checkout items were passed from cart.html
+    try {
+        const rawSelected = sessionStorage.getItem('pico_checkout_items');
+        if (rawSelected) {
+            const parsed = JSON.parse(rawSelected);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                items = parsed;
+            }
+        }
+    } catch (e) {
+        console.warn('Could not parse sessionStorage selective checkout items:', e);
+    }
+
+    // If no selective items stored, check Live API Cart first
+    if (items.length === 0 && window.API && API.getToken()) {
         try {
             const apiCart = await API.getCart();
             if (apiCart && apiCart.items && apiCart.items.length > 0) {
                 items = apiCart.items;
-                subtotal = apiCart.subtotal || 0;
-                tax = apiCart.tax || 0;
-                shippingFee = apiCart.shippingFee || 0;
-                total = apiCart.total || 0;
             }
         } catch (err) {
             console.warn('Could not fetch API cart:', err.message);
         }
     }
 
-    // Guest fallback if no API items found
+    // Guest fallback if still empty
     if (items.length === 0) {
         try {
             const rawLocal = localStorage.getItem(CART_STORAGE_KEY);
@@ -98,32 +107,55 @@ async function loadCheckoutCart() {
                     const product = catalog.find(p => p.id === id || p._id === id);
                     if (product) {
                         const lineSubtotal = product.price * localItem.quantity;
-                        subtotal += lineSubtotal;
                         items.push({
                             productId: product.id,
                             name: product.name,
                             price: product.price,
                             image: product.image,
                             quantity: localItem.quantity,
+                            color: localItem.color || '',
                             itemSubtotal: lineSubtotal
                         });
                     }
                 });
-
-                tax = subtotal > 0 ? 30.00 : 0.00;
-                shippingFee = subtotal > 2000 ? 0.00 : (subtotal > 0 ? 50.00 : 0.00);
-                total = subtotal + tax + shippingFee;
             }
         } catch (err) {
             console.warn('Guest cart parsing error:', err.message);
         }
     }
 
+    // Calculate subtotal from verified items
+    subtotal = items.reduce((acc, item) => acc + (Number(item.price) * Number(item.quantity)), 0);
+
     checkoutState.cartItems = items;
     checkoutState.subtotal = subtotal;
-    checkoutState.tax = tax;
-    checkoutState.shippingFee = shippingFee;
-    checkoutState.total = total;
+
+    // Check for pre-applied coupon from cart.html
+    try {
+        const savedCoupon = sessionStorage.getItem('pico_checkout_coupon');
+        if (savedCoupon) {
+            const parsedCoupon = JSON.parse(savedCoupon);
+            if (parsedCoupon && parsedCoupon.code && subtotal > 0) {
+                checkoutState.couponCode = parsedCoupon.code;
+                if (parsedCoupon.discountType === 'percentage') {
+                    checkoutState.discountAmount = Math.round((subtotal * parsedCoupon.discountValue) / 100);
+                } else {
+                    checkoutState.discountAmount = Math.min(parsedCoupon.discountValue, subtotal);
+                }
+                const couponInput = document.getElementById('checkoutCouponInput');
+                if (couponInput) couponInput.value = parsedCoupon.code;
+            }
+        }
+    } catch (e) {
+        console.warn('Coupon restore error:', e);
+    }
+
+    // Tax is 0 per Phase 3 specifications
+    checkoutState.tax = 0.00;
+    // Shipping: Free over ৳2000 (after discount), else ৳50
+    const effectiveSubtotal = Math.max(0, subtotal - checkoutState.discountAmount);
+    checkoutState.shippingFee = subtotal > 0 ? (effectiveSubtotal > 2000 ? 0.00 : 50.00) : 0.00;
+    checkoutState.total = Math.max(0, effectiveSubtotal + checkoutState.shippingFee);
 
     // Handle Empty State
     const emptyState = document.getElementById('checkoutEmptyState');
@@ -142,12 +174,14 @@ async function loadCheckoutCart() {
 }
 
 /**
- * 2. Render Order Summary & Calculations
+ * 2. Render Order Summary & Calculations (Tax Removed + Coupon Discount)
  */
 function renderOrderSummary() {
     const listContainer = document.getElementById('checkoutItemsList');
     const subtotalEl = document.getElementById('summarySubtotal');
-    const taxEl = document.getElementById('summaryTax');
+    const discountRow = document.getElementById('summaryDiscountRow');
+    const discountEl = document.getElementById('summaryDiscount');
+    const couponCodeEl = document.getElementById('summaryCouponCode');
     const shippingEl = document.getElementById('summaryShipping');
     const grandTotalEl = document.getElementById('summaryGrandTotal');
     const btnTotalText = document.getElementById('btnTotalText');
@@ -173,7 +207,17 @@ function renderOrderSummary() {
     `).join('');
 
     if (subtotalEl) subtotalEl.textContent = `৳${Number(checkoutState.subtotal).toFixed(2)}`;
-    if (taxEl) taxEl.textContent = `৳${Number(checkoutState.tax).toFixed(2)}`;
+
+    if (discountRow) {
+        if (checkoutState.discountAmount > 0 && checkoutState.couponCode) {
+            discountRow.style.display = 'flex';
+            if (couponCodeEl) couponCodeEl.textContent = checkoutState.couponCode;
+            if (discountEl) discountEl.textContent = `-৳${Number(checkoutState.discountAmount).toFixed(2)}`;
+        } else {
+            discountRow.style.display = 'none';
+        }
+    }
+
     if (shippingEl) {
         shippingEl.textContent = checkoutState.shippingFee === 0 
             ? 'FREE' 
@@ -181,17 +225,107 @@ function renderOrderSummary() {
         if (checkoutState.shippingFee === 0) {
             shippingEl.style.color = '#16a34a';
             shippingEl.style.fontWeight = '700';
+        } else {
+            shippingEl.style.color = 'inherit';
+            shippingEl.style.fontWeight = 'normal';
         }
     }
+
     if (grandTotalEl) grandTotalEl.textContent = `৳${Number(checkoutState.total).toFixed(2)}`;
     if (btnTotalText) btnTotalText.textContent = `৳${Number(checkoutState.total).toFixed(2)}`;
 
     if (shippingHint) {
-        if (checkoutState.subtotal >= 2000) {
+        const effectiveSubtotal = checkoutState.subtotal - checkoutState.discountAmount;
+        if (effectiveSubtotal >= 2000) {
             shippingHint.innerHTML = '<small style="color: #16a34a; font-weight: 600;"><i class="fa-solid fa-check"></i> You have qualified for Free Shipping!</small>';
         } else {
-            const needed = 2000 - checkoutState.subtotal;
+            const needed = 2000 - effectiveSubtotal;
             shippingHint.innerHTML = `<small><i class="fa-solid fa-circle-info"></i> Add ৳${needed.toFixed(2)} more for Free Shipping</small>`;
+        }
+    }
+}
+
+/**
+ * 2.5 Apply Coupon directly on Checkout Page
+ */
+async function applyCheckoutCoupon() {
+    const input = document.getElementById('checkoutCouponInput');
+    const msgEl = document.getElementById('checkoutCouponMsg');
+    const btn = document.getElementById('checkoutApplyCouponBtn');
+    const code = input ? input.value.trim().toUpperCase() : '';
+
+    if (!code) {
+        if (msgEl) {
+            msgEl.style.display = 'block';
+            msgEl.className = 'coupon-feedback-msg error';
+            msgEl.textContent = 'Please enter a coupon code.';
+        }
+        return;
+    }
+
+    if (checkoutState.subtotal <= 0) {
+        if (msgEl) {
+            msgEl.style.display = 'block';
+            msgEl.className = 'coupon-feedback-msg error';
+            msgEl.textContent = 'Cart subtotal is zero.';
+        }
+        return;
+    }
+
+    try {
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Validating...';
+        }
+
+        const res = await API.validateCoupon(code, checkoutState.subtotal);
+
+        if (res && res.valid) {
+            checkoutState.couponCode = res.code;
+            checkoutState.discountAmount = res.discountAmount;
+
+            // Recalculate shipping & total
+            const effectiveSubtotal = Math.max(0, checkoutState.subtotal - checkoutState.discountAmount);
+            checkoutState.shippingFee = effectiveSubtotal > 2000 ? 0.00 : 50.00;
+            checkoutState.total = Math.max(0, effectiveSubtotal + checkoutState.shippingFee);
+
+            sessionStorage.setItem('pico_checkout_coupon', JSON.stringify({
+                code: res.code,
+                discountType: res.discountType,
+                discountValue: res.discountValue,
+                discountAmount: res.discountAmount
+            }));
+
+            if (msgEl) {
+                msgEl.style.display = 'block';
+                msgEl.className = 'coupon-feedback-msg success';
+                msgEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${res.message || `Coupon "${res.code}" applied!`}`;
+            }
+
+            renderOrderSummary();
+        } else {
+            throw new Error(res?.error || 'Invalid coupon code');
+        }
+    } catch (err) {
+        checkoutState.couponCode = '';
+        checkoutState.discountAmount = 0;
+        sessionStorage.removeItem('pico_checkout_coupon');
+
+        const effectiveSubtotal = checkoutState.subtotal;
+        checkoutState.shippingFee = effectiveSubtotal > 2000 ? 0.00 : 50.00;
+        checkoutState.total = Math.max(0, effectiveSubtotal + checkoutState.shippingFee);
+
+        if (msgEl) {
+            msgEl.style.display = 'block';
+            msgEl.className = 'coupon-feedback-msg error';
+            msgEl.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${err.message || 'Invalid coupon code'}`;
+        }
+
+        renderOrderSummary();
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Apply';
         }
     }
 }
@@ -247,6 +381,8 @@ async function handleCheckoutSubmit(e) {
         },
         email,
         paymentMethod: checkoutState.selectedPayment,
+        couponCode: checkoutState.couponCode || '',
+        discountAmount: checkoutState.discountAmount || 0,
         items: checkoutState.cartItems.map(item => ({
             productId: item.productId || item.id,
             quantity: item.quantity,
@@ -269,8 +405,22 @@ async function handleCheckoutSubmit(e) {
         const createdOrder = res.order;
         checkoutState.currentOrder = createdOrder;
 
-        // Clear local storage cart
-        localStorage.removeItem(CART_STORAGE_KEY);
+        // Clean up session storage selective items and coupon
+        sessionStorage.removeItem('pico_checkout_items');
+        sessionStorage.removeItem('pico_checkout_coupon');
+
+        // Clean up guest local cart: remove only purchased items
+        try {
+            const rawLocal = localStorage.getItem(CART_STORAGE_KEY);
+            if (rawLocal) {
+                let localCart = JSON.parse(rawLocal);
+                const purchasedIds = new Set(checkoutState.cartItems.map(i => String(i.productId || i.id)));
+                localCart = localCart.filter(item => !purchasedIds.has(String(item.productId || item.id)));
+                localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(localCart));
+            }
+        } catch (e) {
+            console.warn('Guest cart cleanup notice:', e);
+        }
 
         // Transition from Form to Order Success Receipt
         showOrderSuccess(createdOrder, { fullName, email, phone, address, city, postalCode });
@@ -287,7 +437,7 @@ async function handleCheckoutSubmit(e) {
 }
 
 /**
- * 5. Display Order Success & Populate Printable Invoice
+ * 5. Display Order Success & Populate Printable Invoice (No Tax + Shows Discount)
  */
 function showOrderSuccess(order, customer) {
     const activeSection = document.getElementById('checkoutActiveSection');
@@ -314,7 +464,7 @@ function showOrderSuccess(order, customer) {
     if (payEl) payEl.textContent = order.paymentMethod || 'Cash on Delivery';
     if (totalEl) totalEl.textContent = `৳${Number(order.totalAmount || 0).toFixed(2)}`;
 
-    // Populate Official Invoice Document
+    // Populate Official Printable Invoice
     const invNumber = document.getElementById('invNumber');
     const invDate = document.getElementById('invDate');
     const invStatus = document.getElementById('invStatus');
@@ -327,7 +477,9 @@ function showOrderSuccess(order, customer) {
     const invPaymentMethod = document.getElementById('invPaymentMethod');
     const invItemsBody = document.getElementById('invItemsTableBody');
     const invSubtotal = document.getElementById('invSubtotal');
-    const invTax = document.getElementById('invTax');
+    const invDiscountRow = document.getElementById('invDiscountRow');
+    const invCouponCode = document.getElementById('invCouponCode');
+    const invDiscount = document.getElementById('invDiscount');
     const invShipping = document.getElementById('invShipping');
     const invGrandTotal = document.getElementById('invGrandTotal');
 
@@ -349,6 +501,7 @@ function showOrderSuccess(order, customer) {
                 <td style="text-align: center; color: #64748b;">${index + 1}</td>
                 <td>
                     <strong>${escapeHTML(item.name)}</strong>
+                    ${item.color ? `<div style="font-size: 11px; color: #c8743a; font-weight: 600;">Color: ${escapeHTML(item.color)}</div>` : ''}
                     <div style="font-size: 11px; color: #64748b;">SKU / ID: ${escapeHTML(item.productId)}</div>
                 </td>
                 <td style="text-align: right;">৳${Number(item.price).toFixed(2)}</td>
@@ -359,7 +512,19 @@ function showOrderSuccess(order, customer) {
     }
 
     if (invSubtotal) invSubtotal.textContent = `৳${Number(order.subtotal || 0).toFixed(2)}`;
-    if (invTax) invTax.textContent = `৳${Number(order.tax || 0).toFixed(2)}`;
+
+    // Invoice Discount row (tax removed!)
+    if (invDiscountRow) {
+        const disc = Number(order.discountAmount || 0);
+        if (disc > 0) {
+            invDiscountRow.style.display = 'flex';
+            if (invCouponCode) invCouponCode.textContent = order.couponCode || 'PROMO';
+            if (invDiscount) invDiscount.textContent = `-৳${disc.toFixed(2)}`;
+        } else {
+            invDiscountRow.style.display = 'none';
+        }
+    }
+
     if (invShipping) invShipping.textContent = order.shippingFee === 0 ? 'FREE' : `৳${Number(order.shippingFee || 0).toFixed(2)}`;
     if (invGrandTotal) invGrandTotal.textContent = `৳${Number(order.totalAmount || 0).toFixed(2)}`;
 
@@ -436,3 +601,4 @@ function downloadInvoicePDF() {
 window.selectPaymentMethod = selectPaymentMethod;
 window.handleCheckoutSubmit = handleCheckoutSubmit;
 window.downloadInvoicePDF = downloadInvoicePDF;
+window.applyCheckoutCoupon = applyCheckoutCoupon;

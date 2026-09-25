@@ -155,6 +155,31 @@ const API = {
 
     async getOrderById(id) {
         return await this.request(`/orders/${id}`);
+    },
+
+    // Coupon endpoints
+    async validateCoupon(code, subtotal) {
+        return await this.request('/coupons/validate', {
+            method: 'POST',
+            body: JSON.stringify({ code, subtotal })
+        });
+    },
+
+    async getCoupons() {
+        return await this.request('/coupons');
+    },
+
+    async createCoupon(couponData) {
+        return await this.request('/coupons', {
+            method: 'POST',
+            body: JSON.stringify(couponData)
+        });
+    },
+
+    async deleteCoupon(id) {
+        return await this.request(`/coupons/${id}`, {
+            method: 'DELETE'
+        });
     }
 };
 

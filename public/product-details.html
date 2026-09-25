@@ -27,7 +27,15 @@
                 <li><a href="account.html">Account</a></li>
             </ul>
         </nav>
-        <a href="cart.html"><img src="images/Cart.png" width="28px" height="28px"></a>
+        <div class="nav-icons-wrapper">
+            <a href="wishlist.html" class="nav-icon-btn" title="Wishlist" aria-label="View Wishlist">
+                <i class="fa-regular fa-heart"></i>
+                <span class="nav-badge nav-wishlist-count" id="navWishlistCount" style="display: none;">0</span>
+            </a>
+            <a href="cart.html" class="nav-icon-btn" title="Shopping Cart" aria-label="View Cart">
+                <img src="images/Cart.png" width="28px" height="28px" alt="Cart">
+            </a>
+        </div>
         
         <img src="images/menu-icon.png" class="menu-icon" onclick="menutoggle()">
      </div>
@@ -86,6 +94,9 @@
                             </div>
                         </div>
                         <a href="#" class="btn" id="addToCartBtn">Add To Cart</a>
+                        <button type="button" class="btn btn-wishlist-detail" id="detailsWishlistBtn" title="Add to Wishlist" aria-label="Add to Wishlist">
+                            <i class="fa-regular fa-heart"></i> <span>Wishlist</span>
+                        </button>
                     </div>
                     <div id="stockWarning" class="stock-warning-msg" style="display: none;"></div>
 
@@ -284,6 +295,7 @@
     <script src="js/api.js"></script>
     <script src="js/products.js"></script>
     <script src="js/cart.js"></script>
+    <script src="js/wishlist.js"></script>
     <script src="js/product-details.js"></script>
 </body>
 </html>
