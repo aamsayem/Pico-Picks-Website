@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collector Journal & Blog - Pico Picks</title>
+    <link rel="shortcut icon" href="images/logo.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Michroma&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="logo">
+                <a href="index.html"><img src="images/logo.png" width="70px" alt="Pico Picks"></a>
+            </div>
+            <nav>
+                <ul id="MenuItems">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html">Products</a></li>
+                    <li><a href="aboutus.html">About</a></li>
+                    <li><a href="contactus.html">Contact</a></li>
+                    <li><a href="account.html">Account</a></li>
+                </ul>
+            </nav>
+            <div class="nav-icons-wrapper">
+                <a href="wishlist.html" class="nav-icon-btn" title="Wishlist" aria-label="View Wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                    <span class="nav-badge nav-wishlist-count" id="navWishlistCount" style="display: none;">0</span>
+                </a>
+                <a href="cart.html" class="nav-icon-btn" title="Shopping Cart" aria-label="View Cart">
+                    <img src="images/Cart.png" width="28px" height="28px" alt="Cart">
+                </a>
+            </div>
+            <img src="images/menu-icon.png" class="menu-icon" onclick="menutoggle()" alt="Toggle Menu">
+        </div>
+    </div>
+
+    <!-- Blog Main Section -->
+    <div class="small-container blog-page">
+        <div class="blog-header">
+            <h2 class="title"><i class="fa-solid fa-newspaper" style="color: #C8743A; margin-right: 8px;"></i> Pico Picks Journal & Insights</h2>
+            <p>Stories, collector insights, maintenance wisdom, and scale model craftsmanship from Bangladesh's dedicated diecast destination.</p>
+        </div>
+
+        <div class="blog-grid">
+            <!-- Article 1 -->
+            <article class="blog-card">
+                <div class="blog-img-wrap">
+                    <img src="images/product/BMW M4 GT3 Special1.jpg" alt="BMW M4 GT3 Special Edition Diecast" loading="lazy">
+                    <span class="blog-badge"><i class="fa-solid fa-car-side"></i> Racing Legends</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> Sept 2026</span>
+                        <span><i class="fa-regular fa-clock"></i> 4 min read</span>
+                    </div>
+                    <h3>The Art of Scale Modeling: Inside the BMW M4 GT3 Aerodynamics</h3>
+                    <p>Diecast precision isn't just about paint—it's about reproducing high-downforce swan-neck wings, functional steering linkages, and true-to-life cockpit gauges in glorious 1:24 ratio.</p>
+                    <button type="button" class="blog-read-link" onclick="openBlogModal('m4gt3')" style="background:none; border:none; cursor:pointer; padding:0;">
+                        Read Article <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </article>
+
+            <!-- Article 2 -->
+            <article class="blog-card">
+                <div class="blog-img-wrap">
+                    <img src="images/product/Nissan Skyline GT-R(R34).jpg" alt="Nissan Skyline GT-R R34 Diecast" loading="lazy">
+                    <span class="blog-badge"><i class="fa-solid fa-fire"></i> JDM Classics</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> Aug 2026</span>
+                        <span><i class="fa-regular fa-clock"></i> 5 min read</span>
+                    </div>
+                    <h3>Godzilla's Legacy: Why the Nissan Skyline GT-R R34 Dominates Showcases</h3>
+                    <p>From the iconic twin circular taillights to the twin-turbo RB26DETT scale engine bay, discover why the R34 remains the holy grail of every JDM enthusiast in Bangladesh.</p>
+                    <button type="button" class="blog-read-link" onclick="openBlogModal('skyline')" style="background:none; border:none; cursor:pointer; padding:0;">
+                        Read Article <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </article>
+
+            <!-- Article 3 -->
+            <article class="blog-card">
+                <div class="blog-img-wrap">
+                    <img src="images/product/1936 Mercedes-Benz 500K Special Roadster.jpg" alt="Mercedes-Benz 500K Roadster" loading="lazy">
+                    <span class="blog-badge"><i class="fa-solid fa-shield-heart"></i> Collector Care</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> Aug 2026</span>
+                        <span><i class="fa-regular fa-clock"></i> 3 min read</span>
+                    </div>
+                    <h3>Showcase Maintenance: How to Clean & Protect Diecast Enamel</h3>
+                    <p>Humidity and dust can degrade acrylic glass and chrome fittings. Learn how soft artist brushes, microfiber polishes, and UV-filtered cases keep your models mint for decades.</p>
+                    <button type="button" class="blog-read-link" onclick="openBlogModal('cleaning')" style="background:none; border:none; cursor:pointer; padding:0;">
+                        Read Article <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </article>
+
+            <!-- Article 4 -->
+            <article class="blog-card">
+                <div class="blog-img-wrap">
+                    <img src="images/product/Turbo RC 176 Mini Sports Car 4CH 2.4GHZ Remote Control.png" alt="Turbo RC 176 Mini Sports Car" loading="lazy">
+                    <span class="blog-badge"><i class="fa-solid fa-microchip"></i> Micro Tech</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> July 2026</span>
+                        <span><i class="fa-regular fa-clock"></i> 4 min read</span>
+                    </div>
+                    <h3>Micro Drift RC: Full 2.4GHz Proportional Control on Your Desktop</h3>
+                    <p>Gone are the days of toy-grade steering. Modern 1:76 scale RC cars feature ultra-compact electronic speed controls, gyro stabilization, and realistic LED front and rear illumination.</p>
+                    <button type="button" class="blog-read-link" onclick="openBlogModal('microrc')" style="background:none; border:none; cursor:pointer; padding:0;">
+                        Read Article <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </article>
+
+            <!-- Article 5 -->
+            <article class="blog-card">
+                <div class="blog-img-wrap">
+                    <img src="images/product/Benz 300 SL.jpg" alt="Mercedes-Benz 300 SL Gullwing" loading="lazy">
+                    <span class="blog-badge"><i class="fa-solid fa-award"></i> Vintage Icons</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> July 2026</span>
+                        <span><i class="fa-regular fa-clock"></i> 6 min read</span>
+                    </div>
+                    <h3>The Gullwing Revolution: The Legendary Mercedes-Benz 300 SL</h3>
+                    <p>Featuring distinctive upward-opening gullwing doors, tubular spaceframe geometry, and mechanical fuel injection that transformed postwar sports car racing history.</p>
+                    <button type="button" class="blog-read-link" onclick="openBlogModal('gullwing')" style="background:none; border:none; cursor:pointer; padding:0;">
+                        Read Article <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </article>
+
+            <!-- Article 6 -->
+            <article class="blog-card">
+                <div class="blog-img-wrap">
+                    <img src="images/product/Dodge Challenger SRT Hellacat.jpg" alt="Dodge Challenger SRT Hellcat" loading="lazy">
+                    <span class="blog-badge"><i class="fa-solid fa-gauge-high"></i> American Muscle</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> June 2026</span>
+                        <span><i class="fa-regular fa-clock"></i> 4 min read</span>
+                    </div>
+                    <h3>Supercharged Muscle: Unpacking the Dodge Challenger SRT Hellcat</h3>
+                    <p>Raw 700+ horsepower swagger encapsulated in diecast metal. Examine the twin functional hood nostrils, widebody flares, and roaring exhaust tips replicated in authentic detail.</p>
+                    <button type="button" class="blog-read-link" onclick="openBlogModal('hellcat')" style="background:none; border:none; cursor:pointer; padding:0;">
+                        Read Article <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </article>
+        </div>
+
+        <!-- Call to Action Banner -->
+        <div class="policy-support-banner" style="margin-top: 50px;">
+            <h3>Start Your Own Scale Model Showcase</h3>
+            <p>Every legendary car has a story. Find your favorite miniature sports car, classic cruiser, or RC racer today.</p>
+            <div class="policy-support-actions">
+                <a href="products.html" class="btn" style="background:#C8743A; color:#fff; border-radius: 30px; padding: 10px 26px;">
+                    <i class="fa-solid fa-car"></i> Explore All Models
+                </a>
+                <a href="coupons.html" class="btn" style="background:#ffffff; color:#1e293b; border-radius: 30px; padding: 10px 26px;">
+                    <i class="fa-solid fa-ticket"></i> View Active Coupons
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Article Reading Modal -->
+    <div id="blogArticleModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 10000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px);">
+        <div style="background: #fff; width: 100%; max-width: 680px; max-height: 85vh; border-radius: 16px; overflow-y: auto; padding: 30px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+            <button type="button" onclick="closeBlogModal()" style="position: absolute; top: 18px; right: 18px; background: #f1f5f9; border: none; width: 34px; height: 34px; border-radius: 50%; font-size: 16px; cursor: pointer; color: #475569; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modalArticleBadge" class="blog-badge" style="position: static; display: inline-block; margin-bottom: 12px; background: #C8743A;"></div>
+            <h2 id="modalArticleTitle" style="font-size: 22px; color: #1e293b; margin-bottom: 15px; line-height: 1.35;"></h2>
+            <div id="modalArticleMeta" style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;"></div>
+            <div id="modalArticleContent" style="font-size: 14px; color: #475569; line-height: 1.8;"></div>
+            <div style="margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 18px; text-align: right;">
+                <button type="button" class="btn" onclick="closeBlogModal()" style="padding: 8px 22px; border-radius: 20px;">Close Article</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Standard Website Footer -->
+    <div class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="footer-col-1">
+                    <h3>Download Our App</h3>
+                    <p>Download App for Android and iOS mobile phones.</p>
+                    <div class="app-logo">
+                        <img src="images/play store.png" alt="Google Play">
+                    </div>      
+                </div>
+                <div class="footer-col-2">  
+                    <img src="images/logo.png" alt="Pico Picks Logo">
+                    <p>Our Purpose Is To Sustainably Make The Pleasure And Benefits Of Collecting Cars Accessible To The Many.</p>       
+                </div>
+                <div class="footer-col-3">
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li><a href="coupons.html"><i class="fa-solid fa-ticket"></i> Coupons</a></li>
+                        <li><a href="blog.html"><i class="fa-solid fa-newspaper"></i> Blog Post</a></li>
+                        <li><a href="return-policy.html"><i class="fa-solid fa-rotate-left"></i> Return Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col-4">
+                    <h3>Follow Us</h3>
+                    <ul class="footer-social-links">
+                        <li>
+                            <a href="https://www.instagram.com/picopicksbd/" target="_blank" rel="noopener noreferrer" class="social-btn instagram-btn" title="Follow us on Instagram">
+                                <i class="fa-brands fa-instagram"></i> Instagram
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.facebook.com/picopicks" target="_blank" rel="noopener noreferrer" class="social-btn facebook-btn" title="Follow us on Facebook">
+                                <i class="fa-brands fa-facebook"></i> Facebook
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.youtube.com/@PicoPicks-c5e3c" target="_blank" rel="noopener noreferrer" class="social-btn youtube-btn" title="Follow us on TikTok / YouTube">
+                                <i class="fa-brands fa-youtube"></i> TikTok / YouTube
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <p class="copyright">Copyright 2026 - Pico Picks</p>
+        </div>
+    </div>
+
+    <!-- JavaScript for Menu & Modal -->
+    <script>
+        var MenuItems = document.getElementById("MenuItems");
+        MenuItems.style.maxHeight = "0px";
+        function menutoggle(){
+            if(MenuItems.style.maxHeight == "0px"){
+                MenuItems.style.maxHeight = "200px";
+            } else {
+                MenuItems.style.maxHeight = "0px";
+            }
+        }
+
+        const blogData = {
+            'm4gt3': {
+                badge: 'Racing Legends',
+                title: 'The Art of Scale Modeling: Inside the BMW M4 GT3 Aerodynamics',
+                date: 'September 2026 • 4 min read • Pico Picks Editorial',
+                content: `<p>The BMW M4 GT3 represents peak GT racing engineering. When transforming such an uncompromising machine into a 1:24 or 1:18 collector scale, manufacturer tolerances must be accurate down to fractions of a millimeter.</p>
+                <p><strong>Aero & Chassis Authenticity:</strong> Notice the aggressive rear diffuser channels, side exhaust exits, and front dive planes. Modern die-cast techniques use multi-part zinc alloy molds paired with photo-etched metal grilles to achieve an authentic racing texture without clogging delicate vents.</p>
+                <p><strong>Cockpit Realism:</strong> Peeking through the windshield reveals a detailed roll cage, molded carbon fiber racing bucket, and multi-color printed steering wheel controls. For motorsport collectors, having the BMW M Motorsport livery faithfully reproduced on their showcase shelf is the ultimate thrill.</p>`
+            },
+            'skyline': {
+                badge: 'JDM Classics',
+                title: "Godzilla's Legacy: Why the Nissan Skyline GT-R R34 Dominates Showcases",
+                date: 'August 2026 • 5 min read • Sayem & Team',
+                content: `<p>Few sports cars evoke raw emotion quite like the Nissan Skyline GT-R (BNR34). Since its debut in 1999, the R34 has become a global pop culture and motorsport titan, celebrated across Gran Turismo, Fast & Furious, and JGTC.</p>
+                <p><strong>The Signature Details:</strong> What distinguishes a premier R34 scale model? The unmistakable multi-function display (MFD) on the dashboard, the iconic Bayside Blue metallic finish, and the legendary quad circular taillights that have haunted competitors on the track.</p>
+                <p><strong>Why Collectors Love It:</strong> The R34's timeless boxy-yet-muscular proportions capture the golden era of analog Japanese performance. In our Pico Picks community, diecast Skylines consistently fly off the shelves because they represent dream cars made tangible.</p>`
+            },
+            'cleaning': {
+                badge: 'Collector Care',
+                title: 'Showcase Maintenance: How to Clean & Protect Diecast Enamel',
+                date: 'August 2026 • 3 min read • Curator Notes',
+                content: `<p>A well-maintained diecast model can retain its pristine showroom luster for decades. Here are three critical rules followed by professional curators:</p>
+                <p><strong>1. Never Use Harsh Solvents:</strong> Household alcohol wipes or glass cleaners can break down lacquer clear-coats and dissolve delicate tampo-printed decals. Always use a dry, ultra-soft microfiber cloth or an optical lens cleaning solution.</p>
+                <p><strong>2. Dusting the Nooks & Crannies:</strong> Use a natural hair makeup brush or camera lens blower to dislodge dust particles from deep within engine bays, spoke rims, and interiors without scratching the surface.</p>
+                <p><strong>3. UV Protection:</strong> Direct sunlight causes paint fading and can turn rubber tires brittle over time. Keep your display shelves situated in a climate-controlled area with indirect ambient light or acrylic UV-absorbing cases.</p>`
+            },
+            'microrc': {
+                badge: 'Micro Tech',
+                title: 'Micro Drift RC: Full 2.4GHz Proportional Control on Your Desktop',
+                date: 'July 2026 • 4 min read • Tech & RC Lab',
+                content: `<p>The frontier of radio-controlled modeling has shrunk drastically in size while exploding in precision. Our 1:76 scale micro RC sports cars prove that pocket-sized chassis can deliver genuine hobby-grade excitement.</p>
+                <p><strong>Proportional Steering & Throttle:</strong> Unlike entry-level toy cars with binary all-or-nothing steering, 2.4GHz micro RC cars feature proportional steering servos and electronic speed governors. You can ease into corners, execute sweeping drifts, and maneuver across tabletop tracks with surgeon-like accuracy.</p>
+                <p><strong>USB-C Quick Charging:</strong> Equipped with onboard lithium polymer cells and USB Type-C charging ports, these micro marvels run for up to 30 minutes on a quick 30-minute charge. It's the ultimate gadget for work desks and rainy afternoons.</p>`
+            },
+            'gullwing': {
+                badge: 'Vintage Icons',
+                title: 'The Gullwing Revolution: The Legendary Mercedes-Benz 300 SL',
+                date: 'July 2026 • 6 min read • Heritage Vault',
+                content: `<p>In 1954, Mercedes-Benz unleashed the 300 SL (W198) upon an astonished automotive world. Born directly from the Mille Miglia and Le Mans-winning racer, its innovative tubular spaceframe required unusually high sills, necessitating roof-hinged upward-opening gullwing doors.</p>
+                <p><strong>Scale Engineering Wonder:</strong> In scale die-cast form, recreating functional gullwing hinges that hold their position securely is a hallmark of master craftsmanship. Authentic models feature opening hoods revealing the canted straight-six engine, detailed spare tires in the trunk, and chrome bumperettes.</p>
+                <p><strong>Historic Stature:</strong> It is widely considered by design historians to be the world's very first true supercar. Displaying a 300 SL honors the origins of modern high-performance sports car engineering.</p>`
+            },
+            'hellcat': {
+                badge: 'American Muscle',
+                title: 'Supercharged Muscle: Unpacking the Dodge Challenger SRT Hellcat',
+                date: 'June 2026 • 4 min read • Muscle Desk',
+                content: `<p>There is nothing subtle about the Dodge Challenger SRT Hellcat. Powered by a 6.2-liter supercharged HEMI V8, it stands as the unapologetic champion of straight-line American quarter-mile drag dominance.</p>
+                <p><strong>Recreating the Beast:</strong> Capturing the Hellcat's aggressive posture in scale demands exact fender flare curves, matte black contrast hoods, dual air-catcher headlamps, and authentic low-profile Pirelli P-Zero style tires.</p>
+                <p><strong>Collector Appeal:</strong> In bright retro colors like Plum Crazy, TorRed, and Sub-Lime, the Challenger model brings vibrant energy to any garage showcase. A true modern classic honoring pure horsepower tradition.</p>`
+            }
+        };
+
+        function openBlogModal(key) {
+            const data = blogData[key];
+            if (!data) return;
+
+            document.getElementById('modalArticleBadge').innerHTML = `<i class="fa-solid fa-bookmark"></i> ${data.badge}`;
+            document.getElementById('modalArticleTitle').textContent = data.title;
+            document.getElementById('modalArticleMeta').textContent = data.date;
+            document.getElementById('modalArticleContent').innerHTML = data.content;
+
+            const modal = document.getElementById('blogArticleModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeBlogModal() {
+            const modal = document.getElementById('blogArticleModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close on backdrop click
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('blogArticleModal');
+            if (e.target === modal) {
+                closeBlogModal();
+            }
+        });
+    </script>
+    <script src="js/api.js"></script>
+    <script src="js/wishlist.js"></script>
+</body>
+</html>

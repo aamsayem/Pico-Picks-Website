@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupons & Promo Codes - Pico Picks</title>
+    <link rel="shortcut icon" href="images/logo.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Michroma&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="logo">
+                <a href="index.html"><img src="images/logo.png" width="70px" alt="Pico Picks"></a>
+            </div>
+            <nav>
+                <ul id="MenuItems">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html">Products</a></li>
+                    <li><a href="aboutus.html">About</a></li>
+                    <li><a href="contactus.html">Contact</a></li>
+                    <li><a href="account.html">Account</a></li>
+                </ul>
+            </nav>
+            <div class="nav-icons-wrapper">
+                <a href="wishlist.html" class="nav-icon-btn" title="Wishlist" aria-label="View Wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                    <span class="nav-badge nav-wishlist-count" id="navWishlistCount" style="display: none;">0</span>
+                </a>
+                <a href="cart.html" class="nav-icon-btn" title="Shopping Cart" aria-label="View Cart">
+                    <img src="images/Cart.png" width="28px" height="28px" alt="Cart">
+                </a>
+            </div>
+            <img src="images/menu-icon.png" class="menu-icon" onclick="menutoggle()" alt="Toggle Menu">
+        </div>
+    </div>
+
+    <!-- Coupons Page Main Section -->
+    <div class="small-container coupons-page">
+        <div class="coupons-header">
+            <h2 class="title"><i class="fa-solid fa-tags" style="color: #C8743A; margin-right: 8px;"></i> Exclusive Coupons & Promo Deals</h2>
+            <p>Save on premium diecast collectibles! Copy your favorite promo code below and apply it during checkout to claim your instant discount.</p>
+        </div>
+
+        <div class="coupons-grid" id="couponsGrid">
+            <!-- Coupon 1 -->
+            <div class="coupon-card">
+                <div>
+                    <span class="coupon-tag"><i class="fa-solid fa-fire"></i> Most Popular</span>
+                    <div class="coupon-value">10% OFF</div>
+                    <div class="coupon-desc">Get an instant 10% discount on any order over ৳500 across our entire die-cast catalog.</div>
+                </div>
+                <div class="coupon-action-box">
+                    <span class="coupon-code-text">PICO10</span>
+                    <button type="button" class="btn-copy-coupon" onclick="copyCouponCode('PICO10', this)">
+                        <i class="fa-regular fa-copy"></i> Copy Code
+                    </button>
+                </div>
+            </div>
+
+            <!-- Coupon 2 -->
+            <div class="coupon-card">
+                <div>
+                    <span class="coupon-tag"><i class="fa-solid fa-gem"></i> Big Saver</span>
+                    <div class="coupon-value">৳100 OFF</div>
+                    <div class="coupon-desc">Save flat ৳100 on orders of ৳1,000 or more. Perfect for expanding your model garage or gifting sets!</div>
+                </div>
+                <div class="coupon-action-box">
+                    <span class="coupon-code-text">SAVE100</span>
+                    <button type="button" class="btn-copy-coupon" onclick="copyCouponCode('SAVE100', this)">
+                        <i class="fa-regular fa-copy"></i> Copy Code
+                    </button>
+                </div>
+            </div>
+
+            <!-- Coupon 3 -->
+            <div class="coupon-card">
+                <div>
+                    <span class="coupon-tag"><i class="fa-solid fa-truck-fast"></i> Shipping Deal</span>
+                    <div class="coupon-value">৳50 OFF</div>
+                    <div class="coupon-desc">Enjoy ৳50 off your delivery charge on any order totaling ৳500 or more anywhere in Bangladesh.</div>
+                </div>
+                <div class="coupon-action-box">
+                    <span class="coupon-code-text">FREESHIP</span>
+                    <button type="button" class="btn-copy-coupon" onclick="copyCouponCode('FREESHIP', this)">
+                        <i class="fa-regular fa-copy"></i> Copy Code
+                    </button>
+                </div>
+            </div>
+
+            <!-- Coupon 4 -->
+            <div class="coupon-card">
+                <div>
+                    <span class="coupon-tag"><i class="fa-solid fa-bolt"></i> Speed Edition</span>
+                    <div class="coupon-value">৳50 OFF</div>
+                    <div class="coupon-desc">Claim flat ৳50 discount on orders starting from ৳600. Valid for Supercars and JDM specials.</div>
+                </div>
+                <div class="coupon-action-box">
+                    <span class="coupon-code-text">TURBO50</span>
+                    <button type="button" class="btn-copy-coupon" onclick="copyCouponCode('TURBO50', this)">
+                        <i class="fa-regular fa-copy"></i> Copy Code
+                    </button>
+                </div>
+            </div>
+
+            <!-- Coupon 5 -->
+            <div class="coupon-card">
+                <div>
+                    <span class="coupon-tag"><i class="fa-solid fa-crown"></i> Collector VIP</span>
+                    <div class="coupon-value">৳200 OFF</div>
+                    <div class="coupon-desc">Exclusive savings of ৳200 on premium enthusiast hauls and bundles of ৳2,000 and above.</div>
+                </div>
+                <div class="coupon-action-box">
+                    <span class="coupon-code-text">VIP200</span>
+                    <button type="button" class="btn-copy-coupon" onclick="copyCouponCode('VIP200', this)">
+                        <i class="fa-regular fa-copy"></i> Copy Code
+                    </button>
+                </div>
+            </div>
+
+            <!-- Coupon 6 -->
+            <div class="coupon-card">
+                <div>
+                    <span class="coupon-tag"><i class="fa-solid fa-gift"></i> Welcome Bonus</span>
+                    <div class="coupon-value">10% OFF</div>
+                    <div class="coupon-desc">New to Pico Picks? Welcome aboard! Enjoy 10% off your initial order of ৳400 or more.</div>
+                </div>
+                <div class="coupon-action-box">
+                    <span class="coupon-code-text">WELCOME</span>
+                    <button type="button" class="btn-copy-coupon" onclick="copyCouponCode('WELCOME', this)">
+                        <i class="fa-regular fa-copy"></i> Copy Code
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use Coupons Card -->
+        <div class="coupon-instructions-card" style="margin-top: 50px;">
+            <h4><i class="fa-solid fa-circle-question"></i> How to Apply a Coupon Code</h4>
+            <p>1. Copy any promo code above by clicking the <strong>Copy Code</strong> button.<br>
+               2. Add your favorite die-cast cars and scale models to your Cart.<br>
+               3. On the <strong>Cart</strong> or <strong>Checkout</strong> page, paste the code into the coupon field and click <strong>Apply</strong>.<br>
+               4. Your discount will be calculated and deducted instantly before payment!</p>
+            <div style="margin-top: 18px;">
+                <a href="products.html" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-bag-shopping"></i> Browse Diecast Models
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification for Copying -->
+    <div id="couponToast" style="display:none; position: fixed; bottom: 30px; right: 30px; background: #1e293b; color: #fff; padding: 12px 20px; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.25); z-index: 9999; font-size: 14px; font-weight: 500; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-circle-check" style="color: #22c55e;"></i>
+        <span id="couponToastText">Coupon code copied to clipboard!</span>
+    </div>
+
+    <!-- Standard Website Footer -->
+    <div class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="footer-col-1">
+                    <h3>Download Our App</h3>
+                    <p>Download App for Android and iOS mobile phones.</p>
+                    <div class="app-logo">
+                        <img src="images/play store.png" alt="Google Play">
+                    </div>      
+                </div>
+                <div class="footer-col-2">  
+                    <img src="images/logo.png" alt="Pico Picks Logo">
+                    <p>Our Purpose Is To Sustainably Make The Pleasure And Benefits Of Collecting Cars Accessible To The Many.</p>       
+                </div>
+                <div class="footer-col-3">
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li><a href="coupons.html"><i class="fa-solid fa-ticket"></i> Coupons</a></li>
+                        <li><a href="blog.html"><i class="fa-solid fa-newspaper"></i> Blog Post</a></li>
+                        <li><a href="return-policy.html"><i class="fa-solid fa-rotate-left"></i> Return Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col-4">
+                    <h3>Follow Us</h3>
+                    <ul class="footer-social-links">
+                        <li>
+                            <a href="https://www.instagram.com/picopicksbd/" target="_blank" rel="noopener noreferrer" class="social-btn instagram-btn" title="Follow us on Instagram">
+                                <i class="fa-brands fa-instagram"></i> Instagram
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.facebook.com/picopicks" target="_blank" rel="noopener noreferrer" class="social-btn facebook-btn" title="Follow us on Facebook">
+                                <i class="fa-brands fa-facebook"></i> Facebook
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.youtube.com/@PicoPicks-c5e3c" target="_blank" rel="noopener noreferrer" class="social-btn youtube-btn" title="Follow us on TikTok / YouTube">
+                                <i class="fa-brands fa-youtube"></i> TikTok / YouTube
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <p class="copyright">Copyright 2026 - Pico Picks</p>
+        </div>
+    </div>
+
+    <!-- JavaScript for Menu & Clipboard Copy -->
+    <script>
+        var MenuItems = document.getElementById("MenuItems");
+        MenuItems.style.maxHeight = "0px";
+        function menutoggle(){
+            if(MenuItems.style.maxHeight == "0px"){
+                MenuItems.style.maxHeight = "200px";
+            } else {
+                MenuItems.style.maxHeight = "0px";
+            }
+        }
+
+        let toastTimeout = null;
+        function showToast(message) {
+            const toast = document.getElementById('couponToast');
+            const text = document.getElementById('couponToastText');
+            if (!toast || !text) return;
+
+            text.textContent = message;
+            toast.style.display = 'flex';
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function copyCouponCode(code, btnElement) {
+            if (!code) return;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalHtml = btnElement.innerHTML;
+                btnElement.classList.add('copied');
+                btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                showToast(`Coupon code "${code}" copied to clipboard!`);
+                setTimeout(() => {
+                    btnElement.classList.remove('copied');
+                    btnElement.innerHTML = originalHtml;
+                }, 2200);
+            }).catch(err => {
+                // Fallback for older browsers
+                const tempInput = document.createElement('input');
+                tempInput.value = code;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+
+                const originalHtml = btnElement.innerHTML;
+                btnElement.classList.add('copied');
+                btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                showToast(`Coupon code "${code}" copied!`);
+                setTimeout(() => {
+                    btnElement.classList.remove('copied');
+                    btnElement.innerHTML = originalHtml;
+                }, 2200);
+            });
+        }
+    </script>
+    <script src="js/api.js"></script>
+    <script src="js/wishlist.js"></script>
+</body>
+</html>

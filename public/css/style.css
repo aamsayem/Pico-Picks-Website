@@ -3420,3 +3420,488 @@ th:last-child{
     font-size: 13px;
     border-radius: 20px;
 }
+
+/*--- Footer Enhancements (Phase 2) ---*/
+.footer-col-3 ul,
+.footer-col-4 ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-col-3 ul li {
+    margin-bottom: 10px;
+}
+
+.footer-col-3 ul li a {
+    color: #8a8a8a;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.footer-col-3 ul li a:hover {
+    color: #C8743A;
+    transform: translateX(4px);
+}
+
+.footer-social-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-social-links li {
+    width: 100%;
+    max-width: 180px;
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.social-btn i {
+    font-size: 15px;
+    transition: transform 0.25s ease;
+}
+
+.social-btn:hover {
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.social-btn:hover i {
+    transform: scale(1.15);
+}
+
+.instagram-btn:hover {
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    border-color: transparent;
+}
+
+.facebook-btn:hover {
+    background: #1877f2;
+    border-color: #1877f2;
+}
+
+.youtube-btn:hover {
+    background: #ff0000;
+    border-color: #ff0000;
+}
+
+/*--- Coupons Page Styles ---*/
+.coupons-page {
+    padding: 40px 0 80px;
+    min-height: calc(100vh - 280px);
+}
+
+.coupons-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.coupons-header p {
+    color: #64748b;
+    max-width: 600px;
+    margin: 10px auto 0;
+    font-size: 15px;
+}
+
+.coupons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 50px;
+}
+
+.coupon-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 2px dashed #e2e8f0;
+    padding: 24px;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.coupon-card:hover {
+    border-color: #C8743A;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(200, 116, 58, 0.15);
+}
+
+.coupon-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #ffedd5;
+    color: #c2410c;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.coupon-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 6px;
+}
+
+.coupon-desc {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.coupon-action-box {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #e2e8f0;
+}
+
+.coupon-code-text {
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #C8743A;
+    letter-spacing: 1px;
+}
+
+.btn-copy-coupon {
+    background: #C8743A;
+    color: #ffffff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-copy-coupon:hover {
+    background: #a85822;
+}
+
+.btn-copy-coupon.copied {
+    background: #16a34a;
+}
+
+.coupon-instructions-card {
+    background: #fff8f3;
+    border-radius: 12px;
+    border: 1px solid #fed7aa;
+    padding: 24px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.coupon-instructions-card h4 {
+    color: #9a3412;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.coupon-instructions-card p {
+    color: #7c2d12;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/*--- Blog Page Styles ---*/
+.blog-page {
+    padding: 40px 0 80px;
+    min-height: calc(100vh - 280px);
+}
+
+.blog-header {
+    text-align: center;
+    margin-bottom: 45px;
+}
+
+.blog-header p {
+    color: #64748b;
+    max-width: 650px;
+    margin: 10px auto 0;
+    font-size: 15px;
+}
+
+.blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+}
+
+.blog-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+}
+
+.blog-img-wrap {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+    background: #f1f5f9;
+}
+
+.blog-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.blog-card:hover .blog-img-wrap img {
+    transform: scale(1.05);
+}
+
+.blog-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(30, 41, 59, 0.85);
+    color: #ffffff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+}
+
+.blog-content {
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.blog-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 10px;
+}
+
+.blog-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.blog-content h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.blog-content p {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 18px;
+    flex: 1;
+}
+
+.blog-read-link {
+    color: #C8743A;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    transition: gap 0.2s ease;
+}
+
+.blog-read-link:hover {
+    gap: 10px;
+    color: #a85822;
+}
+
+/*--- Return Policy Page Styles ---*/
+.policy-page {
+    padding: 40px 0 80px;
+    min-height: calc(100vh - 280px);
+}
+
+.policy-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.policy-header p {
+    color: #64748b;
+    max-width: 650px;
+    margin: 10px auto 0;
+    font-size: 15px;
+}
+
+.policy-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.policy-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+.policy-card h3 {
+    font-size: 19px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.policy-card h3 i {
+    color: #C8743A;
+}
+
+.policy-card p {
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+
+.policy-card ul {
+    list-style: disc;
+    padding-left: 20px;
+    margin-bottom: 12px;
+}
+
+.policy-card ul li {
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 6px;
+}
+
+.policy-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin: 20px 0 10px;
+}
+
+.policy-step-box {
+    background: #faf8f5;
+    border-radius: 10px;
+    padding: 18px;
+    border: 1px solid #f1ece4;
+    text-align: center;
+}
+
+.policy-step-num {
+    width: 32px;
+    height: 32px;
+    background: #C8743A;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 auto 10px;
+}
+
+.policy-step-box h4 {
+    font-size: 14px;
+    color: #1f1b17;
+    margin-bottom: 6px;
+}
+
+.policy-step-box p {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.policy-support-banner {
+    background: #1f1b17;
+    color: #ffffff;
+    border-radius: 14px;
+    padding: 30px;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.policy-support-banner h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: #ffffff;
+}
+
+.policy-support-banner p {
+    color: #cbd5e1;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.policy-support-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
