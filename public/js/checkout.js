@@ -163,35 +163,35 @@ function renderOrderSummary() {
                 <div class="summary-meta">
                     <span class="qty-badge">Qty: ${item.quantity}</span>
                     ${item.color ? `<span class="qty-badge" style="background:#ffedd5; color:#9a3412;">Color: ${escapeHTML(item.color)}</span>` : ''}
-                    <span class="unit-price">$${Number(item.price).toFixed(2)} each</span>
+                    <span class="unit-price">৳${Number(item.price).toFixed(2)} each</span>
                 </div>
             </div>
             <div class="summary-line-total">
-                $${Number(item.price * item.quantity).toFixed(2)}
+                ৳${Number(item.price * item.quantity).toFixed(2)}
             </div>
         </div>
     `).join('');
 
-    if (subtotalEl) subtotalEl.textContent = `$${Number(checkoutState.subtotal).toFixed(2)}`;
-    if (taxEl) taxEl.textContent = `$${Number(checkoutState.tax).toFixed(2)}`;
+    if (subtotalEl) subtotalEl.textContent = `৳${Number(checkoutState.subtotal).toFixed(2)}`;
+    if (taxEl) taxEl.textContent = `৳${Number(checkoutState.tax).toFixed(2)}`;
     if (shippingEl) {
         shippingEl.textContent = checkoutState.shippingFee === 0 
             ? 'FREE' 
-            : `$${Number(checkoutState.shippingFee).toFixed(2)}`;
+            : `৳${Number(checkoutState.shippingFee).toFixed(2)}`;
         if (checkoutState.shippingFee === 0) {
             shippingEl.style.color = '#16a34a';
             shippingEl.style.fontWeight = '700';
         }
     }
-    if (grandTotalEl) grandTotalEl.textContent = `$${Number(checkoutState.total).toFixed(2)}`;
-    if (btnTotalText) btnTotalText.textContent = `$${Number(checkoutState.total).toFixed(2)}`;
+    if (grandTotalEl) grandTotalEl.textContent = `৳${Number(checkoutState.total).toFixed(2)}`;
+    if (btnTotalText) btnTotalText.textContent = `৳${Number(checkoutState.total).toFixed(2)}`;
 
     if (shippingHint) {
         if (checkoutState.subtotal >= 2000) {
             shippingHint.innerHTML = '<small style="color: #16a34a; font-weight: 600;"><i class="fa-solid fa-check"></i> You have qualified for Free Shipping!</small>';
         } else {
             const needed = 2000 - checkoutState.subtotal;
-            shippingHint.innerHTML = `<small><i class="fa-solid fa-circle-info"></i> Add $${needed.toFixed(2)} more for Free Shipping</small>`;
+            shippingHint.innerHTML = `<small><i class="fa-solid fa-circle-info"></i> Add ৳${needed.toFixed(2)} more for Free Shipping</small>`;
         }
     }
 }
@@ -280,7 +280,7 @@ async function handleCheckoutSubmit(e) {
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Place Order ($${Number(checkoutState.total).toFixed(2)}) &#10140;`;
+            submitBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Place Order (৳${Number(checkoutState.total).toFixed(2)}) &#10140;`;
         }
     }
 }
@@ -311,7 +311,7 @@ function showOrderSuccess(order, customer) {
     if (idEl) idEl.textContent = `#${shortId}`;
     if (dateEl) dateEl.textContent = formattedDate;
     if (payEl) payEl.textContent = order.paymentMethod || 'Cash on Delivery';
-    if (totalEl) totalEl.textContent = `$${Number(order.totalAmount || 0).toFixed(2)}`;
+    if (totalEl) totalEl.textContent = `৳${Number(order.totalAmount || 0).toFixed(2)}`;
 
     // Populate Official Invoice Document
     const invNumber = document.getElementById('invNumber');
@@ -350,17 +350,17 @@ function showOrderSuccess(order, customer) {
                     <strong>${escapeHTML(item.name)}</strong>
                     <div style="font-size: 11px; color: #64748b;">SKU / ID: ${escapeHTML(item.productId)}</div>
                 </td>
-                <td style="text-align: right;">$${Number(item.price).toFixed(2)}</td>
+                <td style="text-align: right;">৳${Number(item.price).toFixed(2)}</td>
                 <td style="text-align: center;">${item.quantity}</td>
-                <td style="text-align: right; font-weight: 600;">$${Number(item.price * item.quantity).toFixed(2)}</td>
+                <td style="text-align: right; font-weight: 600;">৳${Number(item.price * item.quantity).toFixed(2)}</td>
             </tr>
         `).join('');
     }
 
-    if (invSubtotal) invSubtotal.textContent = `$${Number(order.subtotal || 0).toFixed(2)}`;
-    if (invTax) invTax.textContent = `$${Number(order.tax || 0).toFixed(2)}`;
-    if (invShipping) invShipping.textContent = order.shippingFee === 0 ? 'FREE' : `$${Number(order.shippingFee || 0).toFixed(2)}`;
-    if (invGrandTotal) invGrandTotal.textContent = `$${Number(order.totalAmount || 0).toFixed(2)}`;
+    if (invSubtotal) invSubtotal.textContent = `৳${Number(order.subtotal || 0).toFixed(2)}`;
+    if (invTax) invTax.textContent = `৳${Number(order.tax || 0).toFixed(2)}`;
+    if (invShipping) invShipping.textContent = order.shippingFee === 0 ? 'FREE' : `৳${Number(order.shippingFee || 0).toFixed(2)}`;
+    if (invGrandTotal) invGrandTotal.textContent = `৳${Number(order.totalAmount || 0).toFixed(2)}`;
 
     // Scroll smoothly to receipt header
     window.scrollTo({ top: 0, behavior: 'smooth' });

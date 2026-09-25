@@ -51,7 +51,7 @@
                             <input type="text" placeholder="Username">
                             <input type="password" placeholder="Password">
                             <button type="submit" class="btn">Login</button>
-                            <a href="">Forgot Password</a>
+                            <a href="#" onclick="alert('Please contact our support team at support@picopicks.com to reset your credentials.'); return false;">Forgot Password?</a>
                         </form>
                         <form id="RegForm"> 
                             <input type="text" placeholder="Username">
@@ -125,14 +125,26 @@
         var Indicator = document.getElementById("Indicator");
         
         function register(){
-            RegForm.style.transform = "translateX(0px)";
-            LoginForm.style.transform = "translateX(0px)";
-            Indicator.style.transform = "translateX(100px)";
+            if (LoginForm && RegForm && Indicator) {
+                LoginForm.style.transform = "translateX(-110%)";
+                LoginForm.style.opacity = "0";
+                LoginForm.style.pointerEvents = "none";
+                RegForm.style.transform = "translateX(0%)";
+                RegForm.style.opacity = "1";
+                RegForm.style.pointerEvents = "auto";
+                Indicator.style.transform = "translateX(100px)";
+            }
         }
         function login(){
-            RegForm.style.transform = "translateX(300px)";
-            LoginForm.style.transform = "translateX(300px)";
-            Indicator.style.transform = "translateX(0px)";
+            if (LoginForm && RegForm && Indicator) {
+                LoginForm.style.transform = "translateX(0%)";
+                LoginForm.style.opacity = "1";
+                LoginForm.style.pointerEvents = "auto";
+                RegForm.style.transform = "translateX(110%)";
+                RegForm.style.opacity = "0";
+                RegForm.style.pointerEvents = "none";
+                Indicator.style.transform = "translateX(0px)";
+            }
         }
     </script>
     <script src="js/api.js"></script>

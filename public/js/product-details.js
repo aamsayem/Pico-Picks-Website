@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const stockWarning = document.getElementById('stockWarning');
 
         if (titleElem) titleElem.textContent = product.name;
-        if (priceElem) priceElem.textContent = `$${Number(product.price).toFixed(2)}`;
+        if (priceElem) priceElem.textContent = `৳${Number(product.price).toFixed(2)}`;
 
         if (descElem) {
             const formattedDesc = escapeHTML(product.description || 'No description available for this item.').replace(/\n/g, '<br>');
@@ -136,17 +136,24 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         // 3. Quantity Limits & Out of Stock Handlers
+        const decBtn = document.getElementById('qtyDecBtn');
+        const incBtn = document.getElementById('qtyIncBtn');
+
         if (qtyInput) {
             if (stock <= 0) {
                 qtyInput.value = '0';
                 qtyInput.min = '0';
                 qtyInput.max = '0';
                 qtyInput.disabled = true;
+                if (decBtn) decBtn.disabled = true;
+                if (incBtn) incBtn.disabled = true;
             } else {
                 qtyInput.disabled = false;
                 qtyInput.min = '1';
                 qtyInput.max = String(stock);
                 qtyInput.value = '1';
+                if (decBtn) decBtn.disabled = false;
+                if (incBtn) incBtn.disabled = false;
             }
 
             function validateQuantity() {
@@ -179,6 +186,34 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             qtyInput.addEventListener('input', validateQuantity);
             qtyInput.addEventListener('change', validateQuantity);
+
+            if (decBtn) {
+                decBtn.onclick = function() {
+                    if (stock <= 0) return;
+                    let current = parseInt(qtyInput.value, 10) || 1;
+                    if (current > 1) {
+                        qtyInput.value = current - 1;
+                        validateQuantity();
+                    }
+                };
+            }
+
+            if (incBtn) {
+                incBtn.onclick = function() {
+                    if (stock <= 0) return;
+                    let current = parseInt(qtyInput.value, 10) || 1;
+                    if (current < stock) {
+                        qtyInput.value = current + 1;
+                        validateQuantity();
+                    } else if (stockWarning) {
+                        stockWarning.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Maximum available quantity is ${stock}.`;
+                        stockWarning.style.display = 'flex';
+                        setTimeout(() => {
+                            if (stockWarning) stockWarning.style.display = 'none';
+                        }, 3500);
+                    }
+                };
+            }
         }
 
         if (addToCartBtn) {
@@ -267,7 +302,7 @@ async function renderRelatedProducts(currentProductId) {
                         <i class="fa-solid fa-star"></i>
                         <i class="fa-solid fa-star"></i>
                     </div>
-                    <p>$${Number(p.price).toFixed(2)}</p>
+                    <p>৳${Number(p.price).toFixed(2)}</p>
                 </div>
             `).join('');
         }

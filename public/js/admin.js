@@ -196,7 +196,7 @@ function renderProductsTable(products) {
                 <strong>${escapeHTML(p.name)}</strong>
                 ${p.colors && p.colors.length > 0 ? `<div style="font-size: 11px; color: #64748b; margin-top: 3px;"><i class="fa-solid fa-palette"></i> ${escapeHTML(p.colors.join(', '))}</div>` : ''}
             </td>
-            <td>$${Number(p.price).toFixed(2)}</td>
+            <td>৳${Number(p.price).toFixed(2)}</td>
             <td>
                 ${(p.stock !== undefined && p.stock !== null && Number(p.stock) > 0)
                     ? (Number(p.stock) <= 5
@@ -443,7 +443,7 @@ function renderOrdersTable(orders) {
                     ${customerEmail ? `<br><small style="color:#64748b;">${escapeHTML(customerEmail)}</small>` : ''}
                 </td>
                 <td>${itemsCount} item${itemsCount !== 1 ? 's' : ''}</td>
-                <td><strong>$${Number(o.totalAmount || 0).toFixed(2)}</strong></td>
+                <td><strong>৳${Number(o.totalAmount || 0).toFixed(2)}</strong></td>
                 <td>
                     <span class="badge" style="${o.paymentStatus === 'Paid' ? 'background:#dcfce7; color:#15803d;' : 'background:#fee2e2; color:#b91c1c;'}">
                         ${escapeHTML(o.paymentStatus || 'Pending')}
@@ -537,9 +537,9 @@ function viewOrderDetails(orderId) {
                 <p style="margin: 0; font-size: 13px; line-height: 1.5;">
                     <strong>Method:</strong> ${escapeHTML(order.paymentMethod || 'Cash on Delivery')}<br>
                     <strong>Payment Status:</strong> ${escapeHTML(order.paymentStatus || 'Pending')}<br>
-                    <strong>Subtotal:</strong> $${Number(order.subtotal || 0).toFixed(2)}<br>
-                    <strong>Tax:</strong> $${Number(order.tax || 0).toFixed(2)} | <strong>Shipping:</strong> $${Number(order.shippingFee || 0).toFixed(2)}<br>
-                    <span style="font-size: 15px; color: #C8743A; font-weight: 700;">Grand Total: $${Number(order.totalAmount || 0).toFixed(2)}</span>
+                    <strong>Subtotal:</strong> ৳${Number(order.subtotal || 0).toFixed(2)}<br>
+                    <strong>Tax:</strong> ৳${Number(order.tax || 0).toFixed(2)} | <strong>Shipping:</strong> ৳${Number(order.shippingFee || 0).toFixed(2)}<br>
+                    <span style="font-size: 15px; color: #C8743A; font-weight: 700;">Grand Total: ৳${Number(order.totalAmount || 0).toFixed(2)}</span>
                 </p>
             </div>
         </div>
@@ -563,9 +563,9 @@ function viewOrderDetails(orderId) {
                                 <img src="${escapeHTML(item.image)}" alt="" class="product-thumb" style="width: 36px; height: 36px;" onerror="this.src='images/logo.png'">
                             </td>
                             <td><strong>${escapeHTML(item.name)}</strong></td>
-                            <td>$${Number(item.price).toFixed(2)}</td>
+                            <td>৳${Number(item.price).toFixed(2)}</td>
                             <td>${item.quantity}</td>
-                            <td><strong>$${(Number(item.price) * item.quantity).toFixed(2)}</strong></td>
+                            <td><strong>৳${(Number(item.price) * item.quantity).toFixed(2)}</strong></td>
                         </tr>
                     `).join('')}
                 </tbody>

@@ -240,7 +240,7 @@ async function renderCartPage() {
                             <img src="${item.image}" alt="${escapeHTML(item.name)}" onerror="this.src='images/logo.png'">
                             <div>
                                 <p>${escapeHTML(item.name)}</p>
-                                <small>Price: $${Number(item.price).toFixed(2)}</small>
+                                <small>Price: ৳${Number(item.price).toFixed(2)}</small>
                                 ${item.color ? `<br><small style="color: #c8743a; font-weight: 600;">Color: ${escapeHTML(item.color)}</small>` : ''}
                                 <br>
                                 <a href="#" onclick="removeFromCart('${item.productId}'); return false;">Remove</a>
@@ -248,9 +248,13 @@ async function renderCartPage() {
                         </div>
                     </td>
                     <td>
-                        <input type="number" value="${item.quantity}" min="1" onchange="updateCartQuantity('${item.productId}', this.value)">
+                        <div class="qty-control qty-control-sm">
+                            <button type="button" class="qty-btn qty-dec" onclick="stepCartQuantity('${item.productId}', -1)" aria-label="Decrease quantity">−</button>
+                            <input type="number" id="cart-qty-${item.productId}" value="${item.quantity}" min="1" onchange="updateCartQuantity('${item.productId}', this.value)">
+                            <button type="button" class="qty-btn qty-inc" onclick="stepCartQuantity('${item.productId}', 1)" aria-label="Increase quantity">+</button>
+                        </div>
                     </td>
-                    <td>$${Number(item.itemSubtotal).toFixed(2)}</td>
+                    <td>৳${Number(item.itemSubtotal).toFixed(2)}</td>
                 </tr>
             `;
         });
@@ -262,42 +266,56 @@ async function renderCartPage() {
     totalPriceTable.innerHTML = `
         <tr>
             <td>Subtotal</td>
-            <td>$${Number(subtotal).toFixed(2)}</td>
+            <td>৳${Number(subtotal).toFixed(2)}</td>
         </tr>
         <tr>
             <td>Tax</td>
-            <td>$${Number(tax).toFixed(2)}</td>
+            <td>৳${Number(tax).toFixed(2)}</td>
         </tr>
         <tr>
             <td>Shipping</td>
-            <td>$${Number(shippingFee).toFixed(2)}</td>
+            <td>৳${Number(shippingFee).toFixed(2)}</td>
         </tr>
         <tr>
             <td>Total</td>
-            <td>$${Number(total).toFixed(2)}</td>
+            <td>৳${Number(total).toFixed(2)}</td>
         </tr>
     `;
 
-    // Render / Update Proceed to Checkout Button inside .total-price
+    // Render / Update Proceed to Checkout Button
+    const actionsContainer = document.querySelector('.cart-checkout-actions');
     const totalPriceContainer = document.querySelector('.total-price');
-    if (totalPriceContainer) {
+    const targetParent = actionsContainer || totalPriceContainer;
+    if (targetParent) {
         let checkoutBtn = document.getElementById('checkoutBtn');
         if (items.length > 0) {
             if (!checkoutBtn) {
                 checkoutBtn = document.createElement('a');
                 checkoutBtn.id = 'checkoutBtn';
-                checkoutBtn.className = 'btn';
-                checkoutBtn.style.cssText = 'float: right; margin-top: 15px; cursor: pointer; text-align: center; display: inline-block;';
+                checkoutBtn.className = 'btn checkout-btn';
                 checkoutBtn.textContent = 'Proceed to Checkout ➜';
                 checkoutBtn.onclick = proceedToCheckout;
-                totalPriceContainer.appendChild(checkoutBtn);
+                targetParent.appendChild(checkoutBtn);
             } else {
-                checkoutBtn.style.display = 'inline-block';
+                checkoutBtn.style.display = 'inline-flex';
+                checkoutBtn.onclick = proceedToCheckout;
             }
         } else if (checkoutBtn) {
             checkoutBtn.style.display = 'none';
         }
     }
+}
+
+/**
+ * Step quantity via +/- buttons in cart table
+ */
+async function stepCartQuantity(productId, delta) {
+    const input = document.getElementById(`cart-qty-${productId}`);
+    let val = input ? parseInt(input.value, 10) : 1;
+    if (isNaN(val)) val = 1;
+    const nextVal = Math.max(1, val + delta);
+    if (input) input.value = nextVal;
+    await updateCartQuantity(productId, nextVal);
 }
 
 /**

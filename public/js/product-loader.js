@@ -46,7 +46,7 @@ function createProductCard(product) {
             <div class="rating">
                 ${renderRatingStars(product.rating)}
             </div>
-            <p>$${Number(product.price).toFixed(2)}</p>
+            <p>৳${Number(product.price).toFixed(2)}</p>
         </div>
     `;
 }
@@ -177,6 +177,58 @@ async function initProductsPage() {
     }
 }
 
+/**
+ * Category Explorer on Homepage
+ */
+function matchProductCategory(product, category) {
+    if (!category || category === 'all') return true;
+    
+    const cat = (product.category || '').toLowerCase();
+    const name = (product.name || '').toLowerCase();
+    const desc = (product.description || '').toLowerCase();
+    const fullText = `${name} ${desc} ${cat}`;
+
+    if (category === 'sports') {
+        return /ferrari|bmw|m4|brabus|turbo|rc|porsche|lamborghini|supercar|sports/i.test(fullText);
+    } else if (category === 'muscle') {
+        return /mustang|dodge|challenger|hellcat|ae86|gt-r|gtr|nissan|toyota supra|muscle|jdm/i.test(fullText);
+    } else if (category === 'classic') {
+        return /1936|mercedes-benz 500k|300 sl|miniature t1|classic|vintage|roadster|gullwing/i.test(fullText);
+    } else if (category === 'accessories') {
+        return /slingshot|pen holder|money bank|spinner|book|accessory|accessories|watch|keychain|toy/i.test(fullText);
+    }
+    return true;
+}
+
+async function initCategoryExplorer() {
+    const row = document.getElementById('categoryProductsRow');
+    if (!row) return;
+
+    const navButtons = document.querySelectorAll('.cat-filter-btn');
+    let allProducts = await fetchProductsData();
+
+    function renderCategory(cat) {
+        const filtered = allProducts.filter(p => matchProductCategory(p, cat));
+        if (filtered.length === 0) {
+            row.innerHTML = '<p style="text-align:center; width:100%; color:#999; padding:30px;">No products found in this category.</p>';
+        } else {
+            row.innerHTML = filtered.map(createProductCard).join('');
+        }
+    }
+
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            navButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const cat = btn.getAttribute('data-category') || 'all';
+            renderCategory(cat);
+        });
+    });
+
+    // Initial render
+    renderCategory('all');
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     if (document.querySelector('.small-container .row-2 select') || window.location.pathname.includes('products.html')) {
         await initProductsPage();
@@ -191,5 +243,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
     if (isIndexPage) {
         await initIndexPage();
+    }
+
+    if (document.getElementById('categoryProductsRow')) {
+        await initCategoryExplorer();
     }
 });

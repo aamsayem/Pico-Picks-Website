@@ -47,7 +47,7 @@ async function renderAuthDashboard(user) {
                                 <div style="background: #f8fafc; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #e2e8f0;">
                                     <div style="display: flex; justify-content: space-between; font-weight: 600;">
                                         <span>Order #${o._id ? o._id.substring(0, 8) : 'N/A'}</span>
-                                        <span style="color: #C8743A;">$${Number(o.totalAmount || 0).toFixed(2)}</span>
+                                        <span style="color: #C8743A;">৳${Number(o.totalAmount || 0).toFixed(2)}</span>
                                     </div>
                                     <div style="display: flex; justify-content: space-between; color: #64748b; font-size: 12px; margin-top: 4px;">
                                         <span>Status: <strong>${escapeHTML(o.orderStatus || 'Pending')}</strong></span>
