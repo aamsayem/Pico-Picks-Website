@@ -31,7 +31,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             product = await window.API.getProductById(productId);
         } else {
             const res = await fetch(`/api/products/${productId}`);
-            product = await res.json();
+            const ct = res.headers.get('content-type') || '';
+            product = ct.includes('application/json') ? await res.json() : null;
         }
     } catch (e) {
         console.error('API error fetching product details:', e.message);
@@ -242,7 +243,8 @@ async function renderRelatedProducts(currentProductId) {
             allProducts = await window.API.getProducts();
         } else {
             const res = await fetch('/api/products');
-            allProducts = await res.json();
+            const ct = res.headers.get('content-type') || '';
+            allProducts = ct.includes('application/json') ? await res.json() : [];
         }
 
         const related = allProducts

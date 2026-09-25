@@ -42,10 +42,21 @@ const API = {
 
         try {
             const response = await fetch(url, config);
-            const data = await response.json();
+            const contentType = response.headers.get('content-type') || '';
+            let data = null;
+
+            if (contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+                if (!response.ok) {
+                    throw new Error(text || `Server error (Status ${response.status})`);
+                }
+                data = { message: text };
+            }
 
             if (!response.ok) {
-                throw new Error(data.error || `HTTP error! status: ${response.status}`);
+                throw new Error((data && data.error) ? data.error : `HTTP error! status: ${response.status}`);
             }
             return data;
         } catch (error) {

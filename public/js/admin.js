@@ -42,6 +42,12 @@ async function uploadImageToImgBB(file) {
         body: formData
     });
 
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`ImgBB Upload Failed (${response.status}): ${text || response.statusText}`);
+    }
+
     const data = await response.json();
 
     if (!response.ok || !data.success) {

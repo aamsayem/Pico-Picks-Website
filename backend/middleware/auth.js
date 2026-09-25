@@ -33,6 +33,13 @@ const protect = async (req, res, next) => {
     return res.status(401).json({ error: 'Not authorized, no token provided' });
 };
 
+const adminOnly = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+        return next();
+    }
+    return res.status(403).json({ error: 'Access denied: Admin privileges required' });
+};
+
 const optionalAuth = async (req, res, next) => {
     let token;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {

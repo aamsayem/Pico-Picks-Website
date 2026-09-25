@@ -61,7 +61,8 @@ async function fetchProductsData(params = {}) {
             products = await window.API.getProducts(params);
         } else {
             const res = await fetch('/api/products');
-            products = await res.json();
+            const ct = res.headers.get('content-type') || '';
+            products = ct.includes('application/json') ? await res.json() : [];
         }
 
         if (!Array.isArray(products)) {
