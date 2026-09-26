@@ -808,9 +808,9 @@ ul{
     }
     .form-container{
         width: 100%;
-        max-width: 300px;
+        max-width: 320px;
         height: auto;
-        min-height: 380px;
+        min-height: 520px;
     }
     .form-container form{
         width: 100%;
@@ -1398,9 +1398,9 @@ th:last-child{
     border: 1px solid rgba(255,255,255,0.80);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    width: 340px;
+    width: 350px;
     max-width: 100%;
-    min-height: 430px;
+    min-height: 520px;
     position: relative;
     text-align: center;
     padding: 26px 20px 24px;
@@ -5165,5 +5165,313 @@ th:last-child{
         padding-right: 0;
         padding-bottom: 20px;
     }
+}
+
+/* ==========================================================================
+   Phase 3: Password Toggle, Google Auth & COD Advance & Cascading Dropdowns
+   ========================================================================== */
+.password-field-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.password-field-wrapper input {
+    width: 100%;
+    padding-right: 42px !important;
+}
+
+.eye-toggle-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+    z-index: 2;
+}
+
+.eye-toggle-btn:hover {
+    color: #C8743A;
+}
+
+.eye-toggle-btn:focus {
+    outline: none;
+}
+
+/* OAuth Divider & Google Button */
+.oauth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 10px 0;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.oauth-divider::before,
+.oauth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.oauth-divider span {
+    padding: 0 10px;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+
+.btn-google-auth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: #ffffff;
+    color: #334155;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.btn-google-auth:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.btn-google-auth svg {
+    flex-shrink: 0;
+}
+
+/* Google Sign-In Quick Modal */
+#googleAuthModal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.google-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.google-modal-card {
+    position: relative;
+    background: #ffffff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    padding: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    z-index: 1;
+    animation: modalPopIn 0.25s ease-out;
+}
+
+@keyframes modalPopIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.google-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.google-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #1e293b;
+    flex: 1;
+}
+
+.google-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    color: #94a3b8;
+    cursor: pointer;
+}
+
+.google-modal-close:hover {
+    color: #1e293b;
+}
+
+.google-modal-subtext {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 18px;
+    line-height: 1.4;
+}
+
+/* Cascading Dropdowns on checkout.html */
+.checkout-row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+@media (max-width: 768px) {
+    .checkout-row-3 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* COD Advance Notice & Payment Card on checkout.html */
+.cod-advance-box {
+    margin-top: 15px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #fffbeb;
+    border: 1.5px solid #fde68a;
+    transition: all 0.3s ease;
+}
+
+.cod-advance-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #92400e;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.cod-advance-desc {
+    font-size: 13px;
+    color: #78350f;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.cod-payment-numbers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+@media (max-width: 600px) {
+    .cod-payment-numbers-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.cod-number-card {
+    background: #ffffff;
+    border: 1px solid #fef3c7;
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.cod-number-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.cod-badge-bkash {
+    font-size: 11px;
+    font-weight: 700;
+    color: #e2136e;
+    text-transform: uppercase;
+}
+
+.cod-badge-nagad {
+    font-size: 11px;
+    font-weight: 700;
+    color: #f7941d;
+    text-transform: uppercase;
+}
+
+.cod-phone-num {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+.copy-btn-tag {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-btn-tag:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.cod-trx-input-group {
+    margin-bottom: 12px;
+}
+
+.cod-trx-input-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #78350f;
+    margin-bottom: 5px;
+}
+
+.cod-trx-input-group input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid #fcd34d;
+    border-radius: 8px;
+    font-size: 13.5px;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+.cod-confirm-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12.5px;
+    color: #78350f;
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+.cod-confirm-checkbox-label input[type="checkbox"] {
+    margin-top: 3px;
+    accent-color: #C8743A;
+    cursor: pointer;
 }
 

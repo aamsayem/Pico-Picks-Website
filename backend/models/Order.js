@@ -46,9 +46,24 @@ const shippingAddressSchema = new mongoose.Schema({
         required: [true, 'Shipping address is required'],
         trim: true
     },
+    division: {
+        type: String,
+        default: 'Chattogram',
+        trim: true
+    },
+    district: {
+        type: String,
+        default: 'Chattogram',
+        trim: true
+    },
+    thana: {
+        type: String,
+        default: '',
+        trim: true
+    },
     city: {
         type: String,
-        required: [true, 'City is required'],
+        default: '',
         trim: true
     },
     postalCode: {
@@ -127,6 +142,12 @@ const orderSchema = new mongoose.Schema({
     shippingFee: {
         type: Number,
         default: 70
+    },
+    advancePaymentDetails: {
+        trxId: { type: String, default: '', trim: true },
+        senderPhone: { type: String, default: '', trim: true },
+        amount: { type: Number, default: 0 },
+        isConfirmed: { type: Boolean, default: false }
     },
     totalAmount: {
         type: Number,

@@ -1,9 +1,110 @@
 /**
  * Pico Picks Dedicated Checkout & PDF Invoice Controller
- * Handles Selective Cart Synchronization, Coupon Application, Tax Removal, Order Creation, and PDF Invoice Generation
+ * Handles Selective Cart Synchronization, Bangladesh Cascading Locations (8 Divisions, 64 Districts, Thanas),
+ * Dynamic Shipping Charge Sync (Inside Chattogram ৳70 vs Outside Chattogram ৳130),
+ * Mandatory Cash on Delivery (COD) Advance Delivery Charge Condition & Verification,
+ * Coupon Application, Tax Removal, Order Creation, and PDF Invoice Generation.
  */
 
 const CART_STORAGE_KEY = 'pico_cart';
+
+// Complete Mapping of Bangladesh: 8 Divisions -> 64 Districts -> Thanas / Upazilas
+const BD_LOCATIONS = {
+    "Chattogram": {
+        "Chattogram": [
+            "Kotwali", "Panchlaish", "Pahartali", "Halishahar", "Chandgaon", 
+            "Double Mooring", "Bayezid", "Khulshi", "Patenga", "Bakalia", 
+            "Karnaphuli", "Akbar Shah", "Chawkbazar", "Sadarganj", "EPZ",
+            "Hathazari", "Raozan", "Rangunia", "Sitakunda", "Mirsharai", 
+            "Patiya", "Boalkhali", "Anwara", "Chandanaish", "Banshkhali", 
+            "Lohagara", "Satkania", "Sandwip", "Fatikchhari"
+        ],
+        "Cox's Bazar": ["Cox's Bazar Sadar", "Chakaria", "Maheshkhali", "Teknaf", "Ukhia", "Ramu", "Pekua", "Kutubdia", "Eidgaon"],
+        "Cumilla": ["Cumilla Adarsha Sadar", "Cumilla Sadar Dakshin", "Barura", "Brahmanpara", "Burichang", "Chandina", "Chauddagram", "Daudkandi", "Debidwar", "Homna", "Laksam", "Muradnagar", "Meghna", "Monohargonj", "Titas"],
+        "Feni": ["Feni Sadar", "Chhagalnaiya", "Daganbhuiyan", "Parshuram", "Fulgazi", "Sonagazi"],
+        "Brahmanbaria": ["Brahmanbaria Sadar", "Ashuganj", "Nasirnagar", "Nabinagar", "Sarail", "Kasba", "Akhaura", "Bancharampur", "Bijoynagar"],
+        "Noakhali": ["Noakhali Sadar (Sudharam)", "Begumganj", "Chatkhil", "Companiganj", "Hatiya", "Senbagh", "Sonaimuri", "Subarnachar", "Kabirhat"],
+        "Chandpur": ["Chandpur Sadar", "Faridganj", "Haimchar", "Haziganj", "Kachua", "Matlab Dakshin", "Matlab Uttar", "Shahrasti"],
+        "Lakshmipur": ["Lakshmipur Sadar", "Raipur", "Ramganj", "Ramgati", "Kamalnagar"],
+        "Rangamati": ["Rangamati Sadar", "Kaptai", "Baghaichhari", "Barkal", "Belaichhari", "Juraichhari", "Langadu", "Naniarchar", "Rajasthali"],
+        "Khagrachhari": ["Khagrachhari Sadar", "Dighinala", "Lakshmichhari", "Mahalchhari", "Manikchhari", "Matiranga", "Panchhari", "Ramgarh", "Guimara"],
+        "Bandarban": ["Bandarban Sadar", "Alikadam", "Lama", "Naikhongchhari", "Rowangchhari", "Ruma", "Thanchi"]
+    },
+    "Dhaka": {
+        "Dhaka": [
+            "Dhanmondi", "Gulshan", "Banani", "Mirpur", "Mohammadpur", 
+            "Uttara", "Motijheel", "Tejgaon", "Ramna", "Shahbagh", 
+            "Badda", "Khilgaon", "Paltan", "Lalbagh", "Sutrapur", 
+            "Demra", "Jatrabari", "New Market", "Hazaribagh", "Kafrul", 
+            "Cantonment", "Khilkhet", "Vatara", "Rampura", "Savar", 
+            "Dhamrai", "Keraniganj", "Dohar", "Nawabganj"
+        ],
+        "Gazipur": ["Gazipur Sadar", "Kaliakair", "Kaliganj", "Kapasia", "Sreepur", "Tongi"],
+        "Narayanganj": ["Narayanganj Sadar", "Bandar", "Araihazar", "Rupganj", "Sonargaon"],
+        "Tangail": ["Tangail Sadar", "Basail", "Bhuapur", "Delduar", "Ghatail", "Gopalpur", "Kalihati", "Madhupur", "Mirzapur", "Nagarpur", "Sakhipur", "Dhanbari"],
+        "Kishoreganj": ["Kishoreganj Sadar", "Bajitpur", "Bhairab", "Hossainpur", "Itna", "Karimganj", "Katiadi", "Kuliarchar", "Mithamain", "Nikli", "Pakundia", "Tarail"],
+        "Manikganj": ["Manikganj Sadar", "Singair", "Shivalaya", "Saturia", "Harirampur", "Ghior", "Daulatpur"],
+        "Munshiganj": ["Munshiganj Sadar", "Tongibari", "Sirajdikhan", "Lohajang", "Sreenagar", "Gazaria"],
+        "Narsingdi": ["Narsingdi Sadar", "Belabo", "Monohardi", "Palash", "Raipura", "Shibpur"],
+        "Faridpur": ["Faridpur Sadar", "Alfadanga", "Bhangga", "Boalmari", "Charbhadrasan", "Madhukhali", "Nagarkanda", "Sadarpur", "Saltha"],
+        "Gopalganj": ["Gopalganj Sadar", "Kashiani", "Kotalipara", "Muksudpur", "Tungipara"],
+        "Madaripur": ["Madaripur Sadar", "Kalkini", "Rajoir", "Shibchar", "Dasar"],
+        "Rajbari": ["Rajbari Sadar", "Baliakandi", "Goalandaghat", "Pangsha", "Kalukhali"],
+        "Shariatpur": ["Shariatpur Sadar", "Bhedarganj", "Damudya", "Gosairhat", "Naria", "Zajira"]
+    },
+    "Rajshahi": {
+        "Rajshahi": ["Boalia", "Motihar", "Rajpara", "Shah Mokdum", "Paba", "Bagha", "Bagmara", "Charghat", "Durgapur", "Godagari", "Mohanpur", "Puthia", "Tanore"],
+        "Bogura": ["Bogura Sadar", "Adamdighi", "Dhunat", "Dhupchanchia", "Gabtali", "Kahaloo", "Nandigram", "Sariakandi", "Shajahanpur", "Sherpur", "Shibganj", "Sonatala"],
+        "Pabna": ["Pabna Sadar", "Atgharia", "Bera", "Bhangura", "Chatmohar", "Faridpur", "Ishwardi", "Santhia", "Sujanagar"],
+        "Sirajganj": ["Sirajganj Sadar", "Belkuchi", "Chauhali", "Kamarkhanda", "Kazipur", "Rayganj", "Shahjadpur", "Tarash", "Ullapara"],
+        "Naogaon": ["Naogaon Sadar", "Atrai", "Badalgachhi", "Dhamoirhat", "Manda", "Mohadevpur", "Niamatpur", "Patnitala", "Porsha", "Raninagar", "Sapahar"],
+        "Natore": ["Natore Sadar", "Bagatipara", "Baraigram", "Gurudaspur", "Lalpur", "Singra", "Naldanga"],
+        "Chapainawabganj": ["Chapainawabganj Sadar", "Bholahat", "Gomastapur", "Nachole", "Shibganj"],
+        "Joypurhat": ["Joypurhat Sadar", "Akkelpur", "Kalai", "Khetlal", "Panchbibi"]
+    },
+    "Khulna": {
+        "Khulna": ["Khulna Sadar", "Sonadanga", "Khalishpur", "Daulatpur", "Khan Jahan Ali", "Batiaghata", "Dacope", "Dumuria", "Dighalia", "Koyra", "Paikgachha", "Phultala", "Rupsha", "Terokhada"],
+        "Jashore": ["Jashore Sadar", "Abhaynagar", "Bagherpara", "Chaugachha", "Jhikargachha", "Keshabpur", "Manirampur", "Sharsha"],
+        "Kushtia": ["Kushtia Sadar", "Bheramara", "Daulatpur", "Khoksa", "Kumarkhali", "Mirpur"],
+        "Satkhira": ["Satkhira Sadar", "Assasuni", "Debhata", "Kalaroa", "Kaliganj", "Shyamnagar", "Tala"],
+        "Bagerhat": ["Bagerhat Sadar", "Chitalmari", "Fakirhat", "Kachua", "Mollahat", "Mongla", "Morrelganj", "Rampal", "Sarankhola"],
+        "Jhenaidah": ["Jhenaidah Sadar", "Harinakundu", "Kaliganj", "Kotchandpur", "Maheshpur", "Shailkupa"],
+        "Chuadanga": ["Chuadanga Sadar", "Alamdanga", "Damurhuda", "Jibannagar"],
+        "Meherpur": ["Meherpur Sadar", "Gangni", "Mujibnagar"],
+        "Magura": ["Magura Sadar", "Mohammadpur", "Shalika", "Sreepur"],
+        "Narail": ["Narail Sadar", "Kalia", "Lohagara"]
+    },
+    "Barishal": {
+        "Barishal": ["Barishal Sadar (Kotwali)", "Agailjhara", "Babuganj", "Bakerganj", "Banaripara", "Gaurnadi", "Hizla", "Mehendiganj", "Muladi", "Wazirpur"],
+        "Patuakhali": ["Patuakhali Sadar", "Bauphal", "Dashmina", "Galachipa", "Kalapara", "Mirzaganj", "Rangabali", "Dumki"],
+        "Bhola": ["Bhola Sadar", "Burhanuddin", "Char Fasson", "Daulatkhan", "Lalmohan", "Manpura", "Tazumuddin"],
+        "Pirojpur": ["Pirojpur Sadar", "Bhandaria", "Kawkhali", "Mathbaria", "Nazirpur", "Nesarabad (Swarupkati)", "Indurkani"],
+        "Barguna": ["Barguna Sadar", "Amtali", "Bamna", "Betagi", "Patharghata", "Taltali"],
+        "Jhalokathi": ["Jhalokathi Sadar", "Kathalia", "Nalchity", "Rajapur"]
+    },
+    "Sylhet": {
+        "Sylhet": ["Sylhet Sadar", "Kotwali", "South Surma", "Beanibazar", "Bishwanath", "Companiganj", "Fenchuganj", "Golapganj", "Gowainghat", "Jaintiapur", "Kanaighat", "Zakiganj", "Osmani Nagar"],
+        "Moulvibazar": ["Moulvibazar Sadar", "Barlekha", "Juri", "Kamalganj", "Kulaura", "Rajnagar", "Sreemangal"],
+        "Habiganj": ["Habiganj Sadar", "Ajmiriganj", "Bahubal", "Baniachong", "Chunarughat", "Lakhai", "Madhabpur", "Nabiganj", "Sayestaganj"],
+        "Sunamganj": ["Sunamganj Sadar", "Bishwamvarpur", "Chhatak", "Derai", "Dharampasha", "Dowarabazar", "Jagannathpur", "Jamalganj", "Shantiganj (South Sunamganj)", "Sullah", "Tahirpur", "Madhyanagar"]
+    },
+    "Rangpur": {
+        "Rangpur": ["Rangpur Sadar", "Kotwali", "Badarganj", "Gangachhara", "Kaunia", "Mithapukur", "Pirgachha", "Pirganj", "Taraganj"],
+        "Dinajpur": ["Dinajpur Sadar", "Birampur", "Birganj", "Biral", "Bochaganj", "Chirirbandar", "Fulbari", "Ghoraghat", "Hakimpur", "Kaharole", "Khansama", "Nawabganj", "Parbatipur"],
+        "Kurigram": ["Kurigram Sadar", "Bhurungamari", "Char Rajibpur", "Chilmari", "Phulbari", "Nageshwari", "Rajarhat", "Raomari", "Ulipur"],
+        "Gaibandha": ["Gaibandha Sadar", "Fulchhari", "Gobindaganj", "Palashbari", "Sadullapur", "Saghata", "Sundarganj"],
+        "Nilphamari": ["Nilphamari Sadar", "Dimla", "Domar", "Jaldhaka", "Kishoreganj", "Saidpur"],
+        "Panchagarh": ["Panchagarh Sadar", "Atwari", "Boda", "Debiganj", "Tetulia"],
+        "Thakurgaon": ["Thakurgaon Sadar", "Baliadangi", "Haripur", "Pirganj", "Ranisankail"],
+        "Lalmonirhat": ["Lalmonirhat Sadar", "Aditmari", "Hatibandha", "Kaliganj", "Patgram"]
+    },
+    "Mymensingh": {
+        "Mymensingh": ["Mymensingh Sadar", "Kotwali", "Bhaluka", "Dhobaura", "Fulbaria", "Gafargaon", "Gauripur", "Haluaghat", "Ishwarganj", "Muktagachha", "Nandail", "Phulpur", "Tara Khanda"],
+        "Jamalpur": ["Jamalpur Sadar", "Bakshiganj", "Dewanganj", "Islampur", "Madarganj", "Melandaha", "Sarishabari"],
+        "Netrokona": ["Netrokona Sadar", "Atpara", "Barhatta", "Durgapur", "Kalmakanda", "Kendua", "Madan", "Mohanganj", "Purbadhala", "Khaliajuri"],
+        "Sherpur": ["Sherpur Sadar", "Jhenaigati", "Nakla", "Nalitabari", "Sreebardi"]
+    }
+};
 
 const checkoutState = {
     currentUser: null,
@@ -34,12 +135,114 @@ function escapeHTML(str) {
 }
 
 /**
- * 1. Initialize Checkout Data
+ * 1. Initialize Checkout Data & Location Dropdowns
  */
 document.addEventListener('DOMContentLoaded', async () => {
+    initLocationDropdowns();
     await checkUserSession();
     await loadCheckoutCart();
 });
+
+/**
+ * Initialize Bangladesh Division -> District -> Thana Cascading Dropdowns
+ */
+function initLocationDropdowns() {
+    const divSelect = document.getElementById('custDivision');
+    if (!divSelect) return;
+
+    divSelect.innerHTML = '<option value="">-- Select Division --</option>';
+    const divisions = Object.keys(BD_LOCATIONS);
+    divisions.forEach(div => {
+        const opt = document.createElement('option');
+        opt.value = div;
+        opt.textContent = div;
+        divSelect.appendChild(opt);
+    });
+
+    // Default to Chattogram on initial load
+    divSelect.value = 'Chattogram';
+    onDivisionChange();
+
+    const distSelect = document.getElementById('custDistrict');
+    if (distSelect) {
+        distSelect.value = 'Chattogram';
+        onDistrictChange();
+    }
+}
+
+/**
+ * Triggered when customer changes Division
+ */
+function onDivisionChange() {
+    const divSelect = document.getElementById('custDivision');
+    const distSelect = document.getElementById('custDistrict');
+    const thanaSelect = document.getElementById('custThana');
+    if (!divSelect || !distSelect || !thanaSelect) return;
+
+    const selectedDivision = divSelect.value;
+    distSelect.innerHTML = '<option value="">-- Select District --</option>';
+    thanaSelect.innerHTML = '<option value="">-- Select District First --</option>';
+    thanaSelect.disabled = true;
+
+    if (!selectedDivision || !BD_LOCATIONS[selectedDivision]) {
+        distSelect.disabled = true;
+        return;
+    }
+
+    const districts = Object.keys(BD_LOCATIONS[selectedDivision]).sort();
+    districts.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        distSelect.appendChild(opt);
+    });
+
+    distSelect.disabled = false;
+}
+window.onDivisionChange = onDivisionChange;
+
+/**
+ * Triggered when customer changes District:
+ * 1. Populates Thanas / Upazilas
+ * 2. Automatically syncs delivery area and shipping charge (Inside Chattogram ৳70 vs Outside Chattogram ৳130)
+ */
+function onDistrictChange() {
+    const divSelect = document.getElementById('custDivision');
+    const distSelect = document.getElementById('custDistrict');
+    const thanaSelect = document.getElementById('custThana');
+    const cityInput = document.getElementById('custCity');
+    if (!divSelect || !distSelect || !thanaSelect) return;
+
+    const selectedDivision = divSelect.value;
+    const selectedDistrict = distSelect.value;
+
+    thanaSelect.innerHTML = '<option value="">-- Select Thana / Upazila --</option>';
+
+    if (!selectedDivision || !selectedDistrict || !BD_LOCATIONS[selectedDivision]?.[selectedDistrict]) {
+        thanaSelect.disabled = true;
+        return;
+    }
+
+    const thanas = BD_LOCATIONS[selectedDivision][selectedDistrict];
+    thanas.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t;
+        thanaSelect.appendChild(opt);
+    });
+
+    thanaSelect.disabled = false;
+
+    if (cityInput) cityInput.value = selectedDistrict;
+
+    // Automatically sync delivery destination & shipping charge
+    if (selectedDistrict === 'Chattogram') {
+        selectDeliveryArea('Inside Chattogram', 70);
+    } else {
+        selectDeliveryArea('Outside Chattogram', 130);
+    }
+}
+window.onDistrictChange = onDistrictChange;
 
 /**
  * Check if user is logged in & prefill contact details
@@ -51,10 +254,36 @@ async function checkUserSession() {
             if (user) {
                 checkoutState.currentUser = user;
                 const nameInput = document.getElementById('custFullName');
+                const phoneInput = document.getElementById('custPhone');
                 const emailInput = document.getElementById('custEmail');
+                const addressInput = document.getElementById('custAddress');
+                const postalInput = document.getElementById('custPostal');
 
-                if (nameInput && user.username) nameInput.value = user.username;
+                if (nameInput && (user.name || user.username)) nameInput.value = user.name || user.username;
+                if (phoneInput && user.phone) phoneInput.value = user.phone;
                 if (emailInput && user.email) emailInput.value = user.email;
+                if (addressInput && user.address) addressInput.value = user.address;
+                if (postalInput && user.postalCode) postalInput.value = user.postalCode;
+
+                // Prefill location dropdowns if stored in profile
+                if (user.division && BD_LOCATIONS[user.division]) {
+                    const divSelect = document.getElementById('custDivision');
+                    if (divSelect) {
+                        divSelect.value = user.division;
+                        onDivisionChange();
+                    }
+                    if (user.district && BD_LOCATIONS[user.division]?.[user.district]) {
+                        const distSelect = document.getElementById('custDistrict');
+                        if (distSelect) {
+                            distSelect.value = user.district;
+                            onDistrictChange();
+                        }
+                        if (user.thana) {
+                            const thanaSelect = document.getElementById('custThana');
+                            if (thanaSelect) thanaSelect.value = user.thana;
+                        }
+                    }
+                }
             }
         } catch (e) {
             console.warn('Session check notice:', e.message);
@@ -70,7 +299,7 @@ async function loadCheckoutCart() {
     let items = [];
     let subtotal = 0;
 
-    // Check if selective cart checkout items were passed from cart.html
+    // Check if selective cart checkout items were passed from cart.html or direct Buy Now
     try {
         const rawSelected = sessionStorage.getItem('pico_checkout_items');
         if (rawSelected) {
@@ -143,60 +372,62 @@ async function loadCheckoutCart() {
                 } else {
                     checkoutState.discountAmount = Math.min(parsedCoupon.discountValue, subtotal);
                 }
-                const couponInput = document.getElementById('checkoutCouponInput');
-                if (couponInput) couponInput.value = parsedCoupon.code;
+                const input = document.getElementById('checkoutCouponInput');
+                if (input) input.value = parsedCoupon.code;
             }
         }
     } catch (e) {
-        console.warn('Coupon restore error:', e);
+        console.warn('Could not restore saved coupon:', e);
     }
 
-    // Tax is 0 per Phase 3 specifications
-    checkoutState.tax = 0.00;
-    // Delivery Area Shipping: Inside Chattogram = ৳70.00, Outside Chattogram = ৳130.00
-    checkoutState.deliveryArea = checkoutState.deliveryArea || 'Inside Chattogram';
-    checkoutState.shippingFee = subtotal > 0 ? (checkoutState.deliveryArea === 'Outside Chattogram' ? 130.00 : 70.00) : 0.00;
+    // Shipping calculation: defaults to Inside Chattogram (৳70.00)
+    checkoutState.shippingFee = checkoutState.deliveryArea === 'Outside Chattogram' ? 130.00 : 70.00;
     const effectiveSubtotal = Math.max(0, subtotal - checkoutState.discountAmount);
-    checkoutState.total = Math.max(0, effectiveSubtotal + checkoutState.shippingFee);
+    checkoutState.total = Math.max(0, effectiveSubtotal + (subtotal > 0 ? checkoutState.shippingFee : 0));
 
-    // Handle Empty State
-    const emptyState = document.getElementById('checkoutEmptyState');
+    // Render Order Summary
+    renderOrderSummary();
+
+    // Toggle Empty Cart State if zero items
+    const emptySection = document.getElementById('checkoutEmptySection');
     const activeSection = document.getElementById('checkoutActiveSection');
 
     if (items.length === 0) {
-        if (emptyState) emptyState.style.display = 'block';
         if (activeSection) activeSection.style.display = 'none';
-        return;
+        if (emptySection) emptySection.style.display = 'block';
     } else {
-        if (emptyState) emptyState.style.display = 'none';
+        if (emptySection) emptySection.style.display = 'none';
         if (activeSection) activeSection.style.display = 'block';
     }
-
-    renderOrderSummary();
 }
 
 /**
- * 2. Render Order Summary & Calculations (Tax Removed + Coupon Discount)
+ * 2. Render Order Summary & Calculation Breakdown
  */
 function renderOrderSummary() {
     const listContainer = document.getElementById('checkoutItemsList');
     const subtotalEl = document.getElementById('summarySubtotal');
     const discountRow = document.getElementById('summaryDiscountRow');
-    const discountEl = document.getElementById('summaryDiscount');
     const couponCodeEl = document.getElementById('summaryCouponCode');
-    const shippingEl = document.getElementById('summaryShipping');
+    const discountEl = document.getElementById('summaryDiscountAmount');
+    const shippingEl = document.getElementById('summaryShippingFee');
     const grandTotalEl = document.getElementById('summaryGrandTotal');
     const btnTotalText = document.getElementById('btnTotalText');
-    const shippingHint = document.getElementById('shippingHint');
+    const shippingHint = document.getElementById('shippingPolicyHint');
 
     if (!listContainer) return;
 
+    if (checkoutState.cartItems.length === 0) {
+        listContainer.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 20px;">No items selected for checkout.</p>';
+        return;
+    }
+
     listContainer.innerHTML = checkoutState.cartItems.map(item => `
-        <div class="summary-item">
-            <img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" class="summary-thumb" onerror="this.src='images/logo.png'">
-            <div class="summary-details">
+        <div class="summary-item-row">
+            <img src="${item.image}" alt="${escapeHTML(item.name)}" onerror="this.src='images/logo.png'">
+            <div class="summary-item-info">
                 <h4>${escapeHTML(item.name)}</h4>
-                <div class="summary-meta">
+                <div class="summary-item-meta">
                     <span class="qty-badge">Qty: ${item.quantity}</span>
                     ${item.color ? `<span class="qty-badge" style="background:#ffedd5; color:#9a3412;">Color: ${escapeHTML(item.color)}</span>` : ''}
                     <span class="unit-price">৳${Number(item.price).toFixed(2)} each</span>
@@ -276,9 +507,7 @@ async function applyCheckoutCoupon() {
             checkoutState.couponCode = res.code;
             checkoutState.discountAmount = res.discountAmount;
 
-            // Recalculate shipping & total
             const effectiveSubtotal = Math.max(0, checkoutState.subtotal - checkoutState.discountAmount);
-            checkoutState.shippingFee = effectiveSubtotal > 2000 ? 0.00 : 50.00;
             checkoutState.total = Math.max(0, effectiveSubtotal + checkoutState.shippingFee);
 
             sessionStorage.setItem('pico_checkout_coupon', JSON.stringify({
@@ -338,14 +567,29 @@ function selectDeliveryArea(area, fee, labelElement) {
         labelElement.classList.add('active');
         const radio = labelElement.querySelector('input[type="radio"]');
         if (radio) radio.checked = true;
+    } else {
+        const targetRadio = document.querySelector(`input[name="deliveryArea"][value="${area}"]`);
+        if (targetRadio) {
+            targetRadio.checked = true;
+            const parentLabel = targetRadio.closest('.delivery-option-card');
+            if (parentLabel) parentLabel.classList.add('active');
+        }
     }
+
+    // Automatically sync COD advance fee notices
+    const codFeeText = document.getElementById('codAdvanceFeeText');
+    const codAreaText = document.getElementById('codAdvanceAreaText');
+    const codCheckFee = document.getElementById('codAdvanceCheckFee');
+    if (codFeeText) codFeeText.textContent = `৳${checkoutState.shippingFee.toFixed(2)}`;
+    if (codAreaText) codAreaText.textContent = checkoutState.deliveryArea;
+    if (codCheckFee) codCheckFee.textContent = `৳${checkoutState.shippingFee.toFixed(2)}`;
 
     renderOrderSummary();
 }
 window.selectDeliveryArea = selectDeliveryArea;
 
 /**
- * 3. Payment Method Switcher
+ * 3. Payment Method Switcher (Cash on Delivery vs bKash / Mobile Banking)
  */
 function selectPaymentMethod(method, labelElement) {
     checkoutState.selectedPayment = method;
@@ -358,7 +602,30 @@ function selectPaymentMethod(method, labelElement) {
         const radio = labelElement.querySelector('input[type="radio"]');
         if (radio) radio.checked = true;
     }
+
+    // Toggle Cash on Delivery (COD) Advance Condition Box
+    const codBox = document.getElementById('codAdvanceNoticeBox');
+    if (codBox) {
+        codBox.style.display = method === 'Cash on Delivery' ? 'block' : 'none';
+    }
 }
+window.selectPaymentMethod = selectPaymentMethod;
+
+/**
+ * Helper to copy payment numbers quickly
+ */
+function copyPaymentNumber(number, el) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(number).then(() => {
+            showToast(`Copied ${number} to clipboard!`, 'success');
+        }).catch(() => {
+            showToast(`Number: ${number}`, 'info');
+        });
+    } else {
+        showToast(`Number: ${number}`, 'info');
+    }
+}
+window.copyPaymentNumber = copyPaymentNumber;
 
 /**
  * 4. Handle Checkout Form Submission (Create Order)
@@ -376,13 +643,49 @@ async function handleCheckoutSubmit(e) {
     const phone = document.getElementById('custPhone').value.trim();
     const email = document.getElementById('custEmail').value.trim();
     const address = document.getElementById('custAddress').value.trim();
-    const city = document.getElementById('custCity').value.trim();
+    const division = document.getElementById('custDivision') ? document.getElementById('custDivision').value.trim() : '';
+    const district = document.getElementById('custDistrict') ? document.getElementById('custDistrict').value.trim() : '';
+    const thana = document.getElementById('custThana') ? document.getElementById('custThana').value.trim() : '';
     const postalCode = document.getElementById('custPostal').value.trim();
     const notes = document.getElementById('orderNotes').value.trim();
 
-    if (!fullName || !phone || !email || !address || !city) {
-        showToast('Please fill out all required fields marked with *', 'warning');
+    if (!fullName || !phone || !email || !address) {
+        showToast('Please fill out your contact and address details.', 'warning');
         return;
+    }
+
+    if (!division || !district || !thana) {
+        showToast('Please select your Division, District, and Thana / Upazila from the dropdowns.', 'warning');
+        const divEl = document.getElementById('custDivision');
+        if (divEl) divEl.focus();
+        return;
+    }
+
+    // Validate Cash on Delivery (COD) Advance Delivery Charge Condition
+    let advancePaymentDetails = null;
+    if (checkoutState.selectedPayment === 'Cash on Delivery') {
+        const trxIdInput = document.getElementById('codAdvanceTrxId');
+        const confirmCheck = document.getElementById('codAdvanceConfirmCheck');
+        const trxVal = trxIdInput ? trxIdInput.value.trim() : '';
+
+        if (!trxVal) {
+            showToast('Please enter the advance delivery charge Transaction ID (TrxID) or Sender Mobile Number.', 'warning');
+            if (trxIdInput) trxIdInput.focus();
+            return;
+        }
+
+        if (!confirmCheck || !confirmCheck.checked) {
+            showToast('Please check the confirmation box confirming that you have sent the advance delivery fee.', 'warning');
+            if (confirmCheck) confirmCheck.focus();
+            return;
+        }
+
+        advancePaymentDetails = {
+            trxId: trxVal,
+            senderPhone: trxVal,
+            amount: checkoutState.shippingFee,
+            isConfirmed: true
+        };
     }
 
     const payload = {
@@ -390,7 +693,10 @@ async function handleCheckoutSubmit(e) {
             fullName,
             phone,
             address: notes ? `${address} (Note: ${notes})` : address,
-            city,
+            division,
+            district,
+            thana,
+            city: district,
             postalCode
         },
         email,
@@ -398,6 +704,7 @@ async function handleCheckoutSubmit(e) {
         deliveryArea: checkoutState.deliveryArea || 'Inside Chattogram',
         couponCode: checkoutState.couponCode || '',
         discountAmount: checkoutState.discountAmount || 0,
+        advancePaymentDetails,
         items: checkoutState.cartItems.map(item => ({
             productId: item.productId || item.id,
             quantity: item.quantity,
@@ -442,7 +749,9 @@ async function handleCheckoutSubmit(e) {
         if (window.updateCartNavBadges) window.updateCartNavBadges();
 
         // Transition from Form to Order Success Receipt
-        showOrderSuccess(createdOrder, { fullName, email, phone, address, city, postalCode });
+        showOrderSuccess(createdOrder, { 
+            fullName, email, phone, address, division, district, thana, postalCode, advancePaymentDetails 
+        });
 
     } catch (err) {
         console.error('Checkout error:', err);
@@ -491,7 +800,7 @@ function showOrderSuccess(order, customer) {
     const invStatus = document.getElementById('invStatus');
     const invCustName = document.getElementById('invCustName');
     const invCustAddress = document.getElementById('invCustAddress');
-    const invCustCity = document.getElementById('invCustCity');
+    const invCustDivisionDistrict = document.getElementById('invCustDivisionDistrict');
     const invCustPostal = document.getElementById('invCustPostal');
     const invCustPhone = document.getElementById('invCustPhone');
     const invCustEmail = document.getElementById('invCustEmail');
@@ -504,18 +813,38 @@ function showOrderSuccess(order, customer) {
     const invDiscount = document.getElementById('invDiscount');
     const invShipping = document.getElementById('invShipping');
     const invGrandTotal = document.getElementById('invGrandTotal');
+    const invAdvanceRow = document.getElementById('invAdvanceInfoRow');
+    const invAdvanceTrxEl = document.getElementById('invAdvanceTrxId');
 
     if (invNumber) invNumber.textContent = `INV-${shortId}`;
     if (invDate) invDate.textContent = formattedDate;
-    if (invStatus) invStatus.textContent = order.paymentMethod === 'Cash on Delivery' ? 'PENDING COD' : 'PAID';
+    if (invStatus) invStatus.textContent = order.paymentMethod === 'Cash on Delivery' ? 'CONFIRMED (COD ADVANCE RECEIVED)' : 'PAID';
     if (invCustName) invCustName.textContent = customer.fullName || 'N/A';
     if (invCustAddress) invCustAddress.textContent = customer.address || 'N/A';
-    if (invCustCity) invCustCity.textContent = customer.city || '';
+
+    const locationText = [
+        customer.thana,
+        customer.district || customer.city,
+        customer.division
+    ].filter(Boolean).join(', ');
+
+    if (invCustDivisionDistrict) invCustDivisionDistrict.textContent = locationText || customer.city || 'Chattogram';
     if (invCustPostal) invCustPostal.textContent = customer.postalCode || '';
     if (invCustPhone) invCustPhone.textContent = customer.phone || 'N/A';
     if (invCustEmail) invCustEmail.textContent = customer.email || 'N/A';
     if (invDeliveryArea) invDeliveryArea.textContent = order.deliveryArea || checkoutState.deliveryArea || 'Inside Chattogram';
     if (invPaymentMethod) invPaymentMethod.textContent = order.paymentMethod || 'Cash on Delivery';
+
+    // Show advance delivery fee TrxID if COD order
+    if (invAdvanceRow && invAdvanceTrxEl) {
+        const trx = order.advancePaymentDetails?.trxId || customer.advancePaymentDetails?.trxId;
+        if (trx && order.paymentMethod === 'Cash on Delivery') {
+            invAdvanceRow.style.display = 'block';
+            invAdvanceTrxEl.textContent = trx;
+        } else {
+            invAdvanceRow.style.display = 'none';
+        }
+    }
 
     if (invItemsBody) {
         const items = order.orderItems || [];

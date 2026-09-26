@@ -150,8 +150,16 @@
                             <textarea id="custAddress" rows="2" placeholder="e.g. House #12, Road #4, GEC Circle"></textarea>
                         </div>
                         <div class="profile-input-group">
-                            <label><i class="fa-solid fa-city"></i> City / District</label>
-                            <input type="text" id="custCity" placeholder="e.g. Chattogram or Dhaka">
+                            <label><i class="fa-solid fa-map-location-dot"></i> Division</label>
+                            <input type="text" id="custDivision" placeholder="e.g. Chattogram or Dhaka">
+                        </div>
+                        <div class="profile-input-group">
+                            <label><i class="fa-solid fa-city"></i> District</label>
+                            <input type="text" id="custDistrict" placeholder="e.g. Chattogram">
+                        </div>
+                        <div class="profile-input-group">
+                            <label><i class="fa-solid fa-building"></i> Thana / Upazila</label>
+                            <input type="text" id="custThana" placeholder="e.g. Panchlaish">
                         </div>
                         <div class="profile-input-group">
                             <label><i class="fa-solid fa-envelopes-bulk"></i> Postal / Zip Code</label>
@@ -165,11 +173,21 @@
                         <div class="profile-form-grid" style="margin-bottom: 0;">
                             <div class="profile-input-group">
                                 <label>New Password</label>
-                                <input type="password" id="newPassword" placeholder="Minimum 4 characters">
+                                <div class="password-field-wrapper">
+                                    <input type="password" id="newPassword" placeholder="Minimum 4 characters">
+                                    <button type="button" class="eye-toggle-btn" onclick="togglePasswordVisibility('newPassword', this)" aria-label="Toggle password visibility">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="profile-input-group">
                                 <label>Confirm New Password</label>
-                                <input type="password" id="confirmPassword" placeholder="Confirm password">
+                                <div class="password-field-wrapper">
+                                    <input type="password" id="confirmPassword" placeholder="Confirm password">
+                                    <button type="button" class="eye-toggle-btn" onclick="togglePasswordVisibility('confirmPassword', this)" aria-label="Toggle password visibility">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

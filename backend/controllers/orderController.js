@@ -15,9 +15,10 @@ const createOrder = async (req, res) => {
         const { shippingAddress, paymentMethod, items } = req.body;
 
         // Validate shipping address
-        if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.address || !shippingAddress.city || !shippingAddress.phone) {
+        const resolvedCity = (shippingAddress?.district || shippingAddress?.city || '').trim();
+        if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.address || !shippingAddress.phone) {
             return res.status(400).json({
-                error: 'Please provide complete shipping details: fullName, address, city, and phone are required'
+                error: 'Please provide complete shipping details: fullName, address, and phone are required'
             });
         }
 
@@ -84,6 +85,9 @@ const createOrder = async (req, res) => {
         const shippingFee = deliveryArea === 'Outside Chattogram' ? 130.00 : 70.00;
         const totalAmount = Math.max(0, subtotal - discountAmount + shippingFee);
 
+        const resolvedPaymentMethod = paymentMethod || 'Cash on Delivery';
+        const advanceDetails = req.body.advancePaymentDetails || {};
+
         const order = await Order.create({
             user: req.user ? req.user._id : null,
             guestEmail: (req.body.email || shippingAddress.email || '').trim(),
@@ -91,11 +95,14 @@ const createOrder = async (req, res) => {
             shippingAddress: {
                 fullName: shippingAddress.fullName.trim(),
                 address: shippingAddress.address.trim(),
-                city: shippingAddress.city.trim(),
+                division: (shippingAddress.division || 'Chattogram').trim(),
+                district: (shippingAddress.district || resolvedCity || 'Chattogram').trim(),
+                thana: (shippingAddress.thana || '').trim(),
+                city: (shippingAddress.city || resolvedCity || 'Chattogram').trim(),
                 postalCode: (shippingAddress.postalCode || '').trim(),
                 phone: shippingAddress.phone.trim()
             },
-            paymentMethod: paymentMethod || 'Cash on Delivery',
+            paymentMethod: resolvedPaymentMethod,
             paymentStatus: 'Pending',
             orderStatus: 'Pending',
             subtotal,
@@ -104,6 +111,12 @@ const createOrder = async (req, res) => {
             tax,
             deliveryArea,
             shippingFee,
+            advancePaymentDetails: {
+                trxId: (advanceDetails.trxId || advanceDetails.transactionId || '').trim(),
+                senderPhone: (advanceDetails.senderPhone || advanceDetails.sender || '').trim(),
+                amount: Number(advanceDetails.amount || shippingFee),
+                isConfirmed: Boolean(advanceDetails.isConfirmed)
+            },
             totalAmount
         });
 

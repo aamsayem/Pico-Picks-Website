@@ -66,20 +66,38 @@ const API = {
     },
 
     // Auth endpoints
-    async register(username, email, password, role = 'customer') {
+    async register(username, identifier, password, role = 'customer') {
+        const isEmail = String(identifier).includes('@');
+        const body = {
+            username,
+            password,
+            role,
+            identifier,
+            ...(isEmail ? { email: identifier } : { phone: identifier })
+        };
         const data = await this.request('/auth/register', {
             method: 'POST',
-            body: JSON.stringify({ username, email, password, role })
+            body: JSON.stringify(body)
         });
         if (data.token) this.setToken(data.token);
         if (data.user) localStorage.setItem('pico_current_user', JSON.stringify(data.user));
         return data;
     },
 
-    async login(username, password) {
+    async login(identifier, password) {
         const data = await this.request('/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ identifier, username: identifier, email: identifier, phone: identifier, password })
+        });
+        if (data.token) this.setToken(data.token);
+        if (data.user) localStorage.setItem('pico_current_user', JSON.stringify(data.user));
+        return data;
+    },
+
+    async googleLogin(payload) {
+        const data = await this.request('/auth/google', {
+            method: 'POST',
+            body: JSON.stringify(payload)
         });
         if (data.token) this.setToken(data.token);
         if (data.user) localStorage.setItem('pico_current_user', JSON.stringify(data.user));

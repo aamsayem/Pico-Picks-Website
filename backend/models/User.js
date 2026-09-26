@@ -28,15 +28,29 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: [true, 'Email address is required'],
-        unique: true,
         trim: true,
         lowercase: true,
-        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email address']
+        sparse: true,
+        default: null
+    },
+    phone: {
+        type: String,
+        trim: true,
+        sparse: true,
+        default: null
+    },
+    googleId: {
+        type: String,
+        trim: true,
+        sparse: true,
+        default: null
+    },
+    avatar: {
+        type: String,
+        default: ''
     },
     password: {
         type: String,
-        required: [true, 'Password is required'],
         minlength: 4
     },
     role: {
@@ -49,12 +63,22 @@ const userSchema = new mongoose.Schema({
         trim: true,
         default: ''
     },
-    phone: {
+    address: {
         type: String,
         trim: true,
         default: ''
     },
-    address: {
+    division: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    district: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    thana: {
         type: String,
         trim: true,
         default: ''
@@ -76,7 +100,7 @@ const userSchema = new mongoose.Schema({
 
 // Password Hash Pre-save Middleware
 userSchema.pre('save', async function(next) {
-    if (!this.isModified('password')) {
+    if (!this.isModified('password') || !this.password) {
         return next();
     }
     const salt = await bcrypt.genSalt(10);
@@ -86,6 +110,7 @@ userSchema.pre('save', async function(next) {
 
 // Method to verify entered password against hashed password
 userSchema.methods.matchPassword = async function(enteredPassword) {
+    if (!this.password) return false;
     return await bcrypt.compare(enteredPassword, this.password);
 };
 

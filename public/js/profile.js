@@ -88,6 +88,28 @@ function renderUserProfileHeader(user) {
 /**
  * Populate Profile & Shipping Settings Form
  */
+// Password toggle helper
+window.togglePasswordVisibility = function(inputId, btnEl) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    if (btnEl) {
+        btnEl.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+        btnEl.title = isPassword ? 'Hide password' : 'Show password';
+        const icon = btnEl.querySelector('i');
+        if (icon) {
+            if (isPassword) {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    }
+};
+
 function populateProfileForm(user) {
     const nameInput = document.getElementById('custName');
     const phoneInput = document.getElementById('custPhone');
@@ -95,6 +117,9 @@ function populateProfileForm(user) {
     const usernameInput = document.getElementById('custUsername');
     const addressInput = document.getElementById('custAddress');
     const cityInput = document.getElementById('custCity');
+    const divisionInput = document.getElementById('custDivision');
+    const districtInput = document.getElementById('custDistrict');
+    const thanaInput = document.getElementById('custThana');
     const postalInput = document.getElementById('custPostal');
 
     if (nameInput) nameInput.value = user.name || '';
@@ -103,6 +128,9 @@ function populateProfileForm(user) {
     if (usernameInput) usernameInput.value = user.username || '';
     if (addressInput) addressInput.value = user.address || '';
     if (cityInput) cityInput.value = user.city || '';
+    if (divisionInput) divisionInput.value = user.division || '';
+    if (districtInput) districtInput.value = user.district || '';
+    if (thanaInput) thanaInput.value = user.thana || '';
     if (postalInput) postalInput.value = user.postalCode || '';
 }
 
@@ -403,6 +431,9 @@ async function handleProfileSubmit(event) {
     const phone = document.getElementById('custPhone').value.trim();
     const address = document.getElementById('custAddress').value.trim();
     const city = document.getElementById('custCity').value.trim();
+    const division = document.getElementById('custDivision') ? document.getElementById('custDivision').value.trim() : '';
+    const district = document.getElementById('custDistrict') ? document.getElementById('custDistrict').value.trim() : '';
+    const thana = document.getElementById('custThana') ? document.getElementById('custThana').value.trim() : '';
     const postalCode = document.getElementById('custPostal').value.trim();
     const newPassword = document.getElementById('newPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
@@ -426,6 +457,9 @@ async function handleProfileSubmit(event) {
         phone,
         address,
         city,
+        division,
+        district,
+        thana,
         postalCode
     };
 
