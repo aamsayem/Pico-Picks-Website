@@ -44,6 +44,31 @@ const userSchema = new mongoose.Schema({
         enum: ['customer', 'admin'],
         default: 'customer'
     },
+    name: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    phone: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    address: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    city: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    postalCode: {
+        type: String,
+        trim: true,
+        default: ''
+    },
     cart: [cartItemSchema]
 }, {
     timestamps: true

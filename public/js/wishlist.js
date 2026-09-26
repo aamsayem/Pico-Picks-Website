@@ -198,6 +198,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.location.pathname.includes('wishlist.html')) {
         renderWishlistPage();
     }
+
+    // Dynamic Navbar Link for Logged-In Customers
+    try {
+        const token = localStorage.getItem('pico_token');
+        if (token) {
+            const menuItems = document.getElementById('MenuItems');
+            if (menuItems) {
+                const accountLink = menuItems.querySelector('a[href="account.html"]');
+                if (accountLink) {
+                    accountLink.href = 'profile.html';
+                    accountLink.innerHTML = '<i class="fa-solid fa-circle-user" style="color: #C8743A; margin-right: 4px;"></i> Dashboard';
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('Navbar state notice:', e.message);
+    }
 });
 
 // Global attachments

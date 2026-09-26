@@ -7,6 +7,9 @@ const state = {
     currentUser: null,
     products: [],
     orders: [],
+    conversations: [],
+    selectedCustomerId: null,
+    chatPollingInterval: null,
     currentTab: 'products'
 };
 
@@ -158,6 +161,12 @@ function adminLogout() {
 function switchTab(tabName) {
     state.currentTab = tabName;
 
+    // Clear background chat polling when switching tabs
+    if (state.chatPollingInterval) {
+        clearInterval(state.chatPollingInterval);
+        state.chatPollingInterval = null;
+    }
+
     // Update buttons
     const buttons = document.querySelectorAll('.sidebar-menu button');
     buttons.forEach(btn => btn.classList.remove('active'));
@@ -165,6 +174,7 @@ function switchTab(tabName) {
     const productsSection = document.getElementById('productsSection');
     const ordersSection = document.getElementById('ordersSection');
     const couponsSection = document.getElementById('couponsSection');
+    const messagesSection = document.getElementById('messagesSection');
     const pageTitle = document.getElementById('pageTitle');
 
     if (tabName === 'products') {
@@ -172,6 +182,7 @@ function switchTab(tabName) {
         productsSection?.classList.add('active');
         ordersSection?.classList.remove('active');
         couponsSection?.classList.remove('active');
+        messagesSection?.classList.remove('active');
         pageTitle.textContent = 'Product Management';
         loadProducts();
     } else if (tabName === 'orders') {
@@ -179,6 +190,7 @@ function switchTab(tabName) {
         ordersSection?.classList.add('active');
         productsSection?.classList.remove('active');
         couponsSection?.classList.remove('active');
+        messagesSection?.classList.remove('active');
         pageTitle.textContent = 'Customer Orders';
         loadOrders();
     } else if (tabName === 'coupons') {
@@ -186,8 +198,25 @@ function switchTab(tabName) {
         couponsSection?.classList.add('active');
         productsSection?.classList.remove('active');
         ordersSection?.classList.remove('active');
+        messagesSection?.classList.remove('active');
         pageTitle.textContent = 'Coupon Management';
         loadCoupons();
+    } else if (tabName === 'messages') {
+        const msgBtn = document.getElementById('messagesTabBtn') || buttons[3];
+        msgBtn?.classList.add('active');
+        messagesSection?.classList.add('active');
+        productsSection?.classList.remove('active');
+        ordersSection?.classList.remove('active');
+        couponsSection?.classList.remove('active');
+        pageTitle.textContent = 'Customer Support Chat';
+        loadAdminConversations();
+        // Start polling every 4 seconds for new incoming messages
+        state.chatPollingInterval = setInterval(() => {
+            loadAdminConversations(true);
+            if (state.selectedCustomerId) {
+                loadActiveCustomerMessages(true);
+            }
+        }, 4000);
     }
 }
 
@@ -780,7 +809,172 @@ window.handleDeleteCoupon = handleDeleteCoupon;
 window.loadCoupons = loadCoupons;
 
 /**
- * 5. Initialization
+ * 5. Support Chat System (Customer-to-Admin)
+ */
+async function loadAdminConversations(isBackground = false) {
+    const listEl = document.getElementById('adminConvList');
+    const badgeEl = document.getElementById('adminUnreadBadge');
+    const countEl = document.getElementById('adminConvCount');
+
+    try {
+        const conversations = await API.getAdminConversations();
+        state.conversations = Array.isArray(conversations) ? conversations : [];
+
+        // Count total unread messages from customers
+        const totalUnread = state.conversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+        if (badgeEl) {
+            if (totalUnread > 0) {
+                badgeEl.style.display = 'inline-block';
+                badgeEl.textContent = totalUnread;
+            } else {
+                badgeEl.style.display = 'none';
+            }
+        }
+
+        if (countEl) {
+            countEl.textContent = `${state.conversations.length} active`;
+        }
+
+        if (!listEl) return;
+
+        if (state.conversations.length === 0) {
+            listEl.innerHTML = `<li style="padding: 24px; text-align: center; color: #94a3b8; font-size: 13px;">No customer inquiries yet.</li>`;
+            return;
+        }
+
+        listEl.innerHTML = state.conversations.map(c => {
+            const customerId = c._id;
+            const isSelected = String(state.selectedCustomerId) === String(customerId);
+            const activeClass = isSelected ? 'active' : '';
+            const unreadBadge = (c.unreadCount && c.unreadCount > 0) 
+                ? `<span class="conv-unread-badge">${c.unreadCount}</span>` 
+                : '';
+            const lastTime = c.lastCreatedAt ? new Date(c.lastCreatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            const senderPrefix = c.lastSenderRole === 'admin' ? '<span style="color:#C8743A; font-weight:600;">You: </span>' : '';
+
+            return `
+                <li class="conv-item ${activeClass}" onclick="selectCustomerConversation('${customerId}')">
+                    <div class="conv-item-name">
+                        <span><i class="fa-solid fa-circle-user" style="color:#64748b; margin-right:4px;"></i> ${escapeHTML(c.customerName || 'Customer')}</span>
+                        <small style="color:#94a3b8; font-size:11px;">${lastTime}</small>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                        <span class="conv-item-preview">${senderPrefix}${escapeHTML(c.lastMessage || '')}</span>
+                        ${unreadBadge}
+                    </div>
+                </li>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error('Error loading admin conversations:', err);
+        if (!isBackground && listEl) {
+            listEl.innerHTML = `<li style="padding: 20px; text-align: center; color: #dc2626; font-size: 13px;">Failed to load conversations</li>`;
+        }
+    }
+}
+
+async function selectCustomerConversation(customerId) {
+    state.selectedCustomerId = customerId;
+
+    // Highlight conversation item
+    const items = document.querySelectorAll('.conv-item');
+    items.forEach(it => it.classList.remove('active'));
+
+    const conv = state.conversations.find(c => String(c._id) === String(customerId));
+    const customerName = conv ? conv.customerName : 'Customer';
+    const customerEmail = conv ? conv.customerEmail : '';
+
+    const nameEl = document.getElementById('adminActiveCustomerName');
+    const emailEl = document.getElementById('adminActiveCustomerEmail');
+    const replyForm = document.getElementById('adminReplyForm');
+
+    if (nameEl) nameEl.textContent = customerName;
+    if (emailEl) emailEl.textContent = customerEmail ? `Email: ${customerEmail}` : 'Customer ID: ' + customerId;
+    if (replyForm) replyForm.style.display = 'flex';
+
+    await loadActiveCustomerMessages();
+    await loadAdminConversations(true);
+}
+
+async function loadActiveCustomerMessages(isBackground = false) {
+    if (!state.selectedCustomerId) return;
+    const box = document.getElementById('adminChatMessagesBox');
+    if (!box) return;
+
+    try {
+        const messages = await API.getAdminCustomerMessages(state.selectedCustomerId);
+
+        if (!Array.isArray(messages) || messages.length === 0) {
+            box.innerHTML = `
+                <div style="text-align: center; color: #94a3b8; padding: 40px;">
+                    <p>No messages in this conversation yet.</p>
+                </div>
+            `;
+            return;
+        }
+
+        box.innerHTML = messages.map(msg => {
+            const isAdmin = msg.senderRole === 'admin';
+            const wrapClass = isAdmin ? 'customer' : 'admin'; // admin uses 'customer' bubble style (right/brown) in this panel for clear visual distinction
+            const senderName = isAdmin ? 'You (Pico Picks Support)' : (msg.customerName || msg.senderName || 'Customer');
+            const timeStr = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+            return `
+                <div class="chat-bubble-wrap ${wrapClass}">
+                    <span class="chat-bubble-sender-name">
+                        ${isAdmin ? '<i class="fa-solid fa-shield-halved" style="color:#C8743A; margin-right:3px;"></i>' : '<i class="fa-solid fa-user" style="color:#64748b; margin-right:3px;"></i>'}
+                        ${escapeHTML(senderName)}
+                    </span>
+                    <div class="chat-bubble ${wrapClass}">
+                        ${escapeHTML(msg.text)}
+                    </div>
+                    <span class="chat-bubble-time">${timeStr}</span>
+                </div>
+            `;
+        }).join('');
+
+        // Auto-scroll down
+        box.scrollTop = box.scrollHeight;
+    } catch (err) {
+        console.error('Error loading active customer messages:', err);
+    }
+}
+
+async function handleSendAdminReply(event) {
+    event.preventDefault();
+    if (!state.selectedCustomerId) {
+        alert('Please select a customer conversation first.');
+        return;
+    }
+
+    const input = document.getElementById('adminReplyText');
+    const sendBtn = document.getElementById('adminReplyBtn');
+    const text = input ? input.value.trim() : '';
+
+    if (!text) return;
+
+    try {
+        if (sendBtn) sendBtn.disabled = true;
+        input.value = '';
+
+        await API.sendAdminReply(state.selectedCustomerId, text);
+        await loadActiveCustomerMessages();
+        await loadAdminConversations(true);
+    } catch (err) {
+        alert(`Failed to send reply: ${err.message}`);
+    } finally {
+        if (sendBtn) sendBtn.disabled = false;
+        if (input) input.focus();
+    }
+}
+
+window.loadAdminConversations = loadAdminConversations;
+window.selectCustomerConversation = selectCustomerConversation;
+window.loadActiveCustomerMessages = loadActiveCustomerMessages;
+window.handleSendAdminReply = handleSendAdminReply;
+
+/**
+ * 6. Initialization
  */
 document.addEventListener('DOMContentLoaded', async () => {
     const isAuthorized = await checkAdminAuth();
@@ -795,5 +989,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateOrderStats();
     } catch (e) {
         console.warn('Silent order fetch for stats:', e.message);
+    }
+
+    // Load conversations in background to update unread badge on sidebar
+    try {
+        await loadAdminConversations(true);
+    } catch (e) {
+        console.warn('Silent conversations fetch:', e.message);
     }
 });

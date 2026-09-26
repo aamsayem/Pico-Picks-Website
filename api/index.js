@@ -14,6 +14,7 @@ const productRoutes = require('../backend/routes/productRoutes');
 const cartRoutes = require('../backend/routes/cartRoutes');
 const orderRoutes = require('../backend/routes/orderRoutes');
 const couponRoutes = require('../backend/routes/couponRoutes');
+const messageRoutes = require('../backend/routes/messageRoutes');
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/coupons', couponRoutes);
+app.use('/api/messages', messageRoutes);
 
 // API Health Check Endpoint
 app.get('/api/health', (req, res) => {

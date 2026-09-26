@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Check if active user session exists
     const currentUser = await getCurrentUser();
     if (currentUser) {
-        renderAuthDashboard(currentUser);
+        window.location.href = 'profile.html';
         return;
     }
 
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             try {
                 const data = await API.login(usernameInput, passwordInput);
                 alert(`Welcome back, ${data.user.username}!`);
-                renderAuthDashboard(data.user);
+                window.location.href = 'profile.html';
             } catch (err) {
                 alert(err.message || 'Login failed. Please verify your credentials.');
             }
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             try {
                 const data = await API.register(username, email, password);
                 alert(`Account registered successfully! Welcome to Pico Picks, ${data.user.username}.`);
-                renderAuthDashboard(data.user);
+                window.location.href = 'profile.html';
             } catch (err) {
                 alert(err.message || 'Registration failed.');
             }

@@ -131,6 +131,11 @@ const getUserProfile = async (req, res) => {
                 username: user.username,
                 email: user.email,
                 role: user.role,
+                name: user.name || '',
+                phone: user.phone || '',
+                address: user.address || '',
+                city: user.city || '',
+                postalCode: user.postalCode || '',
                 cart: user.cart || [],
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt
@@ -144,8 +149,58 @@ const getUserProfile = async (req, res) => {
     }
 };
 
+// @desc    Update authenticated user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+const updateUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const { name, phone, address, city, postalCode, password } = req.body;
+
+        if (name !== undefined) user.name = (name || '').trim();
+        if (phone !== undefined) user.phone = (phone || '').trim();
+        if (address !== undefined) user.address = (address || '').trim();
+        if (city !== undefined) user.city = (city || '').trim();
+        if (postalCode !== undefined) user.postalCode = (postalCode || '').trim();
+
+        if (password) {
+            if (password.length < 4) {
+                return res.status(400).json({ error: 'Password must be at least 4 characters long' });
+            }
+            user.password = password; // pre('save') middleware will hash this automatically
+        }
+
+        const updatedUser = await user.save();
+
+        res.json({
+            message: 'Profile updated successfully',
+            user: {
+                _id: updatedUser._id,
+                username: updatedUser.username,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                name: updatedUser.name || '',
+                phone: updatedUser.phone || '',
+                address: updatedUser.address || '',
+                city: updatedUser.city || '',
+                postalCode: updatedUser.postalCode || '',
+                cart: updatedUser.cart || []
+            }
+        });
+    } catch (error) {
+        console.error('Error updating user profile:', error);
+        res.status(500).json({ error: error.message || 'Server error updating profile' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
-    getUserProfile
+    getUserProfile,
+    updateUserProfile
 };

@@ -92,6 +92,17 @@ const API = {
         return data;
     },
 
+    async updateProfile(profileData) {
+        const data = await this.request('/auth/profile', {
+            method: 'PUT',
+            body: JSON.stringify(profileData)
+        });
+        if (data && data.user) {
+            localStorage.setItem('pico_current_user', JSON.stringify(data.user));
+        }
+        return data;
+    },
+
     // Product endpoints
     async getProducts(params = {}) {
         const queryString = new URLSearchParams(params).toString();
@@ -179,6 +190,45 @@ const API = {
     async deleteCoupon(id) {
         return await this.request(`/coupons/${id}`, {
             method: 'DELETE'
+        });
+    },
+
+    // Message / Support Chat endpoints
+    async getCustomerMessages() {
+        return await this.request('/messages');
+    },
+
+    async sendCustomerMessage(text) {
+        return await this.request('/messages', {
+            method: 'POST',
+            body: JSON.stringify({ text })
+        });
+    },
+
+    async markCustomerMessagesRead() {
+        return await this.request('/messages/read', {
+            method: 'PUT'
+        });
+    },
+
+    async getAdminConversations() {
+        return await this.request('/messages/conversations');
+    },
+
+    async getAdminCustomerMessages(customerId) {
+        return await this.request(`/messages/customer/${customerId}`);
+    },
+
+    async sendAdminReply(customerId, text) {
+        return await this.request(`/messages/customer/${customerId}`, {
+            method: 'POST',
+            body: JSON.stringify({ text })
+        });
+    },
+
+    async markAdminMessagesRead(customerId) {
+        return await this.request(`/messages/customer/${customerId}/read`, {
+            method: 'PUT'
         });
     }
 };
