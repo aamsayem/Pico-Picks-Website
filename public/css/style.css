@@ -4336,4 +4336,729 @@ th:last-child{
     .profile-user-card {
         padding: 20px;
     }
-}
+}
+
+/* =============================================================
+   Phase 1 Improvements: Toast Notifications, Navbar Upgrades, 
+   Homepage Grids, Socials, & Dedicated Reviews Page
+   ============================================================= */
+
+/* --- 1. Sleek In-Website Toast Notifications --- */
+.pico-toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+    width: calc(100% - 32px);
+    pointer-events: none;
+}
+
+.pico-toast-card {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    pointer-events: auto;
+    overflow: hidden;
+    animation: picoToastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.pico-toast-card.pico-toast-leave {
+    animation: picoToastSlideOut 0.28s ease forwards;
+}
+
+@keyframes picoToastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(110%) scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes picoToastSlideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(110%) scale(0.92);
+    }
+}
+
+.pico-toast-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.pico-toast-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.pico-toast-message {
+    font-size: 14px;
+    line-height: 1.45;
+    color: #1e293b;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.pico-toast-close {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 6px;
+    transition: color 0.2s ease;
+}
+
+.pico-toast-close:hover {
+    color: #334155;
+}
+
+.pico-toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    animation: picoToastProgressBar linear forwards;
+}
+
+@keyframes picoToastProgressBar {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* Toast Color Variants */
+.pico-toast-success {
+    border-left: 5px solid #10b981;
+}
+.pico-toast-success .pico-toast-icon {
+    color: #10b981;
+}
+.pico-toast-success .pico-toast-progress {
+    background: #10b981;
+}
+
+.pico-toast-error {
+    border-left: 5px solid #ef4444;
+}
+.pico-toast-error .pico-toast-icon {
+    color: #ef4444;
+}
+.pico-toast-error .pico-toast-progress {
+    background: #ef4444;
+}
+
+.pico-toast-warning {
+    border-left: 5px solid #f59e0b;
+}
+.pico-toast-warning .pico-toast-icon {
+    color: #f59e0b;
+}
+.pico-toast-warning .pico-toast-progress {
+    background: #f59e0b;
+}
+
+.pico-toast-info {
+    border-left: 5px solid #C8743A;
+}
+.pico-toast-info .pico-toast-icon {
+    color: #C8743A;
+}
+.pico-toast-info .pico-toast-progress {
+    background: #C8743A;
+}
+
+/* --- 2. Navbar Upgrades (Search & Cart SVG) --- */
+.nav-search-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.nav-search-toggle {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #2f2a24;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-search-toggle:hover {
+    color: #C8743A;
+    transform: translateY(-2px);
+}
+
+.nav-search-dropdown {
+    position: absolute;
+    top: calc(100% + 14px);
+    right: -10px;
+    width: 360px;
+    max-width: 90vw;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(200, 116, 58, 0.22);
+    border-radius: 16px;
+    box-shadow: 0 16px 36px rgba(47, 42, 36, 0.16);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 12px;
+    display: none;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.nav-search-dropdown.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.nav-search-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 6px 10px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-search-form:focus-within {
+    border-color: #C8743A;
+    box-shadow: 0 0 0 3px rgba(200, 116, 58, 0.12);
+}
+
+.nav-search-icon-inside {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.nav-search-form input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 13.5px;
+    color: #1e293b;
+    padding: 4px;
+}
+
+.nav-search-close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: color 0.2s ease;
+}
+
+.nav-search-close-btn:hover {
+    color: #1e293b;
+}
+
+.nav-search-results {
+    max-height: 330px;
+    overflow-y: auto;
+    margin-top: 8px;
+}
+
+.nav-search-loading {
+    padding: 16px;
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.nav-search-empty {
+    padding: 16px;
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.nav-search-view-all {
+    display: inline-block;
+    margin-top: 8px;
+    color: #C8743A;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.nav-search-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.nav-search-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.nav-search-item:hover {
+    background: #f1f5f9;
+}
+
+.nav-search-item img {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    flex-shrink: 0;
+}
+
+.nav-search-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.nav-search-item-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nav-search-item-price {
+    font-size: 12px;
+    color: #C8743A;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.nav-search-item-arrow {
+    color: #cbd5e1;
+    font-size: 11px;
+    transition: transform 0.2s ease;
+}
+
+.nav-search-item:hover .nav-search-item-arrow {
+    transform: translateX(3px);
+    color: #C8743A;
+}
+
+.nav-search-footer {
+    padding: 10px 8px 4px;
+    text-align: center;
+    border-top: 1px solid #f1f5f9;
+    margin-top: 6px;
+}
+
+.nav-search-footer a {
+    color: #C8743A;
+    font-weight: 600;
+    font-size: 12.5px;
+    text-decoration: none;
+}
+
+.nav-search-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Modern Cart SVG in Navbar */
+.nav-cart-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-cart-icon {
+    display: inline-block;
+    vertical-align: middle;
+    color: #2f2a24;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-cart-btn:hover .nav-cart-icon {
+    color: #C8743A;
+    transform: translateY(-2px);
+}
+
+/* --- 3. Footer Social Buttons: TikTok --- */
+.tiktok-btn:hover {
+    background: #000000;
+    border-color: #00f2fe;
+    box-shadow: 0 4px 14px rgba(254, 44, 85, 0.45);
+}
+
+.tiktok-btn:hover i {
+    color: #fe2c55;
+}
+
+/* --- 4. Homepage Grid Rows --- */
+/* Featured Products strictly 2 lines (2 rows) on desktop */
+.featured-products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 22px !important;
+    margin-bottom: 50px !important;
+}
+
+.featured-products-grid > .col-4 {
+    flex-basis: auto !important;
+    width: 100% !important;
+    margin-bottom: 0 !important;
+    padding: 12px !important;
+}
+
+/* Explore by Category section neatly across 3 lines (3 rows) */
+#categoryProductsRow {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 22px !important;
+    margin-bottom: 40px !important;
+}
+
+#categoryProductsRow > .col-4 {
+    flex-basis: auto !important;
+    width: 100% !important;
+    margin-bottom: 0 !important;
+    padding: 12px !important;
+}
+
+@media (max-width: 992px) {
+    .featured-products-grid,
+    #categoryProductsRow {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .featured-products-grid,
+    #categoryProductsRow {
+        grid-template-columns: 1fr !important;
+    }
+    .nav-search-dropdown {
+        position: fixed;
+        top: 60px;
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-width: none;
+    }
+}
+
+/* --- 5. Dedicated Customer Reviews Page (reviews.html) --- */
+.reviews-hero-header {
+    text-align: center;
+    padding: 50px 20px 30px;
+}
+
+.reviews-hero-header h1 {
+    font-size: 38px;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+.reviews-hero-header p {
+    color: #64748b;
+    font-size: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.reviews-stats-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    margin-bottom: 40px;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 36px;
+    align-items: center;
+}
+
+.reviews-score-block {
+    text-align: center;
+    border-right: 1px solid #f1f5f9;
+    padding-right: 24px;
+}
+
+.reviews-big-number {
+    font-size: 56px;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1;
+    font-family: 'Barlow Condensed', sans-serif;
+}
+
+.reviews-stars-large {
+    color: #f59e0b;
+    font-size: 20px;
+    margin: 10px 0 6px;
+}
+
+.reviews-score-sub {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.reviews-bars-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.review-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: #475569;
+}
+
+.review-bar-label {
+    width: 60px;
+    text-align: right;
+    font-weight: 600;
+}
+
+.review-bar-track {
+    flex: 1;
+    height: 9px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.review-bar-fill {
+    height: 100%;
+    background: #f59e0b;
+    border-radius: 6px;
+}
+
+.review-bar-count {
+    width: 35px;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.reviews-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.reviews-filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.review-pill {
+    padding: 8px 18px;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.review-pill:hover,
+.review-pill.active {
+    background: #C8743A;
+    border-color: #C8743A;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(200, 116, 58, 0.25);
+}
+
+.reviews-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 60px;
+}
+
+.review-card-item {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.review-card-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.review-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.review-card-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #f1f5f9;
+}
+
+.review-card-avatar-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #C8743A, #ea580c);
+    color: #ffffff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.review-card-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.review-card-author {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.review-verified-badge {
+    color: #10b981;
+    font-size: 12px;
+}
+
+.review-card-date {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.review-card-stars {
+    color: #f59e0b;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.review-card-product-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 12px;
+    text-decoration: none;
+    width: fit-content;
+}
+
+.review-card-product-tag:hover {
+    border-color: #C8743A;
+    color: #C8743A;
+}
+
+.review-card-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #475569;
+    margin-bottom: 16px;
+}
+
+.review-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 12px;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.review-helpful-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.review-helpful-btn:hover {
+    background: #f1f5f9;
+    color: #C8743A;
+}
+
+@media (max-width: 768px) {
+    .reviews-stats-card {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .reviews-score-block {
+        border-right: none;
+        border-bottom: 1px solid #f1f5f9;
+        padding-right: 0;
+        padding-bottom: 20px;
+    }
+}
+

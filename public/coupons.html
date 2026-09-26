@@ -27,12 +27,30 @@
                 </ul>
             </nav>
             <div class="nav-icons-wrapper">
+                <div class="nav-search-wrapper" id="navSearchWrapper">
+                    <button type="button" class="nav-icon-btn nav-search-toggle" id="navSearchToggle" title="Search Products" aria-label="Search Products">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <div class="nav-search-dropdown" id="navSearchDropdown">
+                        <form class="nav-search-form" id="navSearchForm" onsubmit="event.preventDefault(); window.submitNavSearch();">
+                            <i class="fa-solid fa-magnifying-glass nav-search-icon-inside"></i>
+                            <input type="search" id="navSearchInput" placeholder="Search cars, accessories..." autocomplete="off" aria-label="Search Products">
+                            <button type="button" class="nav-search-close-btn" id="navSearchClose" title="Close Search" aria-label="Close Search">&times;</button>
+                        </form>
+                        <div class="nav-search-results" id="navSearchResults"></div>
+                    </div>
+                </div>
                 <a href="wishlist.html" class="nav-icon-btn" title="Wishlist" aria-label="View Wishlist">
                     <i class="fa-regular fa-heart"></i>
                     <span class="nav-badge nav-wishlist-count" id="navWishlistCount" style="display: none;">0</span>
                 </a>
-                <a href="cart.html" class="nav-icon-btn" title="Shopping Cart" aria-label="View Cart">
-                    <img src="images/Cart.png" width="28px" height="28px" alt="Cart">
+                <a href="cart.html" class="nav-icon-btn nav-cart-btn" title="Shopping Cart" aria-label="View Cart">
+                    <svg class="nav-cart-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="nav-badge nav-cart-count" id="navCartCount" style="display: none;">0</span>
                 </a>
             </div>
             <img src="images/menu-icon.png" class="menu-icon" onclick="menutoggle()" alt="Toggle Menu">
@@ -196,8 +214,13 @@
                             </a>
                         </li>
                         <li>
-                            <a href="https://www.youtube.com/@PicoPicks-c5e3c" target="_blank" rel="noopener noreferrer" class="social-btn youtube-btn" title="Follow us on TikTok / YouTube">
-                                <i class="fa-brands fa-youtube"></i> TikTok / YouTube
+                            <a href="https://www.youtube.com/@PicoPicks-c5e3c" target="_blank" rel="noopener noreferrer" class="social-btn youtube-btn" title="Follow us on YouTube">
+                                <i class="fa-brands fa-youtube"></i> YouTube
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.tiktok.com/@picopicks_bd8" target="_blank" rel="noopener noreferrer" class="social-btn tiktok-btn" title="Follow us on TikTok">
+                                <i class="fa-brands fa-tiktok"></i> TikTok
                             </a>
                         </li>
                     </ul>
@@ -208,6 +231,7 @@
     </div>
 
     <!-- JavaScript for Menu & Clipboard Copy -->
+    <script src="js/toast.js"></script>
     <script>
         var MenuItems = document.getElementById("MenuItems");
         MenuItems.style.maxHeight = "0px";
@@ -219,50 +243,40 @@
             }
         }
 
-        let toastTimeout = null;
-        function showToast(message) {
-            const toast = document.getElementById('couponToast');
-            const text = document.getElementById('couponToastText');
-            if (!toast || !text) return;
-
-            text.textContent = message;
-            toast.style.display = 'flex';
-
-            if (toastTimeout) clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
-        }
-
         function copyCouponCode(code, btnElement) {
             if (!code) return;
-            navigator.clipboard.writeText(code).then(() => {
+            const triggerCopyFeedback = () => {
                 const originalHtml = btnElement.innerHTML;
                 btnElement.classList.add('copied');
                 btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-                showToast(`Coupon code "${code}" copied to clipboard!`);
+                if (window.showToast) {
+                    window.showToast(`Coupon code "${code}" copied to clipboard!`, 'success');
+                }
                 setTimeout(() => {
                     btnElement.classList.remove('copied');
                     btnElement.innerHTML = originalHtml;
                 }, 2200);
-            }).catch(err => {
-                // Fallback for older browsers
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(triggerCopyFeedback).catch(() => {
+                    const tempInput = document.createElement('input');
+                    tempInput.value = code;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    triggerCopyFeedback();
+                });
+            } else {
                 const tempInput = document.createElement('input');
                 tempInput.value = code;
                 document.body.appendChild(tempInput);
                 tempInput.select();
                 document.execCommand('copy');
                 document.body.removeChild(tempInput);
-
-                const originalHtml = btnElement.innerHTML;
-                btnElement.classList.add('copied');
-                btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-                showToast(`Coupon code "${code}" copied!`);
-                setTimeout(() => {
-                    btnElement.classList.remove('copied');
-                    btnElement.innerHTML = originalHtml;
-                }, 2200);
-            });
+                triggerCopyFeedback();
+            }
         }
     </script>
     <script src="js/api.js"></script>

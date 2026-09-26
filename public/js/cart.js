@@ -67,14 +67,20 @@ async function addToCart(productId, quantity = 1, color = null) {
     if (window.API && API.getToken()) {
         try {
             await API.addToCart(productId, qty, color || '');
-            alert(`Item added to your cart!${colorInfo}`);
+            if (typeof showToast === 'function') {
+                showToast(`Item added to your cart!${colorInfo}`, 'success');
+            }
+            if (window.updateCartNavBadges) window.updateCartNavBadges();
+            window.dispatchEvent(new Event('pico_cart_updated'));
             if (window.location.pathname.includes('cart.html')) {
                 await renderCartPage();
             }
             return;
         } catch (e) {
             console.warn('API cart error:', e.message);
-            alert(`Could not add to cart: ${e.message}`);
+            if (typeof showToast === 'function') {
+                showToast(`Could not add to cart: ${e.message}`, 'error');
+            }
             return;
         }
     }
@@ -88,7 +94,11 @@ async function addToCart(productId, quantity = 1, color = null) {
         cart.push({ productId, quantity: qty, ...(color ? { color } : {}) });
     }
     saveLocalCart(cart);
-    alert(`Item added to your cart${colorInfo} (Guest mode). Please log in to complete checkout!`);
+    if (typeof showToast === 'function') {
+        showToast(`Item added to your cart${colorInfo} (Guest mode). Please log in to complete checkout!`, 'info');
+    }
+    if (window.updateCartNavBadges) window.updateCartNavBadges();
+    window.dispatchEvent(new Event('pico_cart_updated'));
 
     if (window.location.pathname.includes('cart.html')) {
         await renderCartPage();
@@ -502,14 +512,14 @@ function proceedToCheckout(e) {
     if (e && e.preventDefault) e.preventDefault();
 
     if (currentCartItems.length === 0) {
-        alert('Your shopping cart is empty.');
+        showToast('Your shopping cart is empty.', 'warning');
         return;
     }
 
     const selectedItems = currentCartItems.filter(item => selectedCartItemIds.has(item.productId));
 
     if (selectedItems.length === 0) {
-        alert('Please select at least one item using the checkboxes to proceed to checkout.');
+        showToast('Please select at least one item using the checkboxes to proceed to checkout.', 'warning');
         return;
     }
 

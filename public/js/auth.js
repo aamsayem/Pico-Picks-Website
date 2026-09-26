@@ -90,8 +90,8 @@ async function renderAuthDashboard(user) {
         logoutBtn.onclick = function() {
             if (window.API) API.setToken(null);
             localStorage.removeItem('pico_current_user');
-            alert('You have successfully logged out.');
-            window.location.reload();
+            showToast('You have successfully logged out.', 'info');
+            setTimeout(() => window.location.reload(), 600);
         };
     }
 }
@@ -116,16 +116,16 @@ document.addEventListener('DOMContentLoaded', async function() {
             const passwordInput = inputs[1] ? inputs[1].value : '';
 
             if (!usernameInput || !passwordInput) {
-                alert('Please enter both username and password.');
+                showToast('Please enter both username and password.', 'warning');
                 return;
             }
 
             try {
                 const data = await API.login(usernameInput, passwordInput);
-                alert(`Welcome back, ${data.user.username}!`);
-                window.location.href = 'profile.html';
+                showToast(`Welcome back, ${data.user.username}!`, 'success');
+                setTimeout(() => { window.location.href = 'profile.html'; }, 800);
             } catch (err) {
-                alert(err.message || 'Login failed. Please verify your credentials.');
+                showToast(err.message || 'Login failed. Please verify your credentials.', 'error');
             }
         });
     }
@@ -140,21 +140,21 @@ document.addEventListener('DOMContentLoaded', async function() {
             const password = inputs[2] ? inputs[2].value : '';
 
             if (!username || !email || !password) {
-                alert('Please fill out all registration fields.');
+                showToast('Please fill out all registration fields.', 'warning');
                 return;
             }
 
             if (password.length < 4) {
-                alert('Password must be at least 4 characters long.');
+                showToast('Password must be at least 4 characters long.', 'warning');
                 return;
             }
 
             try {
                 const data = await API.register(username, email, password);
-                alert(`Account registered successfully! Welcome to Pico Picks, ${data.user.username}.`);
-                window.location.href = 'profile.html';
+                showToast(`Account registered successfully! Welcome to Pico Picks, ${data.user.username}.`, 'success');
+                setTimeout(() => { window.location.href = 'profile.html'; }, 800);
             } catch (err) {
-                alert(err.message || 'Registration failed.');
+                showToast(err.message || 'Registration failed.', 'error');
             }
         });
     }

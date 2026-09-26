@@ -367,7 +367,7 @@ async function handleCheckoutSubmit(e) {
     e.preventDefault();
 
     if (checkoutState.cartItems.length === 0) {
-        alert('Your shopping cart is empty.');
+        showToast('Your shopping cart is empty.', 'warning');
         return;
     }
 
@@ -381,7 +381,7 @@ async function handleCheckoutSubmit(e) {
     const notes = document.getElementById('orderNotes').value.trim();
 
     if (!fullName || !phone || !email || !address || !city) {
-        alert('Please fill out all required fields marked with *');
+        showToast('Please fill out all required fields marked with *', 'warning');
         return;
     }
 
@@ -437,12 +437,16 @@ async function handleCheckoutSubmit(e) {
             console.warn('Guest cart cleanup notice:', e);
         }
 
+        // Notify badge listeners
+        window.dispatchEvent(new Event('pico_cart_updated'));
+        if (window.updateCartNavBadges) window.updateCartNavBadges();
+
         // Transition from Form to Order Success Receipt
         showOrderSuccess(createdOrder, { fullName, email, phone, address, city, postalCode });
 
     } catch (err) {
         console.error('Checkout error:', err);
-        alert(`Could not complete order: ${err.message}`);
+        showToast(`Could not complete order: ${err.message}`, 'error');
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -557,7 +561,7 @@ function showOrderSuccess(order, customer) {
 function downloadInvoicePDF() {
     const invoiceEl = document.getElementById('printableInvoice');
     if (!invoiceEl) {
-        alert('Invoice element could not be found.');
+        showToast('Invoice element could not be found.', 'error');
         return;
     }
 
@@ -607,7 +611,7 @@ function downloadInvoicePDF() {
         })
         .catch(err => {
             console.error('PDF generation error:', err);
-            alert('PDF generation encountered an issue. Using system print instead.');
+            showToast('PDF generation encountered an issue. Using system print instead.', 'warning');
             window.print();
             if (downloadBtn) {
                 downloadBtn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Download Invoice (PDF)';

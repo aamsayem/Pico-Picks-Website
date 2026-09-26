@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 e.preventDefault();
 
                 if (stock <= 0) {
-                    alert('Sorry, this item is currently out of stock.');
+                    showToast('Sorry, this item is currently out of stock.', 'warning');
                     return;
                 }
 
@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                             colorWarning.style.display = 'block';
                             colorWarning.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please select a color before adding to cart.';
                         }
-                        alert('Please select an available color option first!');
+                        showToast('Please select an available color option first!', 'warning');
                         return;
                     }
                 }
@@ -298,9 +298,11 @@ document.addEventListener('DOMContentLoaded', async function() {
                     try {
                         await API.addToCart(product.id || product._id, qty, selectedColor || '');
                         const colorNotice = selectedColor ? ` (Color: ${selectedColor})` : '';
-                        alert(`Added ${qty} x "${product.name}"${colorNotice} to your cart!`);
+                        showToast(`Added ${qty} x "${product.name}"${colorNotice} to your cart!`, 'success');
+                        window.dispatchEvent(new Event('pico_cart_updated'));
+                        if (window.updateCartNavBadges) window.updateCartNavBadges();
                     } catch (err) {
-                        alert(`Could not add to cart: ${err.message}`);
+                        showToast(`Could not add to cart: ${err.message}`, 'error');
                     }
                 }
             };
@@ -467,7 +469,7 @@ function initProductReviews(product) {
             const comment = commentInput?.value.trim() || '';
 
             if (!comment) {
-                alert('Please enter your review feedback.');
+                showToast('Please enter your review feedback.', 'warning');
                 return;
             }
 
@@ -482,7 +484,7 @@ function initProductReviews(product) {
                     comment
                 });
 
-                alert(res.message || 'Thank you! Your review has been submitted.');
+                showToast(res.message || 'Thank you! Your review has been submitted.', 'success');
                 if (commentInput) commentInput.value = '';
 
                 if (Array.isArray(res.reviews)) {
@@ -491,7 +493,7 @@ function initProductReviews(product) {
                 updateRatingSummary(res.rating, reviews.length);
                 renderReviewsList();
             } catch (err) {
-                alert(`Could not submit review: ${err.message}`);
+                showToast(`Could not submit review: ${err.message}`, 'error');
             } finally {
                 if (submitBtn) {
                     submitBtn.disabled = false;

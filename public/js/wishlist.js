@@ -134,6 +134,11 @@ function updateWishlistNavBadges() {
 }
 
 function showWishlistToast(message) {
+    if (typeof window.showToast === 'function') {
+        const isSuccess = (message || '').includes('added') || (message || '').includes('Moved');
+        window.showToast(message, isSuccess ? 'success' : 'info');
+        return;
+    }
     let toast = document.getElementById('picoWishlistToast');
     if (!toast) {
         toast = document.createElement('div');

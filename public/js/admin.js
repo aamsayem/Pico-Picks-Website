@@ -95,7 +95,7 @@ function handleGalleryFilesSelect(input) {
 
     const files = Array.from(input.files).slice(0, 4);
     if (input.files.length > 4) {
-        alert('You can select a maximum of 4 gallery images. Only the first 4 will be uploaded.');
+        showToast('You can select a maximum of 4 gallery images. Only the first 4 will be uploaded.', 'warning');
     }
 
     container.innerHTML = files.map(file => {
@@ -119,16 +119,16 @@ async function checkAdminAuth() {
     const token = window.API ? API.getToken() : localStorage.getItem('pico_token');
 
     if (!token) {
-        alert('Access restricted: Please log in with an administrator account.');
-        window.location.href = 'account.html';
+        showToast('Access restricted: Please log in with an administrator account.', 'error');
+        setTimeout(() => { window.location.href = 'account.html'; }, 800);
         return false;
     }
 
     try {
         const user = await API.getProfile();
         if (!user || user.role !== 'admin') {
-            alert('Access denied: You need administrator privileges to view this page.');
-            window.location.href = 'account.html';
+            showToast('Access denied: You need administrator privileges to view this page.', 'error');
+            setTimeout(() => { window.location.href = 'account.html'; }, 800);
             return false;
         }
 
@@ -140,9 +140,9 @@ async function checkAdminAuth() {
         return true;
     } catch (error) {
         console.error('Admin Auth Check Failed:', error);
-        alert('Session expired or unauthorized. Please log in again.');
+        showToast('Session expired or unauthorized. Please log in again.', 'error');
         if (window.API) API.setToken(null);
-        window.location.href = 'account.html';
+        setTimeout(() => { window.location.href = 'account.html'; }, 800);
         return false;
     }
 }
@@ -420,7 +420,7 @@ async function handleProductSubmit(e) {
     const file = fileInput && fileInput.files ? fileInput.files[0] : null;
 
     if (!file && !existingImage) {
-        alert('Please choose an image file for the product.');
+        showToast('Please choose an image file for the product.', 'warning');
         return;
     }
 
@@ -480,21 +480,21 @@ async function handleProductSubmit(e) {
                 method: 'PUT',
                 body: JSON.stringify(payload)
             });
-            alert('Product updated successfully!');
+            showToast('Product updated successfully!', 'success');
         } else {
             // Create Product (POST)
             await API.request('/products', {
                 method: 'POST',
                 body: JSON.stringify(payload)
             });
-            alert('Product created successfully!');
+            showToast('Product created successfully!', 'success');
         }
 
         closeProductModal();
         await loadProducts();
     } catch (err) {
         console.error('Error saving product:', err);
-        alert(`Failed to save product: ${err.message}`);
+        showToast(`Failed to save product: ${err.message}`, 'error');
     } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save Product';
@@ -510,11 +510,11 @@ async function deleteProduct(id) {
         await API.request(`/products/${encodeURIComponent(id)}`, {
             method: 'DELETE'
         });
-        alert('Product deleted successfully.');
+        showToast('Product deleted successfully.', 'success');
         await loadProducts();
     } catch (err) {
         console.error('Error deleting product:', err);
-        alert(`Failed to delete product: ${err.message}`);
+        showToast(`Failed to delete product: ${err.message}`, 'error');
     }
 }
 
@@ -625,10 +625,10 @@ async function updateOrderStatus(orderId, newStatus) {
             order.orderStatus = newStatus;
         }
         updateOrderStats();
-        alert(`Order status updated to "${newStatus}"!`);
+        showToast(`Order status updated to "${newStatus}"!`, 'success');
     } catch (err) {
         console.error('Error updating order status:', err);
-        alert(`Failed to update status: ${err.message}`);
+        showToast(`Failed to update status: ${err.message}`, 'error');
         await loadOrders(); // Revert on failure
     }
 }
@@ -779,11 +779,11 @@ async function handleCouponSubmit(e) {
         const btn = document.getElementById('saveCouponBtn');
         if (btn) btn.disabled = true;
         await API.createCoupon({ code, discountType, discountValue, minOrderAmount, isActive });
-        alert(`Coupon "${code}" created successfully!`);
+        showToast(`Coupon "${code}" created successfully!`, 'success');
         closeCouponModal();
         await loadCoupons();
     } catch (err) {
-        alert(`Failed to create coupon: ${err.message}`);
+        showToast(`Failed to create coupon: ${err.message}`, 'error');
     } finally {
         const btn = document.getElementById('saveCouponBtn');
         if (btn) btn.disabled = false;
@@ -794,10 +794,10 @@ async function handleDeleteCoupon(id) {
     if (!confirm('Are you sure you want to delete this coupon?')) return;
     try {
         await API.deleteCoupon(id);
-        alert('Coupon deleted successfully');
+        showToast('Coupon deleted successfully', 'success');
         await loadCoupons();
     } catch (err) {
-        alert(`Failed to delete coupon: ${err.message}`);
+        showToast(`Failed to delete coupon: ${err.message}`, 'error');
     }
 }
 
@@ -943,7 +943,7 @@ async function loadActiveCustomerMessages(isBackground = false) {
 async function handleSendAdminReply(event) {
     event.preventDefault();
     if (!state.selectedCustomerId) {
-        alert('Please select a customer conversation first.');
+        showToast('Please select a customer conversation first.', 'warning');
         return;
     }
 
@@ -961,7 +961,7 @@ async function handleSendAdminReply(event) {
         await loadActiveCustomerMessages();
         await loadAdminConversations(true);
     } catch (err) {
-        alert(`Failed to send reply: ${err.message}`);
+        showToast(`Failed to send reply: ${err.message}`, 'error');
     } finally {
         if (sendBtn) sendBtn.disabled = false;
         if (input) input.focus();

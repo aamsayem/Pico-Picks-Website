@@ -252,7 +252,7 @@ async function loadCustomerOrders() {
 function openOrderModal(orderId) {
     const order = customerProfileState.orders.find(o => String(o._id) === String(orderId));
     if (!order) {
-        alert('Order could not be found.');
+        showToast('Order could not be found.', 'error');
         return;
     }
 
@@ -338,7 +338,7 @@ function downloadModalInvoicePDF() {
     const order = customerProfileState.selectedOrder;
 
     if (!invoiceEl) {
-        alert('Invoice node is not available.');
+        showToast('Invoice node is not available.', 'error');
         return;
     }
 
@@ -384,7 +384,7 @@ function downloadModalInvoicePDF() {
         })
         .catch(err => {
             console.error('PDF Invoice generation failed:', err);
-            alert('PDF download encountered an issue. Falling back to print.');
+            showToast('PDF download encountered an issue. Falling back to print.', 'warning');
             window.print();
             if (downloadBtn) {
                 downloadBtn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Download Invoice (PDF)';
@@ -412,11 +412,11 @@ async function handleProfileSubmit(event) {
 
     if (newPassword) {
         if (newPassword.length < 4) {
-            alert('New password must be at least 4 characters long.');
+            showToast('New password must be at least 4 characters long.', 'warning');
             return;
         }
         if (newPassword !== confirmPassword) {
-            alert('Passwords do not match. Please verify your new password.');
+            showToast('Passwords do not match. Please verify your new password.', 'warning');
             return;
         }
     }
@@ -463,14 +463,14 @@ async function handleProfileSubmit(event) {
         document.getElementById('newPassword').value = '';
         document.getElementById('confirmPassword').value = '';
 
-        alert('Your profile and shipping details have been saved successfully!');
+        showToast('Your profile and shipping details have been saved successfully!', 'success');
     } catch (err) {
         console.error('Profile update failed:', err);
         if (statusEl) {
             statusEl.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${escapeHTML(err.message || 'Update failed')}`;
             statusEl.style.color = '#dc2626';
         }
-        alert(err.message || 'Could not update profile. Please try again.');
+        showToast(err.message || 'Could not update profile. Please try again.', 'error');
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -542,7 +542,7 @@ async function handleSendCustomerMessage(event) {
         await API.sendCustomerMessage(text);
         await loadCustomerChatMessages();
     } catch (err) {
-        alert(`Failed to send message: ${err.message}`);
+        showToast(`Failed to send message: ${err.message}`, 'error');
     } finally {
         if (sendBtn) sendBtn.disabled = false;
         if (input) input.focus();

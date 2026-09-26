@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Reviews & Ratings | Pico Picks</title>
+    <link rel="shortcut icon" href="images/logo.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Michroma&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="logo">
+                <a href="index.html"><img src="images/logo.png" width="70px" alt="Pico Picks Logo"></a>
+            </div>
+            <nav>
+                <ul id="MenuItems">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html">Products</a></li>
+                    <li><a href="aboutus.html">About</a></li>
+                    <li><a href="contactus.html">Contact</a></li>
+                    <li><a href="account.html">Account</a></li>
+                </ul>
+            </nav>
+            <div class="nav-icons-wrapper">
+                <div class="nav-search-wrapper" id="navSearchWrapper">
+                    <button type="button" class="nav-icon-btn nav-search-toggle" id="navSearchToggle" title="Search Products" aria-label="Search Products">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <div class="nav-search-dropdown" id="navSearchDropdown">
+                        <form class="nav-search-form" id="navSearchForm" onsubmit="event.preventDefault(); window.submitNavSearch();">
+                            <i class="fa-solid fa-magnifying-glass nav-search-icon-inside"></i>
+                            <input type="search" id="navSearchInput" placeholder="Search cars, accessories..." autocomplete="off" aria-label="Search Products">
+                            <button type="button" class="nav-search-close-btn" id="navSearchClose" title="Close Search" aria-label="Close Search">&times;</button>
+                        </form>
+                        <div class="nav-search-results" id="navSearchResults"></div>
+                    </div>
+                </div>
+                <a href="wishlist.html" class="nav-icon-btn" title="Wishlist" aria-label="View Wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                    <span class="nav-badge nav-wishlist-count" id="navWishlistCount" style="display: none;">0</span>
+                </a>
+                <a href="cart.html" class="nav-icon-btn nav-cart-btn" title="Shopping Cart" aria-label="View Cart">
+                    <svg class="nav-cart-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="nav-badge nav-cart-count" id="navCartCount" style="display: none;">0</span>
+                </a>
+            </div>
+            <img src="images/menu-icon.png" class="menu-icon" onclick="menutoggle()" alt="Toggle Menu">
+        </div>
+    </div>
+
+    <!-- Hero Header -->
+    <div class="small-container">
+        <div class="reviews-hero-header">
+            <span style="font-size: 13px; font-weight: 700; color: #C8743A; text-transform: uppercase; letter-spacing: 1px;">Customer Testimonials</span>
+            <h1>Customer Reviews & Ratings</h1>
+            <p>Read real, unedited impressions from car enthusiasts and collectors who trust Pico Picks for authentic premium die-cast imports.</p>
+        </div>
+
+        <!-- Rating Summary Card -->
+        <div class="reviews-stats-card">
+            <div class="reviews-score-block">
+                <div class="reviews-big-number">4.9</div>
+                <div class="reviews-stars-large">
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <div class="reviews-score-sub">Based on 140+ verified buyer reviews</div>
+                <div style="margin-top: 14px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #10b981; background: #ecfdf5; padding: 4px 10px; border-radius: 20px;">
+                    <i class="fa-solid fa-certificate"></i> 100% Verified Purchases
+                </div>
+            </div>
+            <div class="reviews-bars-block">
+                <div class="review-bar-row">
+                    <span class="review-bar-label">5 Stars</span>
+                    <div class="review-bar-track">
+                        <div class="review-bar-fill" style="width: 93%;"></div>
+                    </div>
+                    <span class="review-bar-count">93%</span>
+                </div>
+                <div class="review-bar-row">
+                    <span class="review-bar-label">4 Stars</span>
+                    <div class="review-bar-track">
+                        <div class="review-bar-fill" style="width: 7%;"></div>
+                    </div>
+                    <span class="review-bar-count">7%</span>
+                </div>
+                <div class="review-bar-row">
+                    <span class="review-bar-label">3 Stars</span>
+                    <div class="review-bar-track">
+                        <div class="review-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <span class="review-bar-count">0%</span>
+                </div>
+                <div class="review-bar-row">
+                    <span class="review-bar-label">2 Stars</span>
+                    <div class="review-bar-track">
+                        <div class="review-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <span class="review-bar-count">0%</span>
+                </div>
+                <div class="review-bar-row">
+                    <span class="review-bar-label">1 Star</span>
+                    <div class="review-bar-track">
+                        <div class="review-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <span class="review-bar-count">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="reviews-filter-bar">
+            <div class="reviews-filter-pills" id="reviewFilterPills">
+                <button type="button" class="review-pill active" data-filter="all">All Reviews</button>
+                <button type="button" class="review-pill" data-filter="5">5 Stars</button>
+                <button type="button" class="review-pill" data-filter="4">4 Stars</button>
+                <button type="button" class="review-pill" data-filter="sports">Sports & Supercars</button>
+                <button type="button" class="review-pill" data-filter="muscle">Muscle & JDM</button>
+                <button type="button" class="review-pill" data-filter="classic">Vintage Classics</button>
+            </div>
+            <div style="font-size: 13px; color: #64748b;" id="reviewsCountDisplay">
+                Showing all customer reviews
+            </div>
+        </div>
+
+        <!-- Reviews Grid -->
+        <div class="reviews-grid-container" id="reviewsGridContainer">
+            <!-- Review 1 -->
+            <div class="review-card-item" data-rating="5" data-category="muscle">
+                <div>
+                    <div class="review-card-header">
+                        <img src="images/user2.jpg" alt="Refayet Ullah" class="review-card-avatar" onerror="this.style.display='none'">
+                        <div class="review-card-meta">
+                            <div class="review-card-author">
+                                Refayet Ullah
+                                <i class="fa-solid fa-circle-check review-verified-badge" title="Verified Buyer"></i>
+                            </div>
+                            <div class="review-card-date">Verified Purchase &bull; 1 week ago</div>
+                        </div>
+                    </div>
+                    <div class="review-card-stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <a href="product-details.html?id=dodge-challenger-srt-hellcat" class="review-card-product-tag">
+                        <i class="fa-solid fa-car"></i> Dodge Challenger SRT Hellcat
+                    </a>
+                    <div class="review-card-text">
+                        "I recently bought this Fast & Furious toy car, and honestly, I’m really happy with it! 🚗🔥 The design is very realistic—the detailing, color, and even the engine look are done beautifully. It gives a premium feel as soon as you hold it. Perfect for collectors or any car lover."
+                    </div>
+                </div>
+                <div class="review-card-footer">
+                    <span>Authentic Die-Cast Collection</span>
+                    <button type="button" class="review-helpful-btn" onclick="toggleHelpful(this)">
+                        <i class="fa-regular fa-thumbs-up"></i> Helpful (18)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review 2 -->
+            <div class="review-card-item" data-rating="5" data-category="sports">
+                <div>
+                    <div class="review-card-header">
+                        <img src="images/user1.jpg" alt="Anik Biswas" class="review-card-avatar" onerror="this.style.display='none'">
+                        <div class="review-card-meta">
+                            <div class="review-card-author">
+                                Anik Biswas
+                                <i class="fa-solid fa-circle-check review-verified-badge" title="Verified Buyer"></i>
+                            </div>
+                            <div class="review-card-date">Verified Purchase &bull; 2 weeks ago</div>
+                        </div>
+                    </div>
+                    <div class="review-card-stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <a href="product-details.html?id=bmw-m4-gt3-special" class="review-card-product-tag">
+                        <i class="fa-solid fa-car"></i> BMW M4 GT3 Special
+                    </a>
+                    <div class="review-card-text">
+                        "I recently bought 1. BMW M4 GT3, 2. Nissan GTR R35, 3. Toyota Supra GR die-cast cars from Pico Picks, and I’m extremely happy with my purchase! The quality, detailing, and build are absolutely amazing — they look just like the real cars. Packaging was great, and delivery was fast too. Highly recommended for anyone who loves collectible cars."
+                    </div>
+                </div>
+                <div class="review-card-footer">
+                    <span>Gulf Racing Livery</span>
+                    <button type="button" class="review-helpful-btn" onclick="toggleHelpful(this)">
+                        <i class="fa-regular fa-thumbs-up"></i> Helpful (24)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review 3 -->
+            <div class="review-card-item" data-rating="5" data-category="classic">
+                <div>
+                    <div class="review-card-header">
+                        <img src="images/user3.jpg" alt="Rahnuma Yasmin" class="review-card-avatar" onerror="this.style.display='none'">
+                        <div class="review-card-meta">
+                            <div class="review-card-author">
+                                Rahnuma Yasmin
+                                <i class="fa-solid fa-circle-check review-verified-badge" title="Verified Buyer"></i>
+                            </div>
+                            <div class="review-card-date">Verified Purchase &bull; 3 weeks ago</div>
+                        </div>
+                    </div>
+                    <div class="review-card-stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <a href="product-details.html?id=benz-300-sl" class="review-card-product-tag">
+                        <i class="fa-solid fa-car"></i> Mercedes-Benz 300 SL Gullwing
+                    </a>
+                    <div class="review-card-text">
+                        "Their products are more beautiful in real than pictures 👌🏻 Their communication skills (total service) are so heart-warming and professional, they care about their customers. The packaging came with double protective wrapping."
+                    </div>
+                </div>
+                <div class="review-card-footer">
+                    <span>Vintage Classic Die-Cast</span>
+                    <button type="button" class="review-helpful-btn" onclick="toggleHelpful(this)">
+                        <i class="fa-regular fa-thumbs-up"></i> Helpful (15)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review 4 -->
+            <div class="review-card-item" data-rating="5" data-category="classic">
+                <div>
+                    <div class="review-card-header">
+                        <div class="review-card-avatar-placeholder">TA</div>
+                        <div class="review-card-meta">
+                            <div class="review-card-author">
+                                Tanvir Ahmed
+                                <i class="fa-solid fa-circle-check review-verified-badge" title="Verified Buyer"></i>
+                            </div>
+                            <div class="review-card-date">Verified Purchase &bull; 1 month ago</div>
+                        </div>
+                    </div>
+                    <div class="review-card-stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <a href="product-details.html?id=1936-mercedes-benz-500k" class="review-card-product-tag">
+                        <i class="fa-solid fa-car"></i> 1936 Mercedes-Benz 500K Roadster
+                    </a>
+                    <div class="review-card-text">
+                        "The 1936 Mercedes-Benz 500K Special Roadster exceeded my expectations. The doors open smoothly, the chrome trim is flawless, and the packaging kept it completely safe during transit. Hands down the best classic model in my display case."
+                    </div>
+                </div>
+                <div class="review-card-footer">
+                    <span>Collector Heritage</span>
+                    <button type="button" class="review-helpful-btn" onclick="toggleHelpful(this)">
+                        <i class="fa-regular fa-thumbs-up"></i> Helpful (12)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review 5 -->
+            <div class="review-card-item" data-rating="5" data-category="accessories">
+                <div>
+                    <div class="review-card-header">
+                        <div class="review-card-avatar-placeholder" style="background: linear-gradient(135deg, #10b981, #059669);">SK</div>
+                        <div class="review-card-meta">
+                            <div class="review-card-author">
+                                Sarah Khan
+                                <i class="fa-solid fa-circle-check review-verified-badge" title="Verified Buyer"></i>
+                            </div>
+                            <div class="review-card-date">Verified Purchase &bull; 1 month ago</div>
+                        </div>
+                    </div>
+                    <div class="review-card-stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <a href="product-details.html?id=slingshot" class="review-card-product-tag">
+                        <i class="fa-solid fa-wrench"></i> Tactical Slingshot
+                    </a>
+                    <div class="review-card-text">
+                        "Bought the tactical slingshot and wheel spinner keyring for my brother's birthday. Solid metal weight and premium finish. Super fast delivery in Chittagong! Will definitely order more models soon."
+                    </div>
+                </div>
+                <div class="review-card-footer">
+                    <span>Accessories & Gifts</span>
+                    <button type="button" class="review-helpful-btn" onclick="toggleHelpful(this)">
+                        <i class="fa-regular fa-thumbs-up"></i> Helpful (9)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review 6 -->
+            <div class="review-card-item" data-rating="5" data-category="muscle">
+                <div>
+                    <div class="review-card-header">
+                        <div class="review-card-avatar-placeholder" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">MH</div>
+                        <div class="review-card-meta">
+                            <div class="review-card-author">
+                                Mehedi Hasan
+                                <i class="fa-solid fa-circle-check review-verified-badge" title="Verified Buyer"></i>
+                            </div>
+                            <div class="review-card-date">Verified Purchase &bull; 1 month ago</div>
+                        </div>
+                    </div>
+                    <div class="review-card-stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <a href="product-details.html?id=ae86-big" class="review-card-product-tag">
+                        <i class="fa-solid fa-car"></i> Toyota AE86 Trueno Big
+                    </a>
+                    <div class="review-card-text">
+                        "The AE86 Trueno model is a dream for any Initial D fan. Pop-up headlights and the paint job are spot-on. 10/10 service and courteous updates over messenger from the Pico Picks team."
+                    </div>
+                </div>
+                <div class="review-card-footer">
+                    <span>JDM Legend Series</span>
+                    <button type="button" class="review-helpful-btn" onclick="toggleHelpful(this)">
+                        <i class="fa-regular fa-thumbs-up"></i> Helpful (14)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review 7 -->
+            <div class="review-card-item" data-rating="4" data-category="sports">
+                <div>
+                    <div class="review-card-header">
+                        <div class="review-card-avatar-placeholder" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">FK</div>
+                        <div class="review-card-meta">
+                            <div class="review-card-author">
+                                Farhan Kabir
+                                <i class="fa-solid fa-circle-check review-verified-badge" title="Verified Buyer"></i>
+                            </div>
+                            <div class="review-card-date">Verified Purchase &bull; 2 months ago</div>
+                        </div>
+                    </div>
+                    <div class="review-card-stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-regular fa-star"></i>
+                    </div>
+                    <a href="product-details.html?id=ford-mustang-gt" class="review-card-product-tag">
+                        <i class="fa-solid fa-car"></i> Ford Mustang GT
+                    </a>
+                    <div class="review-card-text">
+                        "Ford Mustang GT and Ferrari F50 arrived in pristine condition within 48 hours inside Dhaka. Great die-cast scale proportions, solid weight, and sturdy rubber tires. Highly recommended store!"
+                    </div>
+                </div>
+                <div class="review-card-footer">
+                    <span>American Muscle</span>
+                    <button type="button" class="review-helpful-btn" onclick="toggleHelpful(this)">
+                        <i class="fa-regular fa-thumbs-up"></i> Helpful (7)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review 8 -->
+            <div class="review-card-item" data-rating="5" data-category="sports">
+                <div>
+                    <div class="review-card-header">
+                        <div class="review-card-avatar-placeholder" style="background: linear-gradient(135deg, #ec4899, #be185d);">NJ</div>
+                        <div class="review-card-meta">
+                            <div class="review-card-author">
+                                Nusrat Jahan
+                                <i class="fa-solid fa-circle-check review-verified-badge" title="Verified Buyer"></i>
+                            </div>
+                            <div class="review-card-date">Verified Purchase &bull; 2 months ago</div>
+                        </div>
+                    </div>
+                    <div class="review-card-stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <a href="product-details.html?id=mercedes-benz-brabus-g800" class="review-card-product-tag">
+                        <i class="fa-solid fa-car"></i> Mercedes-Benz Brabus G800
+                    </a>
+                    <div class="review-card-text">
+                        "Brabus G800 has functional lights and suspension sounds that my son loves. Premium die-cast feel that matches high-end imported hobby items. Support was very helpful answering my questions."
+                    </div>
+                </div>
+                <div class="review-card-footer">
+                    <span>Brabus Luxury SUV</span>
+                    <button type="button" class="review-helpful-btn" onclick="toggleHelpful(this)">
+                        <i class="fa-regular fa-thumbs-up"></i> Helpful (11)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Write A Review Callout -->
+        <div style="background: linear-gradient(135deg, #fff7ed, #ffedd5); border: 1.5px solid #fed7aa; border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 70px;">
+            <h3 style="font-size: 22px; color: #9a3412; margin-bottom: 8px;">Own a Pico Picks Die-Cast Item?</h3>
+            <p style="color: #7c2d12; font-size: 14px; max-width: 500px; margin: 0 auto 20px;">We value your passion and feedback! Head over to any product page you've purchased to submit your verified star rating and review.</p>
+            <a href="products.html" class="btn" style="background: #C8743A; color: #fff;">Browse Catalog & Review Items &#10140;</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="footer-col-1">
+                    <h3>Download Our App</h3>
+                    <p>Download App for Android and iOS mobile phone.</p> 
+                    <div class="app-logo">
+                        <img src="images/play store.png" alt="Play Store">
+                    </div>      
+                </div>
+                <div class="footer-col-2">  
+                    <img src="images/logo.png" alt="Pico Picks">
+                    <p>Our Purpose Is To Sustainably Make The Pleasure And Benefits Of Collecting Cars Accessible To The Many.</p>       
+                </div>
+                <div class="footer-col-3">
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li><a href="coupons.html"><i class="fa-solid fa-ticket"></i> Coupons</a></li>
+                        <li><a href="blog.html"><i class="fa-solid fa-newspaper"></i> Blog Post</a></li>
+                        <li><a href="return-policy.html"><i class="fa-solid fa-rotate-left"></i> Return Policy</a></li>
+                        <li><a href="reviews.html"><i class="fa-solid fa-star"></i> Customer Reviews</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col-4">
+                    <h3>Follow Us</h3>
+                    <ul class="footer-social-links">
+                        <li>
+                            <a href="https://www.instagram.com/picopicksbd/" target="_blank" rel="noopener noreferrer" class="social-btn instagram-btn" title="Follow us on Instagram">
+                                <i class="fa-brands fa-instagram"></i> Instagram
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.facebook.com/picopicks" target="_blank" rel="noopener noreferrer" class="social-btn facebook-btn" title="Follow us on Facebook">
+                                <i class="fa-brands fa-facebook"></i> Facebook
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.youtube.com/@PicoPicks-c5e3c" target="_blank" rel="noopener noreferrer" class="social-btn youtube-btn" title="Follow us on YouTube">
+                                <i class="fa-brands fa-youtube"></i> YouTube
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.tiktok.com/@picopicks_bd8" target="_blank" rel="noopener noreferrer" class="social-btn tiktok-btn" title="Follow us on TikTok">
+                                <i class="fa-brands fa-tiktok"></i> TikTok
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <p class="copyright">Copyright 2026 - Pico Picks</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        var MenuItems = document.getElementById("MenuItems");
+        MenuItems.style.maxHeight = "0px";
+        function menutoggle(){
+            if(MenuItems.style.maxHeight == "0px"){
+                MenuItems.style.display = "block";
+                MenuItems.style.maxHeight = "220px";
+                MenuItems.classList.add("menu-open");
+            } else {
+                MenuItems.style.maxHeight = "0px";
+                MenuItems.classList.remove("menu-open");
+                MenuItems.style.display = "none";
+            }
+        }
+
+        function toggleHelpful(btn) {
+            if (btn.classList.contains('active')) return;
+            btn.classList.add('active');
+            btn.style.color = '#10b981';
+            const icon = btn.querySelector('i');
+            if (icon) icon.className = 'fa-solid fa-thumbs-up';
+            showToast('Thank you for your feedback!', 'success');
+        }
+
+        // Interactive filtering
+        document.addEventListener('DOMContentLoaded', function() {
+            const pills = document.querySelectorAll('#reviewFilterPills .review-pill');
+            const cards = document.querySelectorAll('#reviewsGridContainer .review-card-item');
+            const countDisplay = document.getElementById('reviewsCountDisplay');
+
+            pills.forEach(pill => {
+                pill.addEventListener('click', function() {
+                    pills.forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const filter = this.getAttribute('data-filter');
+                    let visibleCount = 0;
+
+                    cards.forEach(card => {
+                        const rating = card.getAttribute('data-rating');
+                        const cat = card.getAttribute('data-category');
+
+                        let match = false;
+                        if (filter === 'all') {
+                            match = true;
+                        } else if (filter === '5' || filter === '4') {
+                            match = rating === filter;
+                        } else {
+                            match = cat === filter;
+                        }
+
+                        if (match) {
+                            card.style.display = 'flex';
+                            visibleCount++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+
+                    if (countDisplay) {
+                        countDisplay.textContent = `Showing ${visibleCount} review${visibleCount === 1 ? '' : 's'}`;
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="js/toast.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/wishlist.js"></script>
+</body>
+</html>

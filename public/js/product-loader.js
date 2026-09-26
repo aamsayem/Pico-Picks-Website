@@ -58,7 +58,11 @@ async function handleDirectAddToCart(productId, encodedColor, btnEl) {
             await window.addToCart(productId, 1, color);
         } else if (window.API && typeof window.API.addToCart === 'function' && window.API.getToken()) {
             await window.API.addToCart(productId, 1, color || '');
-            alert(`Item added to your cart!${color ? ` (Color: ${color})` : ''}`);
+            if (typeof showToast === 'function') {
+                showToast(`Item added to your cart!${color ? ` (Color: ${color})` : ''}`, 'success');
+            }
+            window.dispatchEvent(new Event('pico_cart_updated'));
+            if (window.updateCartNavBadges) window.updateCartNavBadges();
         } else {
             // LocalStorage fallback for guests
             const CART_STORAGE_KEY = 'pico_cart';
@@ -80,7 +84,11 @@ async function handleDirectAddToCart(productId, encodedColor, btnEl) {
             } catch (e) {
                 console.error('Failed to save local cart:', e);
             }
-            alert(`Item added to your cart!${color ? ` (Color: ${color})` : ''}`);
+            if (typeof showToast === 'function') {
+                showToast(`Item added to your cart!${color ? ` (Color: ${color})` : ''}`, 'info');
+            }
+            window.dispatchEvent(new Event('pico_cart_updated'));
+            if (window.updateCartNavBadges) window.updateCartNavBadges();
         }
 
         if (btnEl) {
@@ -92,7 +100,7 @@ async function handleDirectAddToCart(productId, encodedColor, btnEl) {
         }
     } catch (err) {
         console.error('Direct add to cart error:', err);
-        alert('Could not add to cart: ' + err.message);
+        showToast('Could not add to cart: ' + err.message, 'error');
         if (btnEl) {
             btnEl.disabled = false;
             btnEl.innerHTML = originalHTML;
@@ -198,8 +206,24 @@ async function initIndexPage() {
         const titleText = heading.textContent.trim().toLowerCase();
         if (titleText.includes('featured products')) {
             const rowContainer = heading.nextElementSibling;
-            if (rowContainer && rowContainer.classList.contains('row')) {
-                const featured = await fetchProductsData({ category: 'featured' });
+            if (rowContainer && (rowContainer.classList.contains('row') || rowContainer.classList.contains('featured-products-grid'))) {
+                let featured = await fetchProductsData({ category: 'featured' });
+                if (!featured || featured.length === 0) {
+                    const all = await fetchProductsData();
+                    featured = all.slice(0, 8);
+                } else if (featured.length < 8) {
+                    const all = await fetchProductsData();
+                    const existingIds = new Set(featured.map(f => String(f.id || f._id)));
+                    for (const item of all) {
+                        if (!existingIds.has(String(item.id || item._id))) {
+                            featured.push(item);
+                            if (featured.length === 8) break;
+                        }
+                    }
+                } else if (featured.length > 8) {
+                    featured = featured.slice(0, 8);
+                }
+                rowContainer.className = 'row featured-products-grid';
                 rowContainer.innerHTML = featured.length > 0
                     ? featured.map(createProductCard).join('')
                     : '<p style="text-align:center; width:100%; color:#999; padding:20px;">No featured products found.</p>';
@@ -231,6 +255,9 @@ async function initProductsPage() {
     });
 
     if (!targetContainer) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('search');
 
     let currentCategory = 'all';
     let currentSort = selectElem ? selectElem.value : 'Default Sorting';
@@ -267,6 +294,21 @@ async function initProductsPage() {
 
         let productsToRender = allProducts.filter(p => matchProductCategory(p, currentCategory));
 
+        if (searchQuery && currentCategory === 'all') {
+            const q = searchQuery.toLowerCase();
+            productsToRender = productsToRender.filter(p => {
+                const name = (p.name || '').toLowerCase();
+                const desc = (p.description || '').toLowerCase();
+                const cat = (p.category || '').toLowerCase();
+                return name.includes(q) || desc.includes(q) || cat.includes(q);
+            });
+            if (titleEl) {
+                titleEl.textContent = `Search Results for "${searchQuery}" (${productsToRender.length})`;
+            }
+        } else if (titleEl && categoryNames[currentCategory]) {
+            titleEl.textContent = categoryNames[currentCategory];
+        }
+
         // Apply sorting
         if (currentSort === 'Sort by Price' || currentSort === 'price') {
             productsToRender.sort((a, b) => a.price - b.price);
@@ -280,16 +322,12 @@ async function initProductsPage() {
         gridRow.className = 'row';
         gridRow.innerHTML = productsToRender.length > 0
             ? productsToRender.map(createProductCard).join('')
-            : '<p style="text-align:center; width:100%; color:#999; padding:40px;">No products found in this category.</p>';
+            : '<p style="text-align:center; width:100%; color:#999; padding:40px;">No products found matching your selection.</p>';
 
         if (pageBtn) {
             targetContainer.insertBefore(gridRow, pageBtn);
         } else {
             targetContainer.appendChild(gridRow);
-        }
-
-        if (titleEl && categoryNames[currentCategory]) {
-            titleEl.textContent = categoryNames[currentCategory];
         }
     }
 
@@ -346,7 +384,11 @@ async function initCategoryExplorer() {
     let allProducts = await fetchProductsData();
 
     function renderCategory(cat) {
-        const filtered = allProducts.filter(p => matchProductCategory(p, cat));
+        let filtered = allProducts.filter(p => matchProductCategory(p, cat));
+        if (cat === 'all') {
+            // Strictly 3 lines (3 rows x 4 items = 12 items on desktop)
+            filtered = filtered.slice(0, 12);
+        }
         if (filtered.length === 0) {
             row.innerHTML = '<p style="text-align:center; width:100%; color:#999; padding:30px;">No products found in this category.</p>';
         } else {
