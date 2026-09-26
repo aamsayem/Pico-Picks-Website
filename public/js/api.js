@@ -193,6 +193,31 @@ const API = {
         });
     },
 
+    // Category endpoints
+    async getCategories() {
+        return await this.request('/categories');
+    },
+
+    async createCategory(categoryData) {
+        return await this.request('/categories', {
+            method: 'POST',
+            body: JSON.stringify(categoryData)
+        });
+    },
+
+    async updateCategory(id, categoryData) {
+        return await this.request(`/categories/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(categoryData)
+        });
+    },
+
+    async deleteCategory(id) {
+        return await this.request(`/categories/${id}`, {
+            method: 'DELETE'
+        });
+    },
+
     // Message / Support Chat endpoints
     async getCustomerMessages() {
         return await this.request('/messages');

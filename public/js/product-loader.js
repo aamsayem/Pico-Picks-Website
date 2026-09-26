@@ -109,6 +109,62 @@ async function handleDirectAddToCart(productId, encodedColor, btnEl) {
 }
 window.handleDirectAddToCart = handleDirectAddToCart;
 
+async function handleDirectBuyNow(productId, encodedColor, btnEl) {
+    const color = encodedColor ? decodeURIComponent(encodedColor) : '';
+    let product = null;
+
+    if (window._cachedProductsList && Array.isArray(window._cachedProductsList)) {
+        product = window._cachedProductsList.find(p => String(p.id || p._id) === String(productId));
+    }
+
+    if (!product && window.API && typeof window.API.getProductById === 'function') {
+        try {
+            product = await window.API.getProductById(productId);
+        } catch (e) {
+            console.warn('Failed to fetch product by ID for Buy Now:', e);
+        }
+    }
+
+    if (!product) {
+        try {
+            const list = await fetchProductsData();
+            product = list.find(p => String(p.id || p._id) === String(productId));
+        } catch (e) {
+            console.warn('Fallback fetch failed:', e);
+        }
+    }
+
+    if (!product) {
+        window.location.href = `product-details.html?id=${encodeURIComponent(productId)}`;
+        return;
+    }
+
+    const stock = Number(product.stock) >= 0 ? Number(product.stock) : 10;
+    if (stock <= 0) {
+        if (typeof showToast === 'function') {
+            showToast('Sorry, this product is currently out of stock.', 'warning');
+        }
+        return;
+    }
+
+    const price = Number(product.price);
+    const chosenColor = color || ((Array.isArray(product.colors) && product.colors.length > 0) ? product.colors[0] : '');
+
+    const item = {
+        productId: String(product.id || product._id),
+        name: product.name,
+        price: price,
+        image: product.image || (Array.isArray(product.images) && product.images[0]) || 'images/logo.png',
+        quantity: 1,
+        color: chosenColor,
+        itemSubtotal: price
+    };
+
+    sessionStorage.setItem('pico_checkout_items', JSON.stringify([item]));
+    window.location.href = 'checkout.html';
+}
+window.handleDirectBuyNow = handleDirectBuyNow;
+
 function createProductCard(product) {
     const prodId = String(product.id || product._id);
     const isWished = (typeof isInWishlist === 'function') ? isInWishlist(prodId) : false;
@@ -144,14 +200,43 @@ function createProductCard(product) {
                 ${renderRatingStars(product.rating)}
             </div>
             <p>৳${Number(product.price).toFixed(2)}</p>
-            <button type="button" class="btn-card-add-cart" 
-                ${isOutOfStock ? 'disabled' : ''}
-                onclick="event.stopPropagation(); handleDirectAddToCart('${prodId}', '${encodeURIComponent(defaultColor)}', this)" 
-                title="${isOutOfStock ? 'Out of Stock' : 'Add to Cart'}">
-                <i class="fa-solid fa-cart-plus"></i> ${isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-            </button>
+            <div class="product-card-buttons">
+                <button type="button" class="btn-card-add-cart" 
+                    ${isOutOfStock ? 'disabled' : ''}
+                    onclick="event.stopPropagation(); handleDirectAddToCart('${prodId}', '${encodeURIComponent(defaultColor)}', this)" 
+                    title="${isOutOfStock ? 'Out of Stock' : 'Add to Cart'}">
+                    <i class="fa-solid fa-cart-plus"></i> ${isOutOfStock ? 'Out of Stock' : 'Add'}
+                </button>
+                <button type="button" class="btn-card-buy-now" 
+                    ${isOutOfStock ? 'disabled' : ''}
+                    onclick="event.stopPropagation(); handleDirectBuyNow('${prodId}', '${encodeURIComponent(defaultColor)}', this)" 
+                    title="${isOutOfStock ? 'Out of Stock' : 'Buy Now'}">
+                    <i class="fa-solid fa-bolt"></i> Buy Now
+                </button>
+            </div>
         </div>
     `;
+}
+
+/**
+ * Fetch dynamic categories from Node.js/Express API
+ */
+async function fetchCategoriesData() {
+    try {
+        if (window.API && typeof window.API.getCategories === 'function') {
+            const cats = await window.API.getCategories();
+            if (Array.isArray(cats) && cats.length > 0) return cats;
+        } else {
+            const res = await fetch('/api/categories');
+            if (res.ok) {
+                const cats = await res.json();
+                if (Array.isArray(cats) && cats.length > 0) return cats;
+            }
+        }
+    } catch (e) {
+        console.warn('Could not load categories:', e);
+    }
+    return null;
 }
 
 /**
@@ -173,6 +258,7 @@ async function fetchProductsData(params = {}) {
         }
 
         let list = [...products];
+        window._cachedProductsList = list;
 
         // Filter category if requested
         if (params.category === 'featured') {
@@ -188,6 +274,8 @@ async function fetchProductsData(params = {}) {
             list.sort((a, b) => a.name.localeCompare(b.name));
         } else if (params.sort === 'Sort by Rating' || params.sort === 'rating') {
             list.sort((a, b) => b.rating - a.rating);
+        } else if (params.sort === 'Sort by Category' || params.sort === 'category') {
+            list.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
         }
 
         return list;
@@ -263,9 +351,6 @@ async function initProductsPage() {
     let currentSort = selectElem ? selectElem.value : 'Default Sorting';
     let allProducts = [];
 
-    const categoryTabs = document.querySelectorAll('.category-filter-bar .cat-filter-btn');
-    const titleEl = document.getElementById('catalogTitle') || targetContainer.querySelector('.row-2 h2.title');
-
     const categoryNames = {
         'all': 'All Products',
         'sports': 'Sports & Supercars',
@@ -273,6 +358,27 @@ async function initProductsPage() {
         'classic': 'Vintage Classics',
         'accessories': 'Collectible Accessories'
     };
+
+    // Dynamically populate Category Filter Bar from backend API if available
+    const categoryFilterBar = document.querySelector('.category-filter-bar');
+    const dynamicCats = await fetchCategoriesData();
+    if (dynamicCats && dynamicCats.length > 0 && categoryFilterBar) {
+        dynamicCats.forEach(c => {
+            if (c.slug && c.name) {
+                categoryNames[c.slug] = c.name;
+            }
+        });
+        categoryFilterBar.innerHTML = `
+            <button type="button" class="cat-filter-btn active" data-category="all"><i class="fa-solid fa-border-all"></i> All Models</button>
+            ${dynamicCats.filter(c => c.isActive !== false).map(c => `
+                <button type="button" class="cat-filter-btn" data-category="${escapeHTML(c.slug)}">
+                    ${c.icon ? `<i class="${escapeHTML(c.icon)}"></i> ` : ''}${escapeHTML(c.name)}
+                </button>
+            `).join('')}
+        `;
+    }
+
+    const titleEl = document.getElementById('catalogTitle') || targetContainer.querySelector('.row-2 h2.title');
 
     async function renderGrid() {
         const row2 = targetContainer.querySelector('.row-2');
@@ -316,6 +422,8 @@ async function initProductsPage() {
             productsToRender.sort((a, b) => a.name.localeCompare(b.name));
         } else if (currentSort === 'Sort by Rating' || currentSort === 'rating') {
             productsToRender.sort((a, b) => b.rating - a.rating);
+        } else if (currentSort === 'Sort by Category' || currentSort === 'category') {
+            productsToRender.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
         }
 
         const gridRow = document.createElement('div');
@@ -332,14 +440,18 @@ async function initProductsPage() {
     }
 
     // Category tab button click listeners
-    categoryTabs.forEach(btn => {
-        btn.addEventListener('click', async () => {
-            categoryTabs.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentCategory = btn.getAttribute('data-category') || 'all';
-            await renderGrid();
+    function bindCategoryTabs() {
+        const categoryTabs = document.querySelectorAll('.category-filter-bar .cat-filter-btn');
+        categoryTabs.forEach(btn => {
+            btn.addEventListener('click', async () => {
+                categoryTabs.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.getAttribute('data-category') || 'all';
+                await renderGrid();
+            });
         });
-    });
+    }
+    bindCategoryTabs();
 
     // Attach sort change listener
     if (selectElem) {
@@ -359,28 +471,45 @@ async function initProductsPage() {
 function matchProductCategory(product, category) {
     if (!category || category === 'all') return true;
     
-    const cat = (product.category || '').toLowerCase();
+    const prodCat = (product.category || '').toLowerCase().trim();
+    const targetCat = category.toLowerCase().trim();
+
+    if (prodCat && prodCat === targetCat) {
+        return true;
+    }
+
     const name = (product.name || '').toLowerCase();
     const desc = (product.description || '').toLowerCase();
-    const fullText = `${name} ${desc} ${cat}`;
+    const fullText = `${name} ${desc} ${prodCat}`;
 
-    if (category === 'sports') {
+    if (targetCat === 'sports') {
         return /ferrari|bmw|m4|brabus|turbo|rc|porsche|lamborghini|supercar|sports/i.test(fullText);
-    } else if (category === 'muscle') {
+    } else if (targetCat === 'muscle') {
         return /mustang|dodge|challenger|hellcat|ae86|gt-r|gtr|nissan|toyota supra|muscle|jdm/i.test(fullText);
-    } else if (category === 'classic') {
+    } else if (targetCat === 'classic') {
         return /1936|mercedes-benz 500k|300 sl|miniature t1|classic|vintage|roadster|gullwing/i.test(fullText);
-    } else if (category === 'accessories') {
+    } else if (targetCat === 'accessories') {
         return /slingshot|pen holder|money bank|spinner|book|accessory|accessories|watch|keychain|toy/i.test(fullText);
     }
-    return true;
+    return false;
 }
 
 async function initCategoryExplorer() {
     const row = document.getElementById('categoryProductsRow');
     if (!row) return;
 
-    const navButtons = document.querySelectorAll('.cat-filter-btn');
+    const navContainer = document.querySelector('.category-filter-nav');
+    const dynamicCats = await fetchCategoriesData();
+    if (dynamicCats && dynamicCats.length > 0 && navContainer) {
+        navContainer.innerHTML = `
+            <button type="button" class="cat-filter-btn active" data-category="all">All Items</button>
+            ${dynamicCats.filter(c => c.isActive !== false).map(c => `
+                <button type="button" class="cat-filter-btn" data-category="${escapeHTML(c.slug)}">${escapeHTML(c.name)}</button>
+            `).join('')}
+        `;
+    }
+
+    const navButtons = document.querySelectorAll('.category-filter-nav .cat-filter-btn');
     let allProducts = await fetchProductsData();
 
     function renderCategory(cat) {

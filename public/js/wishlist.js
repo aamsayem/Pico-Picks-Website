@@ -104,6 +104,28 @@ async function moveToCart(productId) {
     removeFromWishlist(productId);
 }
 
+async function wishlistBuyNow(productId) {
+    const list = getWishlist();
+    const item = list.find(i => String(i.id) === String(productId) || String(i.productId) === String(productId));
+    if (!item) return;
+
+    const price = Number(item.price);
+    const color = (Array.isArray(item.colors) && item.colors.length > 0) ? item.colors[0] : (item.color || '');
+
+    const checkoutItem = {
+        productId: String(item.id || item.productId),
+        name: item.name,
+        price: price,
+        image: item.image || 'images/logo.png',
+        quantity: 1,
+        color: color,
+        itemSubtotal: price
+    };
+
+    sessionStorage.setItem('pico_checkout_items', JSON.stringify([checkoutItem]));
+    window.location.href = 'checkout.html';
+}
+
 function updateHeartButtonState(btnEl, active) {
     if (!btnEl) return;
     const icon = btnEl.querySelector('i');
@@ -192,6 +214,9 @@ function renderWishlistPage() {
                     <button type="button" class="btn wishlist-move-btn" onclick="moveToCart('${item.id}')">
                         <i class="fa-solid fa-cart-plus"></i> Move to Cart
                     </button>
+                    <button type="button" class="btn wishlist-buynow-btn" onclick="wishlistBuyNow('${item.id}')">
+                        <i class="fa-solid fa-bolt"></i> Buy Now
+                    </button>
                 </div>
             </div>
         </div>
@@ -228,4 +253,5 @@ window.isInWishlist = isInWishlist;
 window.toggleWishlist = toggleWishlist;
 window.removeFromWishlist = removeFromWishlist;
 window.moveToCart = moveToCart;
+window.wishlistBuyNow = wishlistBuyNow;
 window.updateWishlistNavBadges = updateWishlistNavBadges;

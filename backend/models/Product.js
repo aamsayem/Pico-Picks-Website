@@ -55,6 +55,11 @@ const productSchema = new mongoose.Schema({
         min: 0,
         max: 5
     },
+    category: {
+        type: String,
+        default: 'sports',
+        trim: true
+    },
     isFeatured: {
         type: Boolean,
         default: false

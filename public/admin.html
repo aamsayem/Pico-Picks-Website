@@ -598,6 +598,11 @@
                     </button>
                 </li>
                 <li>
+                    <button onclick="switchTab('categories')">
+                        <i class="fa-solid fa-layer-group"></i> Categories
+                    </button>
+                </li>
+                <li>
                     <button onclick="switchTab('coupons')">
                         <i class="fa-solid fa-ticket"></i> Coupons
                     </button>
@@ -779,6 +784,38 @@
                 </div>
             </section>
 
+            <!-- TAB 3.5: Category Management Section -->
+            <section id="categoriesSection" class="admin-section">
+                <div class="section-header">
+                    <h2>Category Management</h2>
+                    <div class="action-bar">
+                        <button class="btn-add" onclick="openCategoryModal()">
+                            <i class="fa-solid fa-plus"></i> Add Category
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Icon</th>
+                                <th>Category Name</th>
+                                <th>Slug / Identifier</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #94a3b8; padding: 30px;">Loading categories...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <!-- TAB 4: Support Chat Section -->
             <section id="messagesSection" class="admin-section">
                 <div class="section-header">
@@ -841,9 +878,20 @@
                 <div class="modal-body">
                     <input type="hidden" id="formProductId">
 
-                    <div class="form-group">
-                        <label for="prodName">Product Name *</label>
-                        <input type="text" id="prodName" class="form-control" required placeholder="e.g. BMW M4 GT3 Special">
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label for="prodName">Product Name *</label>
+                            <input type="text" id="prodName" class="form-control" required placeholder="e.g. BMW M4 GT3 Special">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="prodCategory">Category *</label>
+                            <select id="prodCategory" class="form-control" required>
+                                <option value="sports">Sports & Supercars</option>
+                                <option value="muscle">Muscle & JDM</option>
+                                <option value="classic">Classic & Vintage</option>
+                                <option value="accessories">Accessories</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-row">
@@ -928,11 +976,51 @@
             <div class="modal-body" id="orderDetailsContent">
                 <!-- Dynamically populated -->
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn" style="background: var(--primary); color: #fff; margin: 0;" onclick="closeOrderDetailsModal()">Close</button>
             </div>
         </div>
-    <!-- Coupon Create Modal -->
+    </div>
+
+    <!-- Category Create/Edit Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 id="categoryModalTitle">Add New Category</h3>
+                <button class="modal-close" onclick="closeCategoryModal()">&times;</button>
+            </div>
+            <form id="categoryForm" onsubmit="handleCategorySubmit(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="categoryEditId">
+                    <div class="form-group">
+                        <label for="catName">Category Name *</label>
+                        <input type="text" id="catName" class="form-control" required placeholder="e.g. Sports & Supercars" oninput="autoFillCategorySlug(this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label for="catSlug">Slug / URL Identifier *</label>
+                        <input type="text" id="catSlug" class="form-control" required placeholder="e.g. sports">
+                        <small style="color: #64748b; font-size: 11px;">Lowercase letters, numbers, and hyphens only.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="catIcon">Icon (FontAwesome Class)</label>
+                        <input type="text" id="catIcon" class="form-control" placeholder="e.g. fa-bolt, fa-gauge-high, fa-car-side, fa-wrench" value="fa-tag">
+                    </div>
+                    <div class="form-group">
+                        <label for="catDescription">Description</label>
+                        <textarea id="catDescription" class="form-control" rows="2" placeholder="Brief summary of models in this category..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-check">
+                            <input type="checkbox" id="catIsActive" checked>
+                            <span>Active (Visible on Storefront)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" style="background: #94a3b8; color: #fff; margin: 0;" onclick="closeCategoryModal()">Cancel</button>
+                    <button type="submit" class="btn" id="saveCategoryBtn" style="margin: 0;">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <div id="couponModal" class="modal">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">

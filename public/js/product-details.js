@@ -308,6 +308,60 @@ document.addEventListener('DOMContentLoaded', async function() {
             };
         }
 
+        // 3.4 Buy Now Button Handler
+        const buyNowBtn = document.getElementById('buyNowBtn');
+        if (buyNowBtn) {
+            if (stock <= 0) {
+                buyNowBtn.classList.add('btn-disabled');
+                buyNowBtn.disabled = true;
+                buyNowBtn.innerHTML = '<i class="fa-solid fa-ban"></i> Out of Stock';
+            } else {
+                buyNowBtn.classList.remove('btn-disabled');
+                buyNowBtn.disabled = false;
+                buyNowBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Buy Now';
+            }
+
+            buyNowBtn.onclick = function(e) {
+                e.preventDefault();
+
+                if (stock <= 0) {
+                    showToast('Sorry, this item is currently out of stock.', 'warning');
+                    return;
+                }
+
+                // Color Selection Requirement Validation
+                if (colors.length > 0) {
+                    const chosen = selectedColorInput ? selectedColorInput.value.trim() : '';
+                    if (!chosen) {
+                        if (colorWarning) {
+                            colorWarning.style.display = 'block';
+                            colorWarning.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please select a color before proceeding to checkout.';
+                        }
+                        showToast('Please select an available color option first!', 'warning');
+                        return;
+                    }
+                }
+
+                const qty = qtyInput ? (Math.min(stock, Math.max(1, parseInt(qtyInput.value, 10) || 1))) : 1;
+                const selectedColor = (colors.length > 0 && selectedColorInput) ? selectedColorInput.value.trim() : '';
+                const prodId = String(product.id || product._id);
+                const price = Number(product.price);
+
+                const item = {
+                    productId: prodId,
+                    name: product.name,
+                    price: price,
+                    image: product.image || (Array.isArray(product.images) && product.images[0]) || 'images/logo.png',
+                    quantity: qty,
+                    color: selectedColor,
+                    itemSubtotal: price * qty
+                };
+
+                sessionStorage.setItem('pico_checkout_items', JSON.stringify([item]));
+                window.location.href = 'checkout.html';
+            };
+        }
+
         // 3.5 Wishlist Button Handler
         const detailsWishlistBtn = document.getElementById('detailsWishlistBtn');
         if (detailsWishlistBtn) {

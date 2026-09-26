@@ -2865,24 +2865,33 @@ th:last-child{
     color: #ef4444;
 }
 
-/* Direct Add to Cart Button on Product Cards */
+/* Direct Add to Cart & Buy Now Buttons on Product Cards */
+.product-card-buttons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 10px;
+}
+
 .btn-card-add-cart {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    width: 100%;
-    margin-top: 10px;
-    padding: 8px 12px;
+    gap: 5px;
+    margin-top: 0;
+    padding: 7px 6px;
     background: #C8743A;
     color: #ffffff;
     border: none;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.25s ease;
     box-shadow: 0 2px 6px rgba(200, 116, 58, 0.2);
+    white-space: nowrap;
 }
 
 .btn-card-add-cart:hover {
@@ -2899,6 +2908,75 @@ th:last-child{
 .btn-card-add-cart:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+}
+
+.btn-card-buy-now {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 0;
+    padding: 7px 6px;
+    background: #1e293b;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(30, 41, 59, 0.2);
+    white-space: nowrap;
+}
+
+.btn-card-buy-now:hover {
+    background: #0f172a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(30, 41, 59, 0.35);
+    color: #ffffff;
+}
+
+.btn-card-buy-now:active {
+    transform: scale(0.98);
+}
+
+.btn-card-buy-now:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Product Details Page Buy Now Button */
+.btn-buy-now {
+    background: #1e293b;
+    color: #ffffff !important;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    font-size: 15px;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(30, 41, 59, 0.25);
+}
+
+.btn-buy-now:hover {
+    background: #0f172a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 41, 59, 0.35);
+    color: #ffffff !important;
+}
+
+.btn-buy-now:disabled,
+.btn-buy-now.btn-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* Product Details Page Wishlist Button */
@@ -3100,17 +3178,44 @@ th:last-child{
 
 .wishlist-card-actions {
     margin-top: auto;
+    display: flex;
+    gap: 8px;
 }
 
 .wishlist-move-btn {
-    width: 100%;
-    padding: 8px 12px;
-    font-size: 14px;
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 13px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     border-radius: 8px;
+    white-space: nowrap;
+}
+
+.wishlist-buynow-btn {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 13px;
+    background: #1e293b;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    white-space: nowrap;
+}
+
+.wishlist-buynow-btn:hover {
+    background: #0f172a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(30, 41, 59, 0.25);
 }
 
 .wishlist-empty-state {

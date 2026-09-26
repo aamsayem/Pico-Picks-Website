@@ -7,6 +7,8 @@ const state = {
     currentUser: null,
     products: [],
     orders: [],
+    categories: [],
+    coupons: [],
     conversations: [],
     selectedCustomerId: null,
     chatPollingInterval: null,
@@ -167,48 +169,45 @@ function switchTab(tabName) {
         state.chatPollingInterval = null;
     }
 
-    // Update buttons
+    // Update buttons by matching click target
     const buttons = document.querySelectorAll('.sidebar-menu button');
-    buttons.forEach(btn => btn.classList.remove('active'));
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        const onclickAttr = btn.getAttribute('onclick') || '';
+        if (onclickAttr.includes(`'${tabName}'`)) {
+            btn.classList.add('active');
+        }
+    });
 
     const productsSection = document.getElementById('productsSection');
     const ordersSection = document.getElementById('ordersSection');
+    const categoriesSection = document.getElementById('categoriesSection');
     const couponsSection = document.getElementById('couponsSection');
     const messagesSection = document.getElementById('messagesSection');
     const pageTitle = document.getElementById('pageTitle');
 
+    // Hide all sections first
+    [productsSection, ordersSection, categoriesSection, couponsSection, messagesSection].forEach(s => s?.classList.remove('active'));
+
     if (tabName === 'products') {
-        buttons[0]?.classList.add('active');
         productsSection?.classList.add('active');
-        ordersSection?.classList.remove('active');
-        couponsSection?.classList.remove('active');
-        messagesSection?.classList.remove('active');
-        pageTitle.textContent = 'Product Management';
+        if (pageTitle) pageTitle.textContent = 'Product Management';
         loadProducts();
     } else if (tabName === 'orders') {
-        buttons[1]?.classList.add('active');
         ordersSection?.classList.add('active');
-        productsSection?.classList.remove('active');
-        couponsSection?.classList.remove('active');
-        messagesSection?.classList.remove('active');
-        pageTitle.textContent = 'Customer Orders';
+        if (pageTitle) pageTitle.textContent = 'Customer Orders';
         loadOrders();
+    } else if (tabName === 'categories') {
+        categoriesSection?.classList.add('active');
+        if (pageTitle) pageTitle.textContent = 'Category Management';
+        loadCategories();
     } else if (tabName === 'coupons') {
-        buttons[2]?.classList.add('active');
         couponsSection?.classList.add('active');
-        productsSection?.classList.remove('active');
-        ordersSection?.classList.remove('active');
-        messagesSection?.classList.remove('active');
-        pageTitle.textContent = 'Coupon Management';
+        if (pageTitle) pageTitle.textContent = 'Coupon Management';
         loadCoupons();
     } else if (tabName === 'messages') {
-        const msgBtn = document.getElementById('messagesTabBtn') || buttons[3];
-        msgBtn?.classList.add('active');
         messagesSection?.classList.add('active');
-        productsSection?.classList.remove('active');
-        ordersSection?.classList.remove('active');
-        couponsSection?.classList.remove('active');
-        pageTitle.textContent = 'Customer Support Chat';
+        if (pageTitle) pageTitle.textContent = 'Customer Support Chat';
         loadAdminConversations();
         // Start polling every 4 seconds for new incoming messages
         state.chatPollingInterval = setInterval(() => {
@@ -266,6 +265,9 @@ function renderProductsTable(products) {
             <td><code>${escapeHTML(p.id)}</code></td>
             <td>
                 <strong>${escapeHTML(p.name)}</strong>
+                <div style="font-size: 11px; color: #C8743A; font-weight: 600; margin-top: 2px;">
+                    <i class="fa-solid fa-tag"></i> ${escapeHTML(p.category || 'sports')}
+                </div>
                 ${p.colors && p.colors.length > 0 ? `<div style="font-size: 11px; color: #64748b; margin-top: 3px;"><i class="fa-solid fa-palette"></i> ${escapeHTML(p.colors.join(', '))}</div>` : ''}
             </td>
             <td>৳${Number(p.price).toFixed(2)}</td>
@@ -318,6 +320,12 @@ function openProductModal() {
     document.getElementById('prodStock').value = 0;
     document.getElementById('prodColors').value = '';
 
+    populateCategoryDropdown();
+    if (state.categories && state.categories.length > 0) {
+        const catSelect = document.getElementById('prodCategory');
+        if (catSelect) catSelect.value = state.categories[0].slug;
+    }
+
     const fileInput = document.getElementById('prodImageFile');
     if (fileInput) fileInput.value = '';
 
@@ -344,6 +352,11 @@ function openEditProductModal(id) {
     document.getElementById('productModalTitle').textContent = 'Edit Product';
     document.getElementById('formProductId').value = product.id;
     document.getElementById('prodName').value = product.name || '';
+    populateCategoryDropdown();
+    const catSelect = document.getElementById('prodCategory');
+    if (catSelect && product.category) {
+        catSelect.value = product.category;
+    }
     document.getElementById('prodPrice').value = product.price || 0;
     document.getElementById('prodRating').value = product.rating ?? 5;
     document.getElementById('prodStock').value = product.stock ?? 0;
@@ -460,9 +473,11 @@ async function handleProductSubmit(e) {
         const stockVal = rawStock !== '' ? parseInt(rawStock, 10) : 0;
         const rawColors = document.getElementById('prodColors').value;
         const colorsArray = rawColors ? rawColors.split(',').map(c => c.trim()).filter(Boolean) : [];
+        const chosenCategory = document.getElementById('prodCategory')?.value || 'sports';
 
         const payload = {
             name: document.getElementById('prodName').value.trim(),
+            category: chosenCategory.trim(),
             price: parseFloat(document.getElementById('prodPrice').value),
             rating: parseFloat(document.getElementById('prodRating').value) || 5,
             stock: isNaN(stockVal) ? 0 : Math.max(0, stockVal),
@@ -809,6 +824,187 @@ window.handleDeleteCoupon = handleDeleteCoupon;
 window.loadCoupons = loadCoupons;
 
 /**
+ * 4.8 Category Management (CRUD)
+ */
+async function loadCategories() {
+    const tbody = document.getElementById('categoriesTableBody');
+    if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 30px;">Loading categories...</td></tr>`;
+    }
+    try {
+        const categories = await API.getCategories();
+        state.categories = categories || [];
+        renderCategoriesTable(state.categories);
+        populateCategoryDropdown();
+    } catch (error) {
+        console.error('Error loading categories:', error);
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #dc2626; padding: 30px;">Failed to load categories: ${escapeHTML(error.message)}</td></tr>`;
+        }
+    }
+}
+
+function renderCategoriesTable(categories) {
+    const tbody = document.getElementById('categoriesTableBody');
+    if (!tbody) return;
+
+    if (!categories || categories.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 30px;">No categories found. Click "Add Category" to create one.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = categories.map(c => `
+        <tr>
+            <td style="font-size: 18px; color: #C8743A; text-align: center; width: 60px;">
+                <i class="fa-solid ${escapeHTML(c.icon || 'fa-tag')}"></i>
+            </td>
+            <td><strong>${escapeHTML(c.name)}</strong></td>
+            <td><code>${escapeHTML(c.slug)}</code></td>
+            <td style="color: #64748b; font-size: 13px;">${escapeHTML(c.description || '—')}</td>
+            <td>
+                <span class="badge ${c.isActive !== false ? 'badge-delivered' : 'badge-cancelled'}">
+                    ${c.isActive !== false ? 'Active' : 'Hidden'}
+                </span>
+            </td>
+            <td>
+                <button class="btn-action btn-edit" onclick="openCategoryModal('${c._id || c.slug}')" title="Edit / Rename Category">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                </button>
+                <button class="btn-action btn-delete" onclick="handleDeleteCategory('${c._id || c.slug}', '${escapeHTML(c.name)}')" title="Delete Category">
+                    <i class="fa-solid fa-trash"></i> Delete
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function populateCategoryDropdown() {
+    const select = document.getElementById('prodCategory');
+    if (!select) return;
+
+    const currentVal = select.value;
+    const cats = (state.categories && state.categories.length > 0)
+        ? state.categories
+        : [
+            { slug: 'sports', name: 'Sports & Supercars' },
+            { slug: 'muscle', name: 'Muscle & JDM' },
+            { slug: 'classic', name: 'Classic & Vintage' },
+            { slug: 'accessories', name: 'Accessories' }
+        ];
+
+    select.innerHTML = cats.map(c => `
+        <option value="${escapeHTML(c.slug)}">${escapeHTML(c.name)}</option>
+    `).join('');
+
+    if (currentVal && cats.some(c => c.slug === currentVal)) {
+        select.value = currentVal;
+    }
+}
+
+function autoFillCategorySlug(name) {
+    const editId = document.getElementById('categoryEditId')?.value;
+    if (editId) return; // Don't auto-overwrite slug if editing existing category
+    const slugInput = document.getElementById('catSlug');
+    if (!slugInput) return;
+    slugInput.value = (name || '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+}
+
+function openCategoryModal(id) {
+    const form = document.getElementById('categoryForm');
+    if (form) form.reset();
+
+    const titleEl = document.getElementById('categoryModalTitle');
+    const editIdEl = document.getElementById('categoryEditId');
+    const nameEl = document.getElementById('catName');
+    const slugEl = document.getElementById('catSlug');
+    const iconEl = document.getElementById('catIcon');
+    const descEl = document.getElementById('catDescription');
+    const activeEl = document.getElementById('catIsActive');
+
+    if (id) {
+        const cat = (state.categories || []).find(c => c._id === id || c.slug === id);
+        if (cat) {
+            if (titleEl) titleEl.textContent = 'Edit Category';
+            if (editIdEl) editIdEl.value = cat._id || cat.slug;
+            if (nameEl) nameEl.value = cat.name || '';
+            if (slugEl) slugEl.value = cat.slug || '';
+            if (iconEl) iconEl.value = cat.icon || 'fa-tag';
+            if (descEl) descEl.value = cat.description || '';
+            if (activeEl) activeEl.checked = cat.isActive !== false;
+        }
+    } else {
+        if (titleEl) titleEl.textContent = 'Add New Category';
+        if (editIdEl) editIdEl.value = '';
+        if (iconEl) iconEl.value = 'fa-tag';
+        if (activeEl) activeEl.checked = true;
+    }
+
+    document.getElementById('categoryModal')?.classList.add('active');
+}
+
+function closeCategoryModal() {
+    document.getElementById('categoryModal')?.classList.remove('active');
+}
+
+async function handleCategorySubmit(e) {
+    e.preventDefault();
+    const editId = document.getElementById('categoryEditId')?.value.trim();
+    const name = document.getElementById('catName')?.value.trim();
+    const slug = document.getElementById('catSlug')?.value.trim().toLowerCase();
+    const icon = document.getElementById('catIcon')?.value.trim() || 'fa-tag';
+    const description = document.getElementById('catDescription')?.value.trim() || '';
+    const isActive = document.getElementById('catIsActive')?.checked !== false;
+
+    if (!name) {
+        showToast('Please enter a category name.', 'warning');
+        return;
+    }
+
+    const payload = { name, slug, icon, description, isActive };
+    const saveBtn = document.getElementById('saveCategoryBtn');
+
+    try {
+        if (saveBtn) saveBtn.disabled = true;
+        if (editId) {
+            await API.updateCategory(editId, payload);
+            showToast(`Category "${name}" updated successfully!`, 'success');
+        } else {
+            await API.createCategory(payload);
+            showToast(`Category "${name}" created successfully!`, 'success');
+        }
+        closeCategoryModal();
+        await loadCategories();
+    } catch (err) {
+        showToast(`Failed to save category: ${err.message}`, 'error');
+    } finally {
+        if (saveBtn) saveBtn.disabled = false;
+    }
+}
+
+async function handleDeleteCategory(id, name) {
+    if (!confirm(`Are you sure you want to delete category "${name}"?`)) return;
+    try {
+        await API.deleteCategory(id);
+        showToast(`Category "${name}" deleted successfully.`, 'success');
+        await loadCategories();
+    } catch (err) {
+        showToast(`Failed to delete category: ${err.message}`, 'error');
+    }
+}
+
+window.openCategoryModal = openCategoryModal;
+window.closeCategoryModal = closeCategoryModal;
+window.handleCategorySubmit = handleCategorySubmit;
+window.handleDeleteCategory = handleDeleteCategory;
+window.autoFillCategorySlug = autoFillCategorySlug;
+window.loadCategories = loadCategories;
+window.populateCategoryDropdown = populateCategoryDropdown;
+
+/**
  * 5. Support Chat System (Customer-to-Admin)
  */
 async function loadAdminConversations(isBackground = false) {
@@ -979,6 +1175,9 @@ window.handleSendAdminReply = handleSendAdminReply;
 document.addEventListener('DOMContentLoaded', async () => {
     const isAuthorized = await checkAdminAuth();
     if (!isAuthorized) return;
+
+    // Load categories first so dropdowns and state are populated
+    await loadCategories();
 
     // Load initial tab
     await loadProducts();

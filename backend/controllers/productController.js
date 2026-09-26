@@ -341,6 +341,7 @@ const createProduct = async (req, res) => {
     try {
         const {
             name,
+            category,
             price,
             image,
             images,
@@ -390,6 +391,7 @@ const createProduct = async (req, res) => {
         const product = await Product.create({
             id: slugId,
             name: name.trim(),
+            category: (category || 'sports').trim(),
             price: Number(price),
             stock: stock !== undefined ? Math.max(0, parseInt(stock, 10) || 0) : 0,
             colors: parsedColors,
@@ -423,6 +425,7 @@ const updateProduct = async (req, res) => {
 
         const {
             name,
+            category,
             price,
             image,
             images,
@@ -436,6 +439,7 @@ const updateProduct = async (req, res) => {
         } = req.body;
 
         if (name !== undefined) product.name = name.trim();
+        if (category !== undefined) product.category = category.trim();
         if (price !== undefined) product.price = Number(price);
         if (stock !== undefined) product.stock = Math.max(0, parseInt(stock, 10) || 0);
         if (colors !== undefined) {
